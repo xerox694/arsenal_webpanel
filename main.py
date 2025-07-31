@@ -179,6 +179,7 @@ client.tree.add_command(community.version)
 if HUNT_AUTH_AVAILABLE:
     client.tree.add_command(hunt_auth.register_hunt_royal)
     client.tree.add_command(hunt_auth.get_my_token)
+    client.tree.add_command(hunt_auth.hunt_royal_stats)
 
 # 🏹 Hunt Royal Profile Commands (NOUVEAU)
 if HUNT_PROFILES_AVAILABLE:
