@@ -65,6 +65,115 @@
             border: 1px solid #4ECDC4;
         }
 
+        /* Styles pour la section utilisateur */
+        .user-profile {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(76, 205, 196, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4ECDC4;
+        }
+
+        .user-role {
+            font-size: 14px;
+            color: #FFD700;
+            text-transform: uppercase;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .token-management {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(76, 205, 196, 0.2);
+        }
+
+        .token-management label {
+            display: block;
+            color: #4ECDC4;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .token-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .token-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(76, 205, 196, 0.3);
+            border-radius: 5px;
+            padding: 8px 12px;
+            color: white;
+            font-family: monospace;
+            font-size: 12px;
+            min-width: 200px;
+        }
+
+        .token-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .token-btn {
+            background: rgba(76, 205, 196, 0.2);
+            border: 1px solid #4ECDC4;
+            border-radius: 5px;
+            padding: 6px 10px;
+            color: #4ECDC4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .token-btn:hover {
+            background: #4ECDC4;
+            color: #000;
+            transform: translateY(-1px);
+        }
+
+        .token-btn.refresh-btn:hover {
+            background: #FFD700;
+            border-color: #FFD700;
+        }
+
+        .calc-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ccc;
+        }
+
+        .calc-button.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
         /* Container principal */
         .calculator-container {
             max-width: 1400px;
@@ -384,13 +493,50 @@
             </p>
             
             <div class="auth-form">
-                <input type="password" id="tokenInput" class="auth-input" placeholder="Votre token d'accès...">
+                <div style="position: relative; margin-bottom: 15px;">
+                    <input type="password" id="tokenInput" class="auth-input" placeholder="Votre token d'accès...">
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="calc-button secondary" onclick="toggleTokenVisibility()" id="toggleTokenBtn">👁️ Afficher</button>
+                        <button class="calc-button secondary" onclick="clearToken()">🗑️ Effacer</button>
+                    </div>
+                </div>
+                
                 <button class="calc-button" onclick="authenticateUser()">Se Connecter</button>
                 
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(76, 205, 196, 0.3);">
                     <p style="font-size: 14px; color: #ccc;">
                         Pas de token ? Utilisez <code>/register</code> sur Discord
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section utilisateur connecté -->
+        <div id="userSection" style="display: none;">
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <div>
+                        <div class="user-name" id="userName">Utilisateur</div>
+                        <div class="user-role" id="userRole">Member</div>
+                    </div>
+                </div>
+                
+                <div class="user-actions">
+                    <div class="token-management">
+                        <div class="token-display">
+                            <label>🔑 Token d'accès:</label>
+                            <div class="token-value">
+                                <input type="password" id="userTokenDisplay" readonly class="token-input">
+                                <div class="token-buttons">
+                                    <button class="token-btn" onclick="copyToken()" title="Copier le token">📋</button>
+                                    <button class="token-btn" onclick="toggleUserTokenVisibility()" id="toggleUserTokenBtn" title="Afficher/Masquer">👁️</button>
+                                    <button class="token-btn refresh-btn" onclick="refreshToken()" title="Régénérer le token">🔄</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="calc-button secondary" onclick="logout()">🚪 Déconnexion</button>
                 </div>
             </div>
         </div>
@@ -737,13 +883,216 @@
             document.getElementById('resultModal').style.display = 'none';
         }
 
-        // Déconnexion
+        // ==================== NOUVELLES FONCTIONS UI ====================
+
+        // Basculer la visibilité du token d'input
+        function toggleTokenVisibility() {
+            const tokenInput = document.getElementById('tokenInput');
+            const toggleBtn = document.getElementById('toggleTokenBtn');
+            
+            if (tokenInput.type === 'password') {
+                tokenInput.type = 'text';
+                toggleBtn.textContent = '🙈 Masquer';
+            } else {
+                tokenInput.type = 'password';
+                toggleBtn.textContent = '👁️ Afficher';
+            }
+        }
+
+        // Effacer le token d'input
+        function clearToken() {
+            document.getElementById('tokenInput').value = '';
+            document.getElementById('tokenInput').focus();
+        }
+
+        // Basculer la visibilité du token utilisateur
+        function toggleUserTokenVisibility() {
+            const tokenDisplay = document.getElementById('userTokenDisplay');
+            const toggleBtn = document.getElementById('toggleUserTokenBtn');
+            
+            if (tokenDisplay.type === 'password') {
+                tokenDisplay.type = 'text';
+                toggleBtn.textContent = '🙈';
+                toggleBtn.title = 'Masquer le token';
+            } else {
+                tokenDisplay.type = 'password';
+                toggleBtn.textContent = '👁️';
+                toggleBtn.title = 'Afficher le token';
+            }
+        }
+
+        // Copier le token dans le presse-papiers
+        async function copyToken() {
+            const tokenDisplay = document.getElementById('userTokenDisplay');
+            
+            try {
+                await navigator.clipboard.writeText(tokenDisplay.value);
+                
+                // Feedback visuel
+                const copyBtn = event.target;
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅';
+                copyBtn.style.background = '#28a745';
+                copyBtn.style.borderColor = '#28a745';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '';
+                    copyBtn.style.borderColor = '';
+                }, 2000);
+                
+                // Notification toast
+                showToast('Token copié dans le presse-papiers !', 'success');
+                
+            } catch (err) {
+                console.error('Erreur copie:', err);
+                
+                // Fallback pour les navigateurs plus anciens
+                tokenDisplay.select();
+                document.execCommand('copy');
+                showToast('Token copié (fallback) !', 'success');
+            }
+        }
+
+        // Régénérer le token
+        async function refreshToken() {
+            if (!confirm('Êtes-vous sûr de vouloir régénérer votre token ? L\'ancien token ne fonctionnera plus.')) {
+                return;
+            }
+            
+            const refreshBtn = event.target;
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = '⏳';
+            
+            try {
+                const response = await fetch('/api/hunt-royal/refresh-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        old_token: userToken,
+                        discord_id: userData.discord_id 
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        userToken = data.new_token;
+                        localStorage.setItem('hunt_royal_token', userToken);
+                        document.getElementById('userTokenDisplay').value = userToken;
+                        
+                        showToast('Token régénéré avec succès !', 'success');
+                    } else {
+                        showToast('Erreur lors de la régénération: ' + data.error, 'error');
+                    }
+                } else {
+                    showToast('Erreur serveur lors de la régénération', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Erreur refresh token:', error);
+                showToast('Erreur de connexion', 'error');
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄';
+            }
+        }
+
+        // Fonction pour afficher les toasts de notification
+        function showToast(message, type = 'info') {
+            // Créer le toast
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-icon">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                    </span>
+                    <span class="toast-message">${message}</span>
+                </div>
+            `;
+            
+            // Ajouter les styles CSS si pas encore fait
+            if (!document.getElementById('toastStyles')) {
+                const style = document.createElement('style');
+                style.id = 'toastStyles';
+                style.textContent = `
+                    .toast {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: rgba(0, 0, 0, 0.9);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        border: 1px solid;
+                        z-index: 10000;
+                        animation: slideInRight 0.3s ease-out;
+                    }
+                    .toast-success { border-color: #28a745; }
+                    .toast-error { border-color: #dc3545; }
+                    .toast-info { border-color: #4ECDC4; }
+                    .toast-content {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Ajouter au DOM
+            document.body.appendChild(toast);
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Mise à jour de authenticateSuccess pour afficher la section utilisateur
+        function authenticateSuccess(user, token) {
+            userToken = token;
+            userData = user;
+            isAuthenticated = true;
+            
+            // Sauvegarder le token
+            localStorage.setItem('hunt_royal_token', token);
+            
+            // Mettre à jour l'affichage du statut d'accès
+            document.getElementById('accessStatus').innerHTML = 
+                `<div class="access-granted">✅ Accès autorisé - Bienvenue ${user.username} !</div>`;
+            
+            // Afficher les informations utilisateur
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userRole').textContent = user.clan_role;
+            document.getElementById('userTokenDisplay').value = token;
+            
+            // Masquer l'auth et afficher le calculateur + section utilisateur
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('userSection').style.display = 'block';
+            document.getElementById('calculatorMain').style.display = 'block';
+            
+            // Réinitialiser le champ de saisie
+            document.getElementById('tokenInput').value = '';
+        }
+
+        // Déconnexion améliorée
         function logout() {
-            localStorage.removeItem('hunt_royal_token');
-            userToken = null;
-            userData = null;
-            isAuthenticated = false;
-            location.reload();
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                localStorage.removeItem('hunt_royal_token');
+                userToken = null;
+                userData = null;
+                isAuthenticated = false;
+                location.reload();
+            }
         }
 
         // Raccourci clavier pour l'authentification

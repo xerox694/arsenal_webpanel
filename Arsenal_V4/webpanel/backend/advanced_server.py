@@ -296,11 +296,10 @@ try:
     
     # Import du système d'authentification Hunt Royal
     try:
-        import sys
-        sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-        from commands.hunt_royal_auth import auth_db
+        # Import du module Hunt Royal adapté pour webpanel
+        from hunt_royal_webpanel import auth_db
         HUNT_AUTH_AVAILABLE = True
-        print("✅ Hunt Royal Auth System importé")
+        print("✅ Hunt Royal Auth System importé (webpanel edition)")
     except Exception as e:
         HUNT_AUTH_AVAILABLE = False
         print(f"⚠️ Hunt Royal Auth non disponible: {e}")
@@ -959,6 +958,41 @@ try:
         except Exception as e:
             print(f"❌ Erreur validation token Hunt Royal: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
+
+    @app.route('/api/hunt-royal/refresh-token', methods=['POST'])
+    def refresh_hunt_royal_token():
+        """Régénérer un token Hunt Royal"""
+        if not HUNT_AUTH_AVAILABLE:
+            return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
+        
+        try:
+            data = request.get_json()
+            old_token = data.get('old_token')
+            discord_id = data.get('discord_id')
+            
+            if not old_token or not discord_id:
+                return jsonify({"success": False, "error": "Token et Discord ID requis"}), 400
+            
+            # Valider l'ancien token
+            user_data = auth_db.validate_token(old_token)
+            if not user_data or user_data['discord_id'] != discord_id:
+                return jsonify({"success": False, "error": "Token invalide ou Discord ID incorrect"}), 400
+            
+            # Régénérer le token
+            new_token = auth_db.regenerate_token(discord_id)
+            
+            if new_token:
+                return jsonify({
+                    "success": True,
+                    "new_token": new_token,
+                    "message": "Token régénéré avec succès"
+                })
+            else:
+                return jsonify({"success": False, "error": "Erreur lors de la régénération"}), 500
+                
+        except Exception as e:
+            print(f"❌ Erreur régénération token Hunt Royal: {e}")
+            return jsonify({"success": False, "error": "Erreur serveur"}), 500
 
     @app.route('/api/hunt-royal/simulate', methods=['POST'])
     def simulate_hunt_royal():
