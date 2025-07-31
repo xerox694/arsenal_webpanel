@@ -1,0 +1,50 @@
+.uix-console {
+  background: rgba(16, 24, 44, 0.97);
+  border: 2px solid #00fff7;
+  border-radius: 18px;
+  box-shadow: 0 0 30px #00fff744;
+  padding: 24px 32px;
+  margin: 40px auto;
+  min-width: 400px;
+  max-width: 600px;
+}
+.uix-console-history {
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+.uix-console-msg {
+  margin: 6px 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: 'Consolas', monospace;
+  font-size: 1rem;
+}
+.uix-console-msg.system {
+  color: #00fff7;
+  background: #10182c;
+}
+.uix-console-msg.user {
+  color: #0a0f1c;
+  background: #00fff7;
+  text-align: right;
+}
+.uix-console-msg.athena {
+  color: #00fff7;
+  background: #0a0f1c;
+  font-style: italic;
+}
+.uix-console-input {
+  display: flex;
+  gap: 10px;
+}
+.uix-console-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #00fff7;
+  background: #10182c;
+  color: #00fff7;
+  font-size: 1rem;
+  font-family: 'Consolas', monospace;
+}

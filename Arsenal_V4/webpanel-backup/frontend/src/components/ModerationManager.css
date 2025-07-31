@@ -1,0 +1,543 @@
+/* ==================== MODERATION MANAGER STYLES ==================== */
+
+.moderation-manager {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.moderation-header {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.moderation-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.moderation-header p {
+  margin: 0 0 15px 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.moderation-server-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.moderation-server-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+/* Navigation Tabs */
+.moderation-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  border-radius: 12px;
+  overflow-x: auto;
+  backdrop-filter: blur(10px);
+}
+
+.moderation-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.moderation-tab:hover {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.moderation-tab.active {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+/* Content Area */
+.moderation-content {
+  min-height: 500px;
+}
+
+/* Loading State */
+.moderation-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.moderation-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 107, 107, 0.3);
+  border-top: 3px solid #ff6b6b;
+  border-radius: 50%;
+  animation: moderationSpin 1s linear infinite;
+}
+
+@keyframes moderationSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Auth Required */
+.moderation-auth-required,
+.moderation-permissions-required {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.moderation-auth-required h3,
+.moderation-permissions-required h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #ff6b6b;
+}
+
+.moderation-required-permissions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.moderation-permission-badge {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Buttons */
+.moderation-btn-primary {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.moderation-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+.moderation-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.moderation-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Overview Grid */
+.moderation-overview {
+  animation: moderationFadeIn 0.6s ease-out;
+}
+
+.moderation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.moderation-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.moderation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.moderation-card h3 {
+  margin: 0 0 20px 0;
+  color: #ff6b6b;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Stats */
+.moderation-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.moderation-stat {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.moderation-stat:hover {
+  background: rgba(255, 107, 107, 0.1);
+  transform: translateX(5px);
+}
+
+.moderation-stat-icon {
+  font-size: 1.8rem;
+  width: 40px;
+  text-align: center;
+}
+
+.moderation-stat-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.moderation-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  line-height: 1;
+}
+
+.moderation-stat-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Configuration Summary */
+.moderation-config-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moderation-config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.moderation-config-label {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.moderation-config-value {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.moderation-config-value.enabled {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.moderation-config-value.disabled {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+/* Warnings Summary */
+.moderation-warnings-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moderation-warning-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.moderation-warning-user {
+  font-weight: 600;
+  color: #ffc107;
+}
+
+.moderation-warning-count {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.moderation-warning-last {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.moderation-warnings-more {
+  text-align: center;
+  padding: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+.moderation-no-warnings {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.moderation-no-warnings p:first-child {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+/* Recent Logs */
+.moderation-recent-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moderation-log-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.moderation-log-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+}
+
+.moderation-action-badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  min-width: 60px;
+  text-align: center;
+}
+
+.moderation-action-badge.warn {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.moderation-action-badge.mute {
+  background: rgba(156, 39, 176, 0.2);
+  color: #9c27b0;
+}
+
+.moderation-action-badge.kick {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+}
+
+.moderation-action-badge.ban {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.moderation-log-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 4px;
+}
+
+.moderation-log-target {
+  font-weight: 600;
+  color: #ff6b6b;
+}
+
+.moderation-log-reason {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.moderation-log-time {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.moderation-no-logs {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.moderation-no-logs p:first-child {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+/* Coming Soon Sections */
+.moderation-coming-soon {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.moderation-coming-soon h3 {
+  color: #ff6b6b;
+  margin-bottom: 20px;
+}
+
+.moderation-coming-soon ul {
+  text-align: left;
+  max-width: 400px;
+  margin: 20px auto;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.moderation-coming-soon li {
+  margin: 8px 0;
+  padding-left: 5px;
+}
+
+/* Animations */
+@keyframes moderationFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .moderation-manager {
+    padding: 15px;
+  }
+  
+  .moderation-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .moderation-tabs {
+    flex-direction: column;
+  }
+  
+  .moderation-tab {
+    text-align: center;
+  }
+  
+  .moderation-server-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .moderation-stat {
+    padding: 12px;
+  }
+  
+  .moderation-log-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .moderation-warning-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .moderation-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .moderation-card {
+    padding: 20px;
+  }
+  
+  .moderation-stat-icon {
+    font-size: 1.5rem;
+    width: 35px;
+  }
+  
+  .moderation-stat-value {
+    font-size: 1.3rem;
+  }
+}

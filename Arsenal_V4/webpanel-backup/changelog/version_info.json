@@ -1,0 +1,19 @@
+{
+    "current_version": "4.2.6-ULTRA",
+    "release_date": "2025-07-23",
+    "announcement": {
+        "title": "🚀 Arsenal V4.2.6 ULTRA est disponible !",
+        "description": "Nouvelle interface avec 8 thèmes personnalisables, corrections de bugs et améliorations UX majeures.",
+        "features": [
+            "🎨 8 thèmes personnalisables (Arsenal, Matrix, Galaxy, Fire, Ocean, Sunset, Neon, Cyber)",
+            "🖥️ Interface redesignée avec signature XeRoX",
+            "🐛 Correction du statut bot et suppression des données fictives",
+            "⚡ Performance optimisée et transitions fluides"
+        ],
+        "embed_color": "#00fff7",
+        "footer": "Développé par XeRoX © 2025",
+        "show_until": "2025-08-23"
+    },
+    "changelog_url": "https://github.com/xerox3elite/arsenal-v4-webpanel/blob/main/changelog/v4.2.6-ULTRA.md",
+    "deploy_url": "https://github.com/xerox3elite/arsenal-v4-webpanel"
+}

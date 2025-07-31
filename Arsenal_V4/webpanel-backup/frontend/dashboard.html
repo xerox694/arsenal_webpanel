@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsenal V4 WebPanel - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/arsenal-styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-rocket"></i> Arsenal V4 WebPanel</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info" onclick="toggleUserDropdown()">
+                    <img id="userAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar">
+                    <span id="userDisplayName">Chargement...</span>
+                    <i id="userDropdownChevron" class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Navigation Tabs -->
+            <nav class="tabs-navigation">
+                <button class="tab-button active" onclick="window.arsenalAPI.showTab('bot')">
+                    <i class="fas fa-robot"></i> Bot
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('serveurs')">
+                    <i class="fas fa-server"></i> Serveurs
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('utilisateurs')">
+                    <i class="fas fa-users"></i> Utilisateurs
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('commandes')">
+                    <i class="fas fa-terminal"></i> Commandes
+                </button>
+            </nav>
+
+            <!-- Tab Content -->
+            <div id="tab-content" class="tab-content">
+                <div class="loading-spinner">Chargement du contenu...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/arsenal-api.js"></script>
+    <script src="/js/arsenal-ui.js"></script>
+    <script>
+        // Initialiser le premier onglet au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.arsenalAPI && window.arsenalAPI.showTab) {
+                    window.arsenalAPI.showTab('bot');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

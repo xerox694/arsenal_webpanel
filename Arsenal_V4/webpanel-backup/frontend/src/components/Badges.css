@@ -1,0 +1,35 @@
+.uix-badges {
+  background: rgba(16, 24, 44, 0.97);
+  border: 2px solid #00fff7;
+  border-radius: 18px;
+  box-shadow: 0 0 30px #00fff744;
+  padding: 24px 32px;
+  margin: 30px auto;
+  min-width: 350px;
+  max-width: 500px;
+  color: #00fff7;
+  text-align: center;
+}
+.uix-badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
+}
+.uix-badge {
+  display: inline-block;
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 8px 18px;
+  font-size: 1.1rem;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  background: #10182c;
+  box-shadow: 0 0 10px currentColor;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+.uix-badge:hover {
+  background: currentColor;
+  color: #10182c;
+}

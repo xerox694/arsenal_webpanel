@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunt Royal Calculator - Arsenal Webpanel</title>
+    <style>
+        /* Base styles similaires au webpanel */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header du webpanel */
+        .webpanel-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-bottom: 2px solid #4ECDC4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #4ECDC4;
+        }
+
+        .token-display {
+            background: rgba(76, 205, 196, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #4ECDC4;
+            border: 1px solid #4ECDC4;
+        }
+
+        /* Container principal */
+        .calculator-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Styles du calculateur adaptés */
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .calculator-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #4ECDC4, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .access-status {
+            background: rgba(76, 205, 196, 0.1);
+            border: 1px solid #4ECDC4;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .access-granted {
+            color: #4ECDC4;
+        }
+
+        .access-denied {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #FF6B6B;
+            color: #FF6B6B;
+        }
+
+        /* Tabs système */
+        .calculator-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .calc-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .calc-tab:hover {
+            background: rgba(76, 205, 196, 0.1);
+            border-color: #4ECDC4;
+            color: #4ECDC4;
+            transform: translateY(-2px);
+        }
+
+        .calc-tab.active {
+            background: linear-gradient(45deg, #4ECDC4, #FFD700);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Content zones */
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+        }
+
+        /* Simulateur section */
+        .simulator-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(76, 205, 196, 0.3);
+        }
+
+        .simulator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(76, 205, 196, 0.2);
+        }
+
+        .control-group label {
+            display: block;
+            color: #4ECDC4;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(76, 205, 196, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #4ECDC4;
+            box-shadow: 0 0 10px rgba(76, 205, 196, 0.3);
+        }
+
+        /* Buttons */
+        .calc-button {
+            background: linear-gradient(45deg, #4ECDC4, #FFD700);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .calc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 205, 196, 0.3);
+        }
+
+        .calc-button:active {
+            transform: translateY(0);
+        }
+
+        /* Results */
+        .results-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid rgba(76, 205, 196, 0.3);
+        }
+
+        .gem-result {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4ECDC4;
+        }
+
+        .gem-icon {
+            font-size: 24px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .gem-info {
+            flex: 1;
+        }
+
+        .gem-name {
+            color: #4ECDC4;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .gem-stats {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* Auth section */
+        .auth-section {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(76, 205, 196, 0.3);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(76, 205, 196, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .auth-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #4ECDC4;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .webpanel-header {
+                padding: 10px 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .calculator-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .simulator-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .calculator-header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation pour l'apparition */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Webpanel -->
+    <div class="webpanel-header">
+        <div class="logo">
+            <div style="width: 40px; height: 40px; background: linear-gradient(45deg, #4ECDC4, #FFD700); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000;">A</div>
+            <div>
+                <h3>Arsenal Webpanel</h3>
+                <span style="font-size: 12px; color: #ccc;">Hunt Royal Calculator</span>
+            </div>
+        </div>
+        
+        <div class="user-info" id="userInfo">
+            <!-- Sera rempli par JavaScript -->
+        </div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="calculator-container">
+        <!-- Header du calculateur -->
+        <div class="calculator-header fade-in">
+            <h1>🏹 Hunt Royal Calculator</h1>
+            <p style="color: #ccc; font-size: 18px;">Calculateur exclusif pour les membres Arsenal</p>
+        </div>
+
+        <!-- Status d'accès -->
+        <div id="accessStatus" class="access-status">
+            <div id="accessContent">
+                🔒 Vérification de l'accès en cours...
+            </div>
+        </div>
+
+        <!-- Section d'authentification -->
+        <div id="authSection" class="auth-section" style="display: none;">
+            <h2>🔑 Authentification Requise</h2>
+            <p style="margin-bottom: 30px; color: #ccc;">
+                Entrez votre token d'accès Hunt Royal pour utiliser le calculateur.
+            </p>
+            
+            <div class="auth-form">
+                <input type="password" id="tokenInput" class="auth-input" placeholder="Votre token d'accès...">
+                <button class="calc-button" onclick="authenticateUser()">Se Connecter</button>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(76, 205, 196, 0.3);">
+                    <p style="font-size: 14px; color: #ccc;">
+                        Pas de token ? Utilisez <code>/register</code> sur Discord
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculateur principal -->
+        <div id="calculatorMain" style="display: none;">
+            <!-- Tabs -->
+            <div class="calculator-tabs fade-in">
+                <div class="calc-tab active" onclick="switchTab('simulator')">
+                    💎 Simulateur de Gemmes
+                </div>
+                <div class="calc-tab" onclick="switchTab('fusion')">
+                    ⚗️ Guide Fusion
+                </div>
+                <div class="calc-tab" onclick="switchTab('dungeon')">
+                    🏰 Guide Donjon
+                </div>
+                <div class="calc-tab" onclick="switchTab('analysis')">
+                    📊 Analyse d'Équipe
+                </div>
+            </div>
+
+            <!-- Content Simulateur -->
+            <div id="simulator-content" class="calculator-content active">
+                <div class="simulator-section fade-in">
+                    <h3 style="color: #4ECDC4; margin-bottom: 20px;">💎 Simulateur de Gemmes Hunt Royal</h3>
+                    
+                    <div class="simulator-controls">
+                        <div class="control-group">
+                            <label>Nombre de pulls</label>
+                            <input type="number" id="pullsCount" value="100" min="1" max="10000">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Type de Chest</label>
+                            <select id="chestType">
+                                <option value="royal">Royal Chest</option>
+                                <option value="epic">Epic Chest</option>
+                                <option value="legendary">Legendary Chest</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Multiplicateur VIP</label>
+                            <select id="vipMultiplier">
+                                <option value="1">Aucun</option>
+                                <option value="1.2">VIP (x1.2)</option>
+                                <option value="1.5">VIP+ (x1.5)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Bonus Clan</label>
+                            <select id="clanBonus">
+                                <option value="1">Aucun</option>
+                                <option value="1.1">Clan 10%</option>
+                                <option value="1.25">Clan Full 25%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="calc-button" onclick="simulateGems()">
+                            🎲 Lancer la Simulation
+                        </button>
+                    </div>
+                    
+                    <div id="simulationResults" class="results-section" style="display: none;">
+                        <h4 style="color: #4ECDC4; margin-bottom: 20px;">Résultats de la Simulation</h4>
+                        <div id="resultsContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Fusion -->
+            <div id="fusion-content" class="calculator-content">
+                <div class="simulator-section fade-in">
+                    <h3 style="color: #4ECDC4; margin-bottom: 20px;">⚗️ Guide de Fusion</h3>
+                    <div id="fusionGuideContent">
+                        <p style="color: #ccc;">Guide de fusion en cours de développement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Donjon -->
+            <div id="dungeon-content" class="calculator-content">
+                <div class="simulator-section fade-in">
+                    <h3 style="color: #4ECDC4; margin-bottom: 20px;">🏰 Guide des Donjons</h3>
+                    <div id="dungeonGuideContent">
+                        <p style="color: #ccc;">Guide des donjons en cours de développement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Analysis -->
+            <div id="analysis-content" class="calculator-content">
+                <div class="simulator-section fade-in">
+                    <h3 style="color: #4ECDC4; margin-bottom: 20px;">📊 Analyse d'Équipe</h3>
+                    <div id="analysisContent">
+                        <p style="color: #ccc;">Analyse d'équipe en cours de développement...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de résultats -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #4ECDC4;">Résultats Détaillés</h3>
+                <button onclick="closeModal()" style="background: none; border: none; color: #ccc; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let userToken = null;
+        let userData = null;
+        let isAuthenticated = false;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+        });
+
+        // Vérifier l'authentification
+        async function checkAuthentication() {
+            const token = localStorage.getItem('hunt_royal_token');
+            
+            if (token) {
+                try {
+                    const response = await fetch('/api/hunt-royal/validate-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ token: token })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.valid) {
+                            authenticateSuccess(data.user, token);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erreur validation token:', error);
+                }
+            }
+            
+            showAuthSection();
+        }
+
+        // Afficher la section d'authentification
+        function showAuthSection() {
+            document.getElementById('accessStatus').innerHTML = 
+                '<div class="access-denied">❌ Accès non autorisé - Token requis</div>';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('calculatorMain').style.display = 'none';
+        }
+
+        // Authentifier l'utilisateur
+        async function authenticateUser() {
+            const token = document.getElementById('tokenInput').value.trim();
+            
+            if (!token) {
+                alert('Veuillez entrer votre token d\'accès');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/hunt-royal/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.valid) {
+                        localStorage.setItem('hunt_royal_token', token);
+                        authenticateSuccess(data.user, token);
+                    } else {
+                        alert('Token invalide ou expiré');
+                    }
+                } else {
+                    alert('Erreur lors de la validation du token');
+                }
+            } catch (error) {
+                console.error('Erreur authentification:', error);
+                alert('Erreur de connexion');
+            }
+        }
+
+        // Authentification réussie
+        function authenticateSuccess(user, token) {
+            userToken = token;
+            userData = user;
+            isAuthenticated = true;
+            
+            // Mise à jour de l'interface
+            document.getElementById('accessStatus').innerHTML = 
+                '<div class="access-granted">✅ Accès autorisé - Bienvenue ' + user.username + '</div>';
+            
+            // Mise à jour des infos utilisateur
+            document.getElementById('userInfo').innerHTML = `
+                <div class="token-display">👑 ${user.clan_role}</div>
+                <div style="color: #4ECDC4; font-weight: bold;">${user.username}</div>
+            `;
+            
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('calculatorMain').style.display = 'block';
+            
+            // Animation d'apparition
+            document.getElementById('calculatorMain').classList.add('fade-in');
+        }
+
+        // Changer d'onglet
+        function switchTab(tabName) {
+            // Désactiver tous les onglets
+            document.querySelectorAll('.calc-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.calculator-content').forEach(content => content.classList.remove('active'));
+            
+            // Activer l'onglet sélectionné
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        // Simuler les gemmes
+        function simulateGems() {
+            if (!isAuthenticated) {
+                alert('Vous devez être connecté pour utiliser le simulateur');
+                return;
+            }
+            
+            const pulls = parseInt(document.getElementById('pullsCount').value);
+            const chestType = document.getElementById('chestType').value;
+            const vipMultiplier = parseFloat(document.getElementById('vipMultiplier').value);
+            const clanBonus = parseFloat(document.getElementById('clanBonus').value);
+            
+            // Simulation basique (à améliorer avec les vraies données)
+            const results = performSimulation(pulls, chestType, vipMultiplier, clanBonus);
+            displayResults(results);
+        }
+
+        // Effectuer la simulation
+        function performSimulation(pulls, chestType, vipMultiplier, clanBonus) {
+            const baseRates = {
+                royal: { legendary: 0.05, epic: 0.15, rare: 0.3, common: 0.5 },
+                epic: { legendary: 0.1, epic: 0.25, rare: 0.35, common: 0.3 },
+                legendary: { legendary: 0.2, epic: 0.4, rare: 0.3, common: 0.1 }
+            };
+            
+            const rates = baseRates[chestType];
+            const totalMultiplier = vipMultiplier * clanBonus;
+            
+            let results = {
+                legendary: 0,
+                epic: 0,
+                rare: 0,
+                common: 0,
+                totalGems: 0
+            };
+            
+            for (let i = 0; i < pulls; i++) {
+                const random = Math.random();
+                let gemsCount = Math.floor(Math.random() * 3) + 1; // 1-3 gemmes par pull
+                gemsCount = Math.floor(gemsCount * totalMultiplier);
+                
+                results.totalGems += gemsCount;
+                
+                if (random < rates.legendary) {
+                    results.legendary += gemsCount;
+                } else if (random < rates.legendary + rates.epic) {
+                    results.epic += gemsCount;
+                } else if (random < rates.legendary + rates.epic + rates.rare) {
+                    results.rare += gemsCount;
+                } else {
+                    results.common += gemsCount;
+                }
+            }
+            
+            return results;
+        }
+
+        // Afficher les résultats
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('resultsContent');
+            
+            resultsDiv.innerHTML = `
+                <div class="gem-result">
+                    <div class="gem-icon">💎</div>
+                    <div class="gem-info">
+                        <div class="gem-name">Total des Gemmes</div>
+                        <div class="gem-stats">${results.totalGems} gemmes obtenues</div>
+                    </div>
+                </div>
+                
+                <div class="gem-result">
+                    <div class="gem-icon">🟡</div>
+                    <div class="gem-info">
+                        <div class="gem-name">Gemmes Légendaires</div>
+                        <div class="gem-stats">${results.legendary} gemmes (${((results.legendary/results.totalGems)*100).toFixed(1)}%)</div>
+                    </div>
+                </div>
+                
+                <div class="gem-result">
+                    <div class="gem-icon">🟣</div>
+                    <div class="gem-info">
+                        <div class="gem-name">Gemmes Épiques</div>
+                        <div class="gem-stats">${results.epic} gemmes (${((results.epic/results.totalGems)*100).toFixed(1)}%)</div>
+                    </div>
+                </div>
+                
+                <div class="gem-result">
+                    <div class="gem-icon">🔵</div>
+                    <div class="gem-info">
+                        <div class="gem-name">Gemmes Rares</div>
+                        <div class="gem-stats">${results.rare} gemmes (${((results.rare/results.totalGems)*100).toFixed(1)}%)</div>
+                    </div>
+                </div>
+                
+                <div class="gem-result">
+                    <div class="gem-icon">⚪</div>
+                    <div class="gem-info">
+                        <div class="gem-name">Gemmes Communes</div>
+                        <div class="gem-stats">${results.common} gemmes (${((results.common/results.totalGems)*100).toFixed(1)}%)</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('simulationResults').style.display = 'block';
+            document.getElementById('simulationResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Fermer modal
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // Déconnexion
+        function logout() {
+            localStorage.removeItem('hunt_royal_token');
+            userToken = null;
+            userData = null;
+            isAuthenticated = false;
+            location.reload();
+        }
+
+        // Raccourci clavier pour l'authentification
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('tokenInput') === document.activeElement) {
+                authenticateUser();
+            }
+        });
+    </script>
+</body>
+</html>

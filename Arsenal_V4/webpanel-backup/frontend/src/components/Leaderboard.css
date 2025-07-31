@@ -1,0 +1,31 @@
+.uix-leaderboard {
+  background: rgba(16, 24, 44, 0.97);
+  border: 2px solid #00fff7;
+  border-radius: 18px;
+  box-shadow: 0 0 30px #00fff744;
+  padding: 24px 32px;
+  margin: 30px auto;
+  min-width: 350px;
+  max-width: 500px;
+  color: #00fff7;
+  text-align: center;
+}
+.uix-leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.uix-leaderboard th, .uix-leaderboard td {
+  padding: 10px;
+  border-bottom: 1px solid #00fff7;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+}
+.uix-leaderboard th {
+  color: #00fff7;
+  background: #10182c;
+}
+.uix-score {
+  font-weight: bold;
+  color: #7cff00;
+  text-shadow: 0 0 10px #7cff00;
+}

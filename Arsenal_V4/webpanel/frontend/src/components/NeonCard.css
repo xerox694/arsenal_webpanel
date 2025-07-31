@@ -1,0 +1,16 @@
+.uix-neon-card {
+  background: rgba(16, 24, 44, 0.96);
+  border: 2px solid #00fff7;
+  border-radius: 22px;
+  padding: 40px 60px;
+  box-shadow: 0 0 40px #00fff744, 0 0 80px #00eaff44;
+  margin: 30px 0;
+  color: #00fff7;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  text-align: center;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.uix-neon-card:hover {
+  box-shadow: 0 0 80px #00fff7, 0 0 160px #00eaff;
+  border-color: #00eaff;
+}

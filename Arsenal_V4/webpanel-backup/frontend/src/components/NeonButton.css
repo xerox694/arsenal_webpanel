@@ -1,0 +1,20 @@
+.uix-neon-btn {
+  background: #00fff7;
+  color: #0a0f1c;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 28px;
+  margin: 10px 0;
+  font-size: 1.1rem;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  box-shadow: 0 0 16px #00fff7, 0 0 32px #00eaff;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.uix-neon-btn:hover {
+  background: #00eaff;
+  color: #10182c;
+  box-shadow: 0 0 32px #00fff7, 0 0 64px #00eaff;
+}

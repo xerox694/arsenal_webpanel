@@ -1,0 +1,36 @@
+.uix-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 90px;
+  background: linear-gradient(180deg, #0a0f1c 80%, #00fff7 100%);
+  box-shadow: 0 0 30px #00fff7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+  z-index: 100;
+}
+.uix-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.uix-sidebar li {
+  margin: 30px 0;
+}
+.uix-link {
+  color: #00fff7;
+  font-size: 1.1rem;
+  text-decoration: none;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  text-shadow: 0 0 10px #00fff7;
+  transition: color 0.2s;
+}
+.uix-link:hover {
+  color: #0a0f1c;
+  background: #00fff7;
+  border-radius: 8px;
+  padding: 6px 12px;
+}

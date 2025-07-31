@@ -1,0 +1,48 @@
+# 🔐 Fichiers sensibles
+.env
+*.db
+*.log
+
+# 📁 Dossiers temporaires
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+logs/
+venv/
+.venv/
+
+# 🗃️ Base de données
+hunt_royal_auth.db
+hunt_royal_profiles.db
+arsenal_v4.db
+hunt_royal.db
+test_hunt_royal.db
+hunt_royal_cache.json
+
+# 📝 Fichiers de test
+test_*.py
+demo_*.html
+test_*.html
+
+# 🗑️ Corbeille Windows
+$RECYCLE.BIN/
+
+# 💾 Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 🛠️ IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 📦 Node modules (si nécessaire)
+node_modules/
+
+# 🌐 Fichiers web temporaires
+*.tmp
+*.cache
