@@ -936,7 +936,7 @@ try:
             
             if user_data:
                 # Logger l'accès
-                auth_db.log_access(
+                auth_db._log_access(
                     user_data['discord_id'], 
                     'calculator_access',
                     request.remote_addr,
@@ -1023,7 +1023,7 @@ try:
             results = perform_hunt_royal_simulation(pulls, chest_type, vip_multiplier, clan_bonus)
             
             # Logger l'utilisation
-            auth_db.log_access(
+            auth_db._log_access(
                 user_data['discord_id'],
                 f'simulation_{pulls}_{chest_type}',
                 request.remote_addr,
