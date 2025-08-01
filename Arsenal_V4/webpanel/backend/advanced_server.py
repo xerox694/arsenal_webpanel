@@ -926,30 +926,35 @@ try:
         
         try:
             data = request.get_json()
+            if not data:
+                return jsonify({"valid": False, "error": "Données JSON manquantes"}), 400
+                
             token = data.get('token')
-            
             if not token:
                 return jsonify({"valid": False, "error": "Token manquant"}), 400
             
             # Valider le token
             user_data = auth_db.validate_token(token)
             
-            if user_data:
-                # Logger l'accès
-                auth_db.log_access(
-                    user_data['discord_id'], 
-                    'calculator_access',
-                    request.remote_addr,
-                    request.headers.get('User-Agent')
-                )
+            if user_data and user_data.get('valid') and user_data.get('discord_id'):
+                # Logger l'accès seulement si on a les données
+                try:
+                    auth_db.log_access(
+                        user_data['discord_id'], 
+                        'calculator_access',
+                        request.remote_addr,
+                        request.headers.get('User-Agent')
+                    )
+                except Exception as log_error:
+                    print(f"⚠️ Erreur logging access: {log_error}")
                 
                 return jsonify({
                     "valid": True,
                     "user": {
-                        "discord_id": user_data['discord_id'],
-                        "username": user_data['username'],
-                        "clan_role": user_data['clan_role'],
-                        "permissions": user_data['permissions']
+                        "discord_id": user_data.get('discord_id'),
+                        "username": user_data.get('username', 'Inconnu'),
+                        "clan_role": user_data.get('clan_role', 'Member'),
+                        "permissions": user_data.get('permissions', [])
                     }
                 })
             else:
@@ -957,6 +962,8 @@ try:
                 
         except Exception as e:
             print(f"❌ Erreur validation token Hunt Royal: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({"error": "Erreur serveur"}), 500
 
     @app.route('/api/hunt-royal/refresh-token', methods=['POST'])
@@ -1023,17 +1030,20 @@ try:
             results = perform_hunt_royal_simulation(pulls, chest_type, vip_multiplier, clan_bonus)
             
             # Logger l'utilisation
-            auth_db.log_access(
-                user_data['discord_id'],
-                f'simulation_{pulls}_{chest_type}',
-                request.remote_addr,
-                request.headers.get('User-Agent')
-            )
+            try:
+                auth_db.log_access(
+                    user_data['discord_id'],
+                    f'simulation_{pulls}_{chest_type}',
+                    request.remote_addr,
+                    request.headers.get('User-Agent')
+                )
+            except Exception as log_error:
+                print(f"⚠️ Erreur logging simulation: {log_error}")
             
             return jsonify({
                 "success": True,
                 "results": results,
-                "user": user_data['username']
+                "user": user_data.get('username', 'Inconnu')
             })
             
         except Exception as e:
