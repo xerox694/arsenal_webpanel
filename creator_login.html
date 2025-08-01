@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔰 Arsenal Bot - Accès Créateur</title>
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #f7931e;
+            --dark: #1a1a2e;
+            --card: #16213e;
+            --text: #eee;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), #0f3460);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 100%;
+            border: 2px solid var(--primary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #aaa;
+            font-size: 1.2em;
+        }
+
+        .login-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .method-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method-card.active {
+            border-color: var(--primary);
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .method-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .method-card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .method-card p {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .form-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .result-area.success {
+            border-left-color: var(--success);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .result-area.error {
+            border-left-color: var(--error);
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .creator-tokens {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .creator-tokens h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .token-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .token-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔰 Arsenal Bot</h1>
+            <p>Accès Créateur - xerox694</p>
+        </div>
+
+        <div class="login-methods">
+            <div class="method-card active" onclick="switchMethod('creator')">
+                <h3>🔰 Créateur</h3>
+                <p>Token spécial fondateur</p>
+            </div>
+            <div class="method-card" onclick="switchMethod('normal')">
+                <h3>🎯 Utilisateur</h3>
+                <p>Token/Code normal</p>
+            </div>
+        </div>
+
+        <div id="creatorMethod" class="form-section">
+            <div class="form-group">
+                <label for="creatorToken">🔰 Token Créateur :</label>
+                <input type="password" id="creatorToken" placeholder="Votre token spécial créateur">
+            </div>
+            
+            <div class="creator-tokens">
+                <h4>🔑 Tokens de Test (Development) :</h4>
+                <div class="token-item" onclick="useToken('XEROX694_CREATOR_ACCESS')">
+                    XEROX694_CREATOR_ACCESS
+                </div>
+                <div class="token-item" onclick="useToken('ARSENAL_BOT_FOUNDER')">
+                    ARSENAL_BOT_FOUNDER
+                </div>
+                <div class="token-item" onclick="useToken('ADMIN_BYPASS_2025')">
+                    ADMIN_BYPASS_2025
+                </div>
+            </div>
+        </div>
+
+        <div id="normalMethod" class="form-section" style="display: none;">
+            <div class="form-group">
+                <label for="identifier">🎯 Token ou Code Court :</label>
+                <input type="text" id="identifier" placeholder="Token complet ou code 7-10 chiffres">
+            </div>
+            
+            <div class="form-group">
+                <label for="usernameHint">👤 Indice Nom (pour codes courts) :</label>
+                <input type="text" id="usernameHint" placeholder="Votre nom Discord (optionnel)">
+            </div>
+        </div>
+
+        <button class="login-btn" onclick="attemptLogin()">
+            🚀 Se Connecter
+        </button>
+
+        <div id="resultArea" class="result-area">
+            <p style="color: #aaa; text-align: center;">Prêt pour la connexion créateur...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentMethod = 'creator';
+
+        function switchMethod(method) {
+            currentMethod = method;
+            
+            // Update cards
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide sections
+            document.getElementById('creatorMethod').style.display = method === 'creator' ? 'block' : 'none';
+            document.getElementById('normalMethod').style.display = method === 'normal' ? 'block' : 'none';
+            
+            clearResults();
+        }
+
+        function useToken(token) {
+            document.getElementById('creatorToken').value = token;
+        }
+
+        function clearResults() {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.className = 'result-area';
+            resultArea.innerHTML = '<p style="color: #aaa; text-align: center;">Prêt pour la connexion...</p>';
+        }
+
+        async function attemptLogin() {
+            const resultArea = document.getElementById('resultArea');
+            const loginBtn = document.querySelector('.login-btn');
+            
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = '🔄 Connexion en cours...';
+            
+            let loginData = {};
+            
+            if (currentMethod === 'creator') {
+                const creatorToken = document.getElementById('creatorToken').value.trim();
+                if (!creatorToken) {
+                    showError('Veuillez entrer votre token créateur.');
+                    resetButton();
+                    return;
+                }
+                loginData = { creator_token: creatorToken };
+            } else {
+                const identifier = document.getElementById('identifier').value.trim();
+                const usernameHint = document.getElementById('usernameHint').value.trim();
+                
+                if (!identifier) {
+                    showError('Veuillez entrer votre token ou code court.');
+                    resetButton();
+                    return;
+                }
+                
+                loginData = { 
+                    identifier: identifier,
+                    username_hint: usernameHint || null
+                };
+            }
+            
+            try {
+                // API call
+                const response = await fetch('/auth/creator-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result);
+                } else {
+                    showError(result.error || 'Échec de connexion');
+                }
+                
+            } catch (error) {
+                showError('Erreur de connexion au serveur: ' + error.message);
+            }
+            
+            resetButton();
+        }
+
+        function showSuccess(result) {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.className = 'result-area success';
+            
+            const user = result.user;
+            const isCreator = user.bypass || false;
+            
+            resultArea.innerHTML = `
+                <h3 style="color: var(--success); margin-bottom: 15px;">
+                    ✅ ${result.message}
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                        <strong>👤 Utilisateur</strong><br>
+                        ${user.display_name || user.username}
+                        ${isCreator ? ' <span style="color: var(--primary);">🔰 CRÉATEUR</span>' : ''}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                        <strong>🏰 Rôle</strong><br>
+                        ${user.clan_role}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                        <strong>🎯 Méthode</strong><br>
+                        ${result.login_method}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                        <strong>🔑 Connexions</strong><br>
+                        ${user.login_count || 'N/A'}
+                    </div>
+                </div>
+                
+                ${isCreator ? `
+                <div style="background: rgba(255,107,53,0.1); border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 20px;">
+                    <h4>🔰 ACCÈS CRÉATEUR ACCORDÉ</h4>
+                    <p>Toutes les fonctionnalités administratives sont disponibles.</p>
+                    <br>
+                    <strong>🏹 Clan :</strong> ${user.clan_name}<br>
+                    <strong>⚡ Permissions :</strong> ${user.permissions.join(', ')}<br>
+                    <strong>🎮 Game IDs :</strong> ${user.game_ids.new} / ${user.game_ids.old}
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="loadDashboard()" style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                        📊 Charger Dashboard
+                    </button>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.className = 'result-area error';
+            
+            resultArea.innerHTML = `
+                <h3 style="color: var(--error); margin-bottom: 15px;">
+                    ❌ Échec de Connexion
+                </h3>
+                <p style="color: #ffcccb; font-size: 1.1em;">
+                    ${message}
+                </p>
+                
+                <div style="margin-top: 15px; padding: 15px; background: rgba(244, 67, 54, 0.1); border-radius: 8px;">
+                    <strong>💡 Conseils :</strong><br>
+                    • Pour l'accès créateur, utilisez un des tokens de test<br>
+                    • Pour un accès normal, vérifiez votre token/code<br>
+                    • Contactez xerox694 si les problèmes persistent
+                </div>
+            `;
+        }
+
+        function resetButton() {
+            const loginBtn = document.querySelector('.login-btn');
+            loginBtn.disabled = false;
+            loginBtn.textContent = '🚀 Se Connecter';
+        }
+
+        async function loadDashboard() {
+            // TODO: Implémenter le chargement du dashboard
+            alert('🚧 Dashboard en cours de développement...');
+        }
+
+        // Enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                attemptLogin();
+            }
+        });
+    </script>
+</body>
+</html>

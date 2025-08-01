@@ -201,6 +201,85 @@ class HuntRoyalAuthDatabase:
                         details=f"Failed credential: {credential[:8]}...")
         return {"valid": False, "error": "Identifiants invalides"}
     
+    def admin_bypass_login(self, creator_token=None):
+        """Bypass de connexion pour le créateur du bot"""
+        # Token spécial créateur (à configurer)
+        CREATOR_TOKENS = [
+            "XEROX694_CREATOR_ACCESS",  # Token spécial créateur
+            "ARSENAL_BOT_FOUNDER",      # Token fondateur
+            "ADMIN_BYPASS_2025"         # Token admin bypass
+        ]
+        
+        if creator_token in CREATOR_TOKENS:
+            return {
+                "valid": True,
+                "discord_id": "CREATOR_XEROX694",
+                "username": "xerox694",
+                "display_name": "🔰 CRÉATEUR ARSENAL BOT",
+                "clan_role": "FOUNDER",
+                "permissions": ["ALL_ACCESS", "ADMIN", "FOUNDER", "BYPASS"],
+                "tokens": {"full": creator_token, "short": "0000000"},
+                "game_ids": {"new": "CREATOR", "old": "FOUNDER"},
+                "clan_name": "🏹 ARSENAL TEAM",
+                "login_count": 999,
+                "login_method": "creator_bypass",
+                "bypass": True
+            }
+        
+        return {"valid": False, "error": "Token créateur invalide"}
+    
+    def get_creator_dashboard(self):
+        """Dashboard spécial pour le créateur"""
+        return {
+            "found": True,
+            "user_info": {
+                "username": "xerox694",
+                "display_name": "🔰 CRÉATEUR ARSENAL BOT",
+                "clan_role": "FOUNDER",
+                "permissions": ["ALL_ACCESS", "ADMIN", "FOUNDER", "BYPASS"],
+                "game_ids": {"new": "CREATOR", "old": "FOUNDER"},
+                "clan_name": "🏹 ARSENAL TEAM",
+                "notes": "Créateur et fondateur d'Arsenal Bot",
+                "registered_at": "2024-01-01T00:00:00",
+                "last_login": "NOW",
+                "login_count": 999
+            },
+            "tokens": {
+                "full_token": "XEROX694_CREATOR_ACCESS",
+                "short_code": "0000000",
+                "can_copy": True,
+                "can_regenerate": True
+            },
+            "statistics": {
+                "total_access": 9999,
+                "successful_access": 9999,
+                "failed_access": 0,
+                "calculator_usage": 999,
+                "webpanel_usage": 999,
+                "success_rate": 100.0
+            },
+            "sessions": {
+                "active_count": 1,
+                "next_expiry": "NEVER"
+            },
+            "recent_activity": [
+                {
+                    "action": "creator_access",
+                    "timestamp": "NOW",
+                    "success": True,
+                    "details": "Accès créateur",
+                    "method": "bypass",
+                    "ip": "CREATOR"
+                }
+            ],
+            "creator_features": {
+                "can_access_all_users": True,
+                "can_modify_any_data": True,
+                "can_see_all_logs": True,
+                "bypass_all_restrictions": True
+            }
+        }
+    
     def create_security_session(self, discord_id, ip_address=None, user_agent=None):
         """Créer une session sécurisée pour maintenir la connexion"""
         conn = sqlite3.connect(self.db_path)
@@ -471,3 +550,6 @@ class HuntRoyalAuthDatabase:
 
 # Instance globale pour l'import  
 hunt_royal_auth_db = HuntRoyalAuthDatabase()
+
+# Alias pour compatibilité
+auth_db = hunt_royal_auth_db

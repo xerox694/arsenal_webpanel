@@ -1040,6 +1040,103 @@ try:
             print(f"❌ Erreur simulation Hunt Royal: {e}")
             return jsonify({"error": "Erreur lors de la simulation"}), 500
 
+    # ==================== BYPASS CRÉATEUR XEROX694 ====================
+    
+    @app.route('/auth/creator-login', methods=['POST'])
+    def creator_login():
+        """Connexion spéciale pour le créateur du bot"""
+        if not HUNT_AUTH_AVAILABLE:
+            return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
+        
+        try:
+            data = request.get_json()
+            creator_token = data.get('creator_token')
+            identifier = data.get('identifier')  # Token ou code court
+            username_hint = data.get('username_hint')  # Pour codes courts
+            
+            # 1️⃣ Bypass créateur avec token spécial
+            if creator_token:
+                user_data = auth_db.admin_bypass_login(creator_token)
+                if user_data and user_data.get('valid'):
+                    # Créer session spéciale créateur
+                    session_result = auth_db.create_security_session(
+                        "CREATOR_XEROX694",
+                        request.remote_addr,
+                        request.headers.get('User-Agent')
+                    )
+                    
+                    return jsonify({
+                        "success": True,
+                        "login_method": "creator_bypass",
+                        "user": user_data,
+                        "session": session_result,
+                        "message": "🔰 Accès créateur accordé - Bienvenue xerox694 !"
+                    })
+            
+            # 2️⃣ Login alternatif (token OU code court)
+            if identifier:
+                # Auto-détection du type d'identifiant
+                if len(identifier) > 15:
+                    # Token complet
+                    user_data = auth_db.validate_token(identifier)
+                else:
+                    # Code court
+                    user_data = auth_db.validate_short_code(identifier, username_hint)
+                
+                if user_data and user_data.get('valid'):
+                    # Créer session normale
+                    session_result = auth_db.create_security_session(
+                        user_data['discord_id'],
+                        request.remote_addr,
+                        request.headers.get('User-Agent')
+                    )
+                    
+                    return jsonify({
+                        "success": True,
+                        "login_method": user_data.get('login_method', 'token'),
+                        "user": user_data,
+                        "session": session_result,
+                        "message": f"✅ Connexion réussie - Bienvenue {user_data.get('display_name', user_data.get('username'))} !"
+                    })
+            
+            return jsonify({
+                "success": False,
+                "error": "Identifiants invalides",
+                "creator_hint": "Pour un accès créateur, utilisez votre token spécial"
+            }), 401
+            
+        except Exception as e:
+            print(f"❌ Erreur creator login: {e}")
+            return jsonify({"error": "Erreur lors de la connexion"}), 500
+    
+    @app.route('/auth/creator-dashboard', methods=['GET'])
+    def creator_dashboard():
+        """Dashboard spécial pour le créateur"""
+        if not HUNT_AUTH_AVAILABLE:
+            return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
+        
+        try:
+            # Vérifier si l'utilisateur est le créateur
+            session_id = request.headers.get('Authorization', '').replace('Bearer ', '')
+            session_data = auth_db.validate_session(session_id)
+            
+            if session_data and session_data.get('valid') and session_data.get('discord_id') == 'CREATOR_XEROX694':
+                # Dashboard créateur complet
+                dashboard_data = auth_db.get_creator_dashboard()
+                
+                return jsonify({
+                    "success": True,
+                    "is_creator": True,
+                    "dashboard": dashboard_data,
+                    "message": "🔰 Dashboard Créateur - Accès Total"
+                })
+            else:
+                return jsonify({"error": "Accès créateur requis"}), 403
+                
+        except Exception as e:
+            print(f"❌ Erreur creator dashboard: {e}")
+            return jsonify({"error": "Erreur lors du chargement du dashboard"}), 500
+
     def perform_hunt_royal_simulation(pulls, chest_type, vip_multiplier, clan_bonus):
         """Effectuer une simulation Hunt Royal avec les vraies données"""
         import random
