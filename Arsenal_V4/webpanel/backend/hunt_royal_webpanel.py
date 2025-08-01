@@ -503,6 +503,10 @@ class HuntRoyalAuthDatabase:
         conn.commit()
         conn.close()
     
+    def log_access(self, discord_id, action, ip_address=None, user_agent=None, success=True, details=None):
+        """Logger un accès dans la base avec toutes les informations (méthode publique)"""
+        self._log_access(discord_id, action, ip_address, user_agent, success, details)
+    
     def _log_access(self, discord_id, action, ip_address=None, user_agent=None, success=True, details=None):
         """Logger un accès dans la base avec toutes les informations"""
         conn = sqlite3.connect(self.db_path)
