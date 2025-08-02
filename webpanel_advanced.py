@@ -289,6 +289,27 @@ def login():
     if 'user_info' in session:
         return redirect(url_for('dashboard'))
     
+    # Mode bypass pour développement local
+    if request.args.get('bypass') == 'dev':
+        print("🔧 Mode bypass développement activé")
+        session['user_info'] = {
+            'user_id': '123456789',
+            'username': 'DevUser',
+            'discriminator': '0001',
+            'avatar': None,
+            'access_token': 'dev_token',
+            'guilds': [{
+                'id': '987654321',
+                'name': 'Serveur Test',
+                'icon': None,
+                'permissions': 8,  # Administrator
+                'can_manage': True
+            }],
+            'guilds_count': 1
+        }
+        print("✅ Session bypass créée")
+        return redirect(url_for('dashboard'))
+    
     # Créer un état de sécurité OAuth
     state = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
     session['oauth_state'] = state
@@ -304,7 +325,7 @@ def login():
     )
     
     print(f"🔑 Génération URL auth Discord: {discord_auth_url}")
-    return render_template('login.html', auth_url=discord_auth_url)
+    return render_template('login.html', auth_url=discord_auth_url, dev_bypass=True)
 
 @app.route('/auth/callback')
 def auth_callback():
@@ -408,12 +429,97 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# Routes compatibles avec le frontend React/Vue
+@app.route('/auth/login')
+def auth_login():
+    """Redirection vers la page de login (compatible frontend)"""
+    return redirect(url_for('login'))
+
+@app.route('/auth/discord')
+def auth_discord():
+    """Démarrer l'auth Discord (compatible frontend)"""
+    # Créer un état de sécurité OAuth
+    state = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
+    session['oauth_state'] = state
+    
+    # URL d'autorisation Discord
+    discord_auth_url = (
+        f"https://discord.com/api/oauth2/authorize?"
+        f"client_id={DISCORD_CLIENT_ID}&"
+        f"redirect_uri={quote_plus(DISCORD_REDIRECT_URI)}&"
+        f"response_type=code&"
+        f"scope=identify+guilds&"
+        f"state={state}"
+    )
+    
+    return redirect(discord_auth_url)
+
+@app.route('/auth/logout')
+def auth_logout():
+    """Déconnexion (compatible frontend)"""
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/api/auth/user')
+def api_auth_user():
+    """API: Informations utilisateur connecté"""
+    if 'user_info' not in session:
+        return jsonify({"error": "Non authentifié"}), 401
+    
+    user_info = session['user_info']
+    return jsonify({
+        "id": user_info['user_id'],
+        "username": user_info['username'],
+        "discriminator": user_info.get('discriminator', '0000'),
+        "avatar": user_info.get('avatar'),
+        "role": "Admin" if user_info.get('guilds_count', 0) > 0 else "Membre"
+    })
+
+@app.route('/api/servers')
+def api_servers():
+    """API: Liste des serveurs accessibles"""
+    if 'user_info' not in session:
+        return jsonify([]), 401
+    
+    user_info = session['user_info']
+    servers = []
+    
+    for guild in user_info.get('guilds', []):
+        servers.append({
+            "id": guild['id'],
+            "name": guild['name'],
+            "icon": guild.get('icon'),
+            "member_count": guild.get('member_count', 0),
+            "bot_connected": True,  # Assumé vrai si dans la liste filtrée
+            "permissions": guild.get('permissions', 0)
+        })
+    
+    return jsonify(servers)
+
 # Routes Flask
 @app.route('/')
 def index():
     """Redirection vers dashboard ou login"""
     if 'user_info' in session:
         return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/index.html')
+def serve_index():
+    """Servir le frontend React/Vue si disponible"""
+    # Chercher le fichier index.html du frontend
+    frontend_paths = [
+        "Arsenal_V4/webpanel/frontend/index.html",
+        "Arsenal_V4/webpanel/frontend/public/index.html"
+    ]
+    
+    for path in frontend_paths:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return content
+    
+    # Si pas trouvé, rediriger vers login Flask
     return redirect(url_for('login'))
 
 @app.route('/dashboard')
@@ -440,7 +546,7 @@ def dashboard():
         'servers_count': user_info.get('guilds_count', 0)
     }
     
-    return render_template('dashboard.html', **dashboard_data)
+    return render_template('dashboard_fixed.html', **dashboard_data)
 
 @app.route('/bot/start')
 def start_bot():
