@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 🌐 ARSENAL V4 - WEBPANEL ULTRA-AVANCÉ
-Panel de contrôle intégré avec démarrage automatique du bot
+Panel de contrôle intégré avec authentification Discord et démarrage automatique du bot
 """
 
 import os
@@ -13,16 +13,34 @@ import asyncio
 import subprocess
 import threading
 import time
+import secrets
+import base64
 from datetime import datetime, timedelta
 from pathlib import Path
+from urllib.parse import urlencode, quote_plus
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_socketio import SocketIO, emit
 import requests
 
-# Configuration
+# Configuration Discord OAuth
+DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID', '1346646498040877076')
+DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
+DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI', 'https://arsenal-webpanel.onrender.com/auth/callback')
+BOT_TOKEN = os.getenv('DISCORD_TOKEN')
+
+print(f"🔧 Discord OAuth Config:")
+print(f"   CLIENT_ID: {DISCORD_CLIENT_ID}")
+print(f"   CLIENT_SECRET: {'Défini' if DISCORD_CLIENT_SECRET else 'MANQUANT'}")
+print(f"   REDIRECT_URI: {DISCORD_REDIRECT_URI}")
+print(f"   BOT_TOKEN: {'Défini' if BOT_TOKEN else 'MANQUANT'}")
+
+# Configuration Flask
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
+app.config['SESSION_COOKIE_SECURE'] = True if os.getenv('RENDER') else False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Variables globales
@@ -212,13 +230,217 @@ class ArsenalWebPanel:
 # Instance du panel
 panel = ArsenalWebPanel()
 
+# Helper functions pour Discord API
+def get_bot_guilds():
+    """Récupère la liste des serveurs où le bot est présent"""
+    if not BOT_TOKEN:
+        return []
+    
+    try:
+        headers = {
+            'Authorization': f'Bot {BOT_TOKEN}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            'https://discord.com/api/v10/users/@me/guilds',
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            bot_guilds = response.json()
+            print(f"🤖 Bot présent sur {len(bot_guilds)} serveurs")
+            return bot_guilds
+        else:
+            print(f"❌ Erreur récupération serveurs bot: {response.status_code}")
+            return []
+            
+    except Exception as e:
+        print(f"❌ Erreur API Discord bot: {e}")
+        return []
+
+def filter_user_servers(user_guilds, bot_guilds):
+    """Filtre les serveurs de l'utilisateur pour afficher seulement ceux où le bot est présent"""
+    if not bot_guilds:
+        return []
+    
+    bot_guild_ids = {str(guild['id']) for guild in bot_guilds}
+    filtered_servers = []
+    
+    for guild in user_guilds:
+        if str(guild['id']) in bot_guild_ids:
+            # Vérifier les permissions administrateur
+            permissions = int(guild.get('permissions', 0))
+            has_admin = (permissions & 0x8) != 0  # Administrator permission
+            has_manage = (permissions & 0x20) != 0  # Manage server permission
+            
+            if has_admin or has_manage:
+                guild['can_manage'] = True
+                filtered_servers.append(guild)
+    
+    print(f"📊 Serveurs accessibles: {len(filtered_servers)}/{len(user_guilds)}")
+    return filtered_servers
+
+# Routes d'authentification Discord
+@app.route('/login')
+def login():
+    """Page de connexion"""
+    if 'user_info' in session:
+        return redirect(url_for('dashboard'))
+    
+    # Créer un état de sécurité OAuth
+    state = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('utf-8')
+    session['oauth_state'] = state
+    
+    # URL d'autorisation Discord
+    discord_auth_url = (
+        f"https://discord.com/api/oauth2/authorize?"
+        f"client_id={DISCORD_CLIENT_ID}&"
+        f"redirect_uri={quote_plus(DISCORD_REDIRECT_URI)}&"
+        f"response_type=code&"
+        f"scope=identify+guilds&"
+        f"state={state}"
+    )
+    
+    print(f"🔑 Génération URL auth Discord: {discord_auth_url}")
+    return render_template('login.html', auth_url=discord_auth_url)
+
+@app.route('/auth/callback')
+def auth_callback():
+    """Callback d'authentification Discord"""
+    try:
+        # Vérifier l'état OAuth
+        if 'oauth_state' not in session or request.args.get('state') != session['oauth_state']:
+            print("❌ État OAuth invalide")
+            return redirect(url_for('login'))
+        
+        code = request.args.get('code')
+        if not code:
+            print("❌ Code d'autorisation manquant")
+            return redirect(url_for('login'))
+        
+        print(f"✅ Code reçu: {code[:20]}...")
+        
+        # Échanger le code contre un token
+        token_data = {
+            'client_id': DISCORD_CLIENT_ID,
+            'client_secret': DISCORD_CLIENT_SECRET,
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': DISCORD_REDIRECT_URI
+        }
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        token_response = requests.post(
+            'https://discord.com/api/v10/oauth2/token',
+            data=token_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if token_response.status_code != 200:
+            print(f"❌ Erreur token Discord: {token_response.status_code}")
+            return redirect(url_for('login'))
+        
+        token_info = token_response.json()
+        access_token = token_info['access_token']
+        print(f"✅ Token obtenu: {access_token[:20]}...")
+        
+        # Récupérer les informations utilisateur
+        user_headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+        
+        user_response = requests.get(
+            'https://discord.com/api/v10/users/@me',
+            headers=user_headers,
+            timeout=10
+        )
+        
+        guilds_response = requests.get(
+            'https://discord.com/api/v10/users/@me/guilds',
+            headers=user_headers,
+            timeout=10
+        )
+        
+        if user_response.status_code != 200 or guilds_response.status_code != 200:
+            print("❌ Erreur récupération données utilisateur")
+            return redirect(url_for('login'))
+        
+        user_data = user_response.json()
+        user_guilds = guilds_response.json()
+        
+        print(f"👤 Utilisateur: {user_data['username']}")
+        print(f"🏰 Serveurs utilisateur: {len(user_guilds)}")
+        
+        # Filtrer les serveurs où le bot est présent
+        bot_guilds = get_bot_guilds()
+        accessible_servers = filter_user_servers(user_guilds, bot_guilds)
+        
+        # Stocker les informations en session
+        session['user_info'] = {
+            'user_id': user_data['id'],
+            'username': user_data['username'],
+            'discriminator': user_data['discriminator'],
+            'avatar': user_data.get('avatar'),
+            'access_token': access_token,
+            'guilds': accessible_servers,
+            'guilds_count': len(accessible_servers)
+        }
+        
+        # Nettoyer l'état OAuth
+        session.pop('oauth_state', None)
+        
+        print(f"✅ Session créée pour {user_data['username']} - {len(accessible_servers)} serveurs accessibles")
+        return redirect(url_for('dashboard'))
+        
+    except Exception as e:
+        print(f"❌ Erreur authentification: {e}")
+        return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    """Déconnexion"""
+    session.clear()
+    return redirect(url_for('login'))
+
 # Routes Flask
 @app.route('/')
+def index():
+    """Redirection vers dashboard ou login"""
+    if 'user_info' in session:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
 def dashboard():
-    """Dashboard principal"""
+    """Dashboard principal - Nécessite une authentification"""
+    # Vérifier l'authentification
+    if 'user_info' not in session:
+        print("❌ Accès dashboard sans authentification - Redirection login")
+        return redirect(url_for('login'))
+    
+    user_info = session['user_info']
+    print(f"✅ Accès dashboard autorisé pour: {user_info['username']}")
+    
+    # Récupérer les stats du bot
     stats = panel.get_bot_stats()
     db_stats = panel.get_database_stats()
-    return render_template('dashboard.html', stats=stats, db_stats=db_stats)
+    
+    # Préparer les données pour le template
+    dashboard_data = {
+        'user': user_info,
+        'stats': stats,
+        'db_stats': db_stats,
+        'servers': user_info.get('guilds', []),
+        'servers_count': user_info.get('guilds_count', 0)
+    }
+    
+    return render_template('dashboard.html', **dashboard_data)
 
 @app.route('/bot/start')
 def start_bot():
@@ -250,8 +472,72 @@ def restart_bot():
         flash(message, 'error')
     return redirect(url_for('dashboard'))
 
-@app.route('/modules')
-def modules():
+@app.route('/api/user/servers')
+def api_user_servers():
+    """API pour récupérer les serveurs de l'utilisateur"""
+    if 'user_info' not in session:
+        return jsonify({'error': 'Non authentifié'}), 401
+    
+    user_info = session['user_info']
+    return jsonify({
+        'servers': user_info.get('guilds', []),
+        'count': user_info.get('guilds_count', 0)
+    })
+
+@app.route('/api/server/<server_id>')
+def api_server_info(server_id):
+    """API pour récupérer les informations d'un serveur spécifique"""
+    if 'user_info' not in session:
+        return jsonify({'error': 'Non authentifié'}), 401
+    
+    user_info = session['user_info']
+    user_servers = user_info.get('guilds', [])
+    
+    # Vérifier que l'utilisateur a accès à ce serveur
+    server = None
+    for guild in user_servers:
+        if str(guild['id']) == str(server_id):
+            server = guild
+            break
+    
+    if not server:
+        return jsonify({'error': 'Serveur non accessible'}), 403
+    
+    return jsonify(server)
+
+# Routes de gestion des serveurs
+@app.route('/server/<server_id>')
+def server_dashboard(server_id):
+    """Dashboard spécifique à un serveur"""
+    if 'user_info' not in session:
+        return redirect(url_for('login'))
+    
+    user_info = session['user_info']
+    user_servers = user_info.get('guilds', [])
+    
+    # Vérifier l'accès au serveur
+    server = None
+    for guild in user_servers:
+        if str(guild['id']) == str(server_id):
+            server = guild
+            break
+    
+    if not server:
+        flash('Vous n\'avez pas accès à ce serveur', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Récupérer les stats du serveur
+    server_stats = {
+        'id': server['id'],
+        'name': server['name'],
+        'icon': server.get('icon'),
+        'permissions': server.get('permissions'),
+        'can_manage': server.get('can_manage', False)
+    }
+    
+    return render_template('server_dashboard.html', 
+                         server=server_stats, 
+                         user=user_info)
     """Gestion des modules"""
     modules_list = [
         {
