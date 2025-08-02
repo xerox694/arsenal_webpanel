@@ -453,16 +453,16 @@ try:
             print(f"   Auth Header: Basic {credentials[:20]}...")
             print(f"   User-Agent: {headers['User-Agent']}")
             
-            # DÉLAI ANTI-RATE LIMITING
+            # DÉLAI ANTI-RATE LIMITING RÉDUIT
             import time
-            time.sleep(1)  # Attendre 1 seconde avant la requête
+            time.sleep(0.2)  # Réduire à 0.2 seconde pour éviter timeout worker
             
             try:
                 token_response = requests.post(
                     oauth.get_token_url(), 
                     data=token_data, 
                     headers=headers,
-                    timeout=10,  # Timeout de 10 secondes
+                    timeout=5,  # Réduire timeout à 5 secondes pour Render
                     allow_redirects=False  # Pas de redirections automatiques
                 )
                 print(f"📥 Réponse Discord: {token_response.status_code}")
@@ -505,6 +505,10 @@ try:
                 
             except requests.exceptions.RequestException as req_error:
                 print(f"❌ Erreur requête Discord API: {req_error}")
+                # Si c'est un timeout, essayer le fallback
+                if "timeout" in str(req_error).lower() or "timed out" in str(req_error).lower():
+                    print("⏰ Timeout détecté - Activation fallback")
+                    return handle_rate_limit_fallback(code)
                 return redirect('/login?error=network_error')
             
             if 'access_token' not in token_json:
@@ -525,20 +529,20 @@ try:
             }
             
             print(f"🔍 Récupération infos utilisateur...")
-            time.sleep(0.5)  # Délai entre requêtes
+            time.sleep(0.1)  # Délai réduit entre requêtes
             
             try:
-                user_response = requests.get(oauth.get_user_info_url(), headers=user_headers, timeout=10)
+                user_response = requests.get(oauth.get_user_info_url(), headers=user_headers, timeout=5)
                 if user_response.status_code != 200:
                     print(f"❌ Erreur récupération utilisateur: {user_response.status_code}")
                     return redirect('/login?error=user_info_failed')
                 user_data = user_response.json()
                 
-                # Récupérer les serveurs de l'utilisateur avec délai
+                # Récupérer les serveurs de l'utilisateur avec délai réduit
                 print(f"🔍 Récupération serveurs utilisateur...")
-                time.sleep(0.5)  # Délai entre requêtes
+                time.sleep(0.1)  # Délai réduit entre requêtes
                 
-                guilds_response = requests.get(oauth.get_user_guilds_url(), headers=user_headers, timeout=10)
+                guilds_response = requests.get(oauth.get_user_guilds_url(), headers=user_headers, timeout=5)
                 if guilds_response.status_code != 200:
                     print(f"❌ Erreur récupération serveurs: {guilds_response.status_code}")
                     return redirect('/login?error=guilds_failed')
@@ -546,6 +550,21 @@ try:
                 
             except requests.exceptions.RequestException as req_error:
                 print(f"❌ Erreur requêtes utilisateur Discord: {req_error}")
+                # Si c'est un timeout, essayer de continuer sans les serveurs
+                if "timeout" in str(req_error).lower() or "timed out" in str(req_error).lower():
+                    print("⏰ Timeout utilisateur - Authentification minimale")
+                    # Créer un utilisateur avec données minimales
+                    user_info = {
+                        'user_id': user_data.get('id', 'unknown'),
+                        'username': user_data.get('username', 'Utilisateur'),
+                        'discriminator': user_data.get('discriminator', '0000'),
+                        'avatar': user_data.get('avatar'),
+                        'guilds': []  # Pas de serveurs à cause du timeout
+                    }
+                    # Session minimale pour éviter le timeout complet
+                    session['user_info'] = user_info
+                    session['authenticated'] = True
+                    return redirect('/dashboard')
                 return redirect('/login?error=user_api_error')
             
             print(f"🔍 Serveurs Discord de l'utilisateur: {len(guilds_data)} serveurs trouvés")
