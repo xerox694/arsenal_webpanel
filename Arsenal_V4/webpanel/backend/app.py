@@ -5421,6 +5421,52 @@ def auth_logout():
     response.set_cookie('arsenal_session', '', expires=0)
     return response
 
+@app.route('/api/auth/user')
+def api_auth_user():
+    """API pour vérifier l'authentification utilisateur - requise par le frontend"""
+    session_token = request.cookies.get('arsenal_session')
+    
+    if not session_token:
+        return jsonify({
+            'authenticated': False,
+            'error': 'No session token'
+        }), 401
+    
+    try:
+        conn = sqlite3.connect('arsenal_v4.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
+        session_result = cursor.fetchone()
+        conn.close()
+        
+        if not session_result:
+            return jsonify({
+                'authenticated': False,
+                'error': 'Invalid session'
+            }), 401
+        
+        discord_data = json.loads(session_result[0])
+        permission_level = session_result[1]
+        
+        return jsonify({
+            'authenticated': True,
+            'user': {
+                'id': discord_data.get('user_id'),
+                'username': discord_data.get('username'),
+                'avatar': discord_data.get('avatar'),
+                'discriminator': discord_data.get('discriminator'),
+                'permission_level': permission_level,
+                'guilds_count': discord_data.get('guilds_count', 0)
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur API auth/user: {e}")
+        return jsonify({
+            'authenticated': False,
+            'error': 'Internal server error'
+        }), 500
+
     print("✅ Flask app créée et configurée")
     
     # Démarrer le thread de mise à jour en arrière-plan
