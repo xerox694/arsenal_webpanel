@@ -170,7 +170,39 @@ try:
             
             # Vérifier si l'utilisateur est connecté
             if 'user_info' not in session:
-                print("⚠️ Utilisateur non connecté, redirection vers login")
+                print("⚠️ Session Flask vide, vérification cookie backup...")
+                
+                # Vérifier le cookie de backup
+                backup_token = request.cookies.get('arsenal_session_backup')
+                if backup_token:
+                    print(f"🔄 Cookie backup trouvé: {backup_token[:20]}...")
+                    # Tenter de récupérer la session depuis la DB
+                    user_data = db.get_session_user(backup_token)
+                    if user_data:
+                        print(f"✅ Session restaurée depuis backup pour: {user_data.get('username', 'Inconnu')}")
+                        # Recréer la session Flask
+                        session.permanent = True
+                        session['user_info'] = {
+                            'user_id': user_data['user_id'],
+                            'username': user_data['username'],
+                            'discriminator': user_data['discriminator'],
+                            'avatar': user_data['avatar'],
+                            'session_token': backup_token,
+                            'permission_level': user_data.get('access_level', 'member'),
+                            'accessible_servers': [],  # À récupérer si nécessaire
+                            'guilds_count': 0
+                        }
+                        session.modified = True
+                    else:
+                        print("❌ Cookie backup invalide")
+                        return redirect('/login?error=session_expired')
+                else:
+                    print("⚠️ Aucun cookie backup trouvé")
+                    return redirect('/login?error=not_authenticated')
+            
+            # Vérification finale
+            if 'user_info' not in session:
+                print("⚠️ Utilisateur non connecté après vérifications, redirection vers login")
                 print(f"⚠️ DEBUG: Toutes les clés de session: {list(session.keys()) if session else 'AUCUNE'}")
                 return redirect('/login?error=not_authenticated')
             
@@ -673,8 +705,9 @@ try:
                     'guilds_count': len(guilds_data)
                 }
                 
-                # Forcer la sauvegarde de la session
+                # Forcer la sauvegarde de la session avec session personnalisée 
                 session.modified = True
+                session.permanent = True
                 
                 print(f"✅ Session créée pour {user_info['username']} - Niveau: {permission_level} - Token: {session_token}")
                 
@@ -685,9 +718,28 @@ try:
                 print(f"   Session keys: {list(session.keys())}")
                 print(f"   Session permanent: {session.permanent}")
                 
+                # NOUVEAU: Créer une réponse avec cookies explicites pour la session
+                from flask import make_response
+                response = make_response(redirect('/dashboard'))
+                
+                # Forcer les cookies de session avec des paramètres Render-compatibles
+                response.set_cookie(
+                    'arsenal_session_backup',
+                    session_token,
+                    max_age=86400,  # 24 heures
+                    secure=False,   # Compatible Render
+                    httponly=True,
+                    samesite='Lax'
+                )
+                
+                # Vérification supplémentaire que la session est toujours là
+                if 'user_info' not in session:
+                    print("❌ CRITICAL: Session perdue immédiatement après création!")
+                    return redirect('/login?error=session_lost')
+                
                 # Redirection vers le dashboard avec debug
-                print(f"🔄 Redirection vers /dashboard...")
-                return redirect('/dashboard')
+                print(f"🔄 Redirection vers /dashboard avec cookies renforcés...")
+                return response
             else:
                 return redirect('/login?error=access_denied')
                 
