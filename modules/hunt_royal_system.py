@@ -1673,6 +1673,8 @@ class HuntRoyalCommands(commands.Cog):
             'special': 0xff4500  # Rouge-orange
         }
         return colors.get(cost_type, 0x808080)
+
+    async def analyze_team_composition(self, ctx, hunters):
         """Analyser une composition d'équipe"""
         if len(hunters) < 2:
             embed = discord.Embed(

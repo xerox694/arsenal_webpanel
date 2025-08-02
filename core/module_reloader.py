@@ -14,14 +14,170 @@ Créé pour Arsenal Bot V4 - Hot Reload System
 import os
 import sys
 import importlib
+import importlib.util
 import traceback
 import asyncio
+import time
+import re
 from datetime import datetime
 from pathlib import Path
 import discord
 from discord.ext import commands
+from discord import app_commands
 from typing import Dict, List, Optional
 import json
+
+# Commandes slash pour le rechargement de modules
+reload_group = app_commands.Group(name="reload", description="🔄 Rechargement de modules à chaud")
+
+@reload_group.command(name="module", description="Recharge un module Arsenal spécifique")
+@app_commands.describe(module="Nom du module à recharger")
+@app_commands.choices(module=[
+    app_commands.Choice(name="🏹 Profils Utilisateurs", value="user_profiles_system"),
+    app_commands.Choice(name="🛡️ AutoMod", value="automod_system"), 
+    app_commands.Choice(name="💰 Économie", value="economy_system"),
+    app_commands.Choice(name="🎫 Tickets", value="ticket_system"),
+    app_commands.Choice(name="🎧 Voice Hub", value="voice_hub_system"),
+    app_commands.Choice(name="🆘 Système d'Aide", value="help_system")
+])
+@app_commands.checks.has_permissions(administrator=True)
+async def reload_module_slash(interaction: discord.Interaction, module: str):
+    reloader_cog = interaction.client.get_cog('ReloaderCommands')
+    if not reloader_cog:
+        await interaction.response.send_message("❌ Système de rechargement non chargé", ephemeral=True)
+        return
+    
+    await interaction.response.defer(ephemeral=True)
+    
+    # Utiliser le système de rechargement Arsenal
+    success, result_message = await reloader_cog.reloader.reload_arsenal_module(module)
+    
+    embed_color = discord.Color.green() if success else discord.Color.red()
+    embed_title = "✅ Module rechargé" if success else "❌ Échec du rechargement"
+    
+    embed = discord.Embed(
+        title=embed_title,
+        description=result_message,
+        color=embed_color
+    )
+    
+    if success:
+        embed.add_field(
+            name="📋 Module", 
+            value=f"**{module}**", 
+            inline=True
+        )
+        embed.add_field(
+            name="⏰ Heure",
+            value=f"<t:{int(datetime.now().timestamp())}:T>",
+            inline=True
+        )
+    
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+@reload_group.command(name="all", description="Recharge tous les modules Arsenal")
+@app_commands.checks.has_permissions(administrator=True)
+async def reload_all_slash(interaction: discord.Interaction):
+    reloader_cog = interaction.client.get_cog('ReloaderCommands')
+    if not reloader_cog:
+        await interaction.response.send_message("❌ Système de rechargement non chargé", ephemeral=True)
+        return
+    
+    await interaction.response.defer(ephemeral=True)
+    
+    results = []
+    total = len(reloader_cog.reloader.arsenal_modules)
+    current = 0
+    
+    # Message de progression initial
+    initial_embed = discord.Embed(
+        title="🔄 Rechargement en masse",
+        description=f"Démarrage du rechargement de {total} modules...",
+        color=discord.Color.orange()
+    )
+    await interaction.followup.send(embed=initial_embed, ephemeral=True)
+    
+    for module_name in reloader_cog.reloader.arsenal_modules.keys():
+        current += 1
+        
+        # Recharger le module
+        success, result_msg = await reloader_cog.reloader.reload_arsenal_module(module_name)
+        results.append({
+            "module": module_name,
+            "success": success,
+            "message": result_msg
+        })
+        
+        await asyncio.sleep(0.5)  # Petite pause
+    
+    # Résultats finaux
+    successful = sum(1 for r in results if r["success"])
+    failed = total - successful
+    
+    final_embed = discord.Embed(
+        title="✅ Rechargement terminé",
+        description=f"**Résultats:** {successful} réussis, {failed} échoués sur {total} modules",
+        color=discord.Color.green() if failed == 0 else discord.Color.orange()
+    )
+    
+    # Détails
+    success_list = [f"✅ {r['module']}" for r in results if r["success"]]
+    error_list = [f"❌ {r['module']}" for r in results if not r["success"]]
+    
+    if success_list:
+        final_embed.add_field(
+            name="✅ Succès",
+            value="\n".join(success_list[:10]),  # Limiter pour éviter les embeds trop longs
+            inline=True
+        )
+    
+    if error_list:
+        final_embed.add_field(
+            name="❌ Erreurs", 
+            value="\n".join(error_list[:10]),
+            inline=True
+        )
+    
+    await interaction.edit_original_response(embed=final_embed)
+
+@reload_group.command(name="status", description="Affiche le statut des modules Arsenal")
+async def reload_status_slash(interaction: discord.Interaction):
+    reloader_cog = interaction.client.get_cog('ReloaderCommands')
+    if not reloader_cog:
+        await interaction.response.send_message("❌ Système de rechargement non chargé", ephemeral=True)
+        return
+    
+    embed = discord.Embed(
+        title="🔄 Statut des Modules Arsenal",
+        description="État actuel des modules avec rechargement avancé",
+        color=discord.Color.blue()
+    )
+    
+    loaded_count = 0
+    total_count = len(reloader_cog.reloader.arsenal_modules)
+    
+    for module_name, config in reloader_cog.reloader.arsenal_modules.items():
+        # Vérifier si le Cog est chargé
+        cog = interaction.client.get_cog(config["cog_class"])
+        if cog:
+            status = "✅ Chargé"
+            loaded_count += 1
+        else:
+            status = "❌ Non chargé"
+        
+        embed.add_field(
+            name=f"{status} **{module_name}**",
+            value=f"Cog: `{config['cog_class']}`",
+            inline=True
+        )
+    
+    embed.add_field(
+        name="📊 Résumé",
+        value=f"**{loaded_count}/{total_count}** modules chargés",
+        inline=False
+    )
+    
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class ModuleReloader:
     """Gestionnaire de rechargement de modules"""
@@ -37,6 +193,40 @@ class ModuleReloader:
         ]
         self.auto_reload = True
         self.reload_log = []
+        
+        # Modules Arsenal spéciaux avec rechargement avancé
+        self.arsenal_modules = {
+            "user_profiles_system": {
+                "path": "modules.user_profiles_system",
+                "cog_class": "UserProfileCog",
+                "commands": ["profile_group"]
+            },
+            "automod_system": {
+                "path": "modules.automod_system", 
+                "cog_class": "AutoModCog",
+                "commands": ["automod_group"]
+            },
+            "economy_system": {
+                "path": "modules.economy_system",
+                "cog_class": "EconomyCog", 
+                "commands": ["economy_group"]
+            },
+            "ticket_system": {
+                "path": "modules.ticket_system",
+                "cog_class": "TicketCog",
+                "commands": ["ticket_group"]
+            },
+            "voice_hub_system": {
+                "path": "modules.voice_hub_system",
+                "cog_class": "VoiceHubCog",
+                "commands": []
+            },
+            "help_system": {
+                "path": "commands.help_system",
+                "cog_class": "HelpCog",
+                "commands": ["help_group", "simple_help"]
+            }
+        }
         
     def scan_modules(self):
         """Scanner tous les modules disponibles"""
@@ -110,6 +300,94 @@ class ModuleReloader:
             
             return False, error_msg
     
+    async def reload_arsenal_module(self, module_name: str):
+        """Recharger un module Arsenal spécifique (avec Cog)"""
+        if module_name not in self.arsenal_modules:
+            return False, f"Module Arsenal '{module_name}' non reconnu"
+        
+        try:
+            module_config = self.arsenal_modules[module_name]
+            module_path = module_config["path"]
+            cog_class_name = module_config["cog_class"]
+            commands_to_remove = module_config.get("commands", [])
+            
+            # Étape 1: Décharger l'ancien Cog s'il existe
+            existing_cog = self.bot.get_cog(cog_class_name)
+            if existing_cog:
+                await self.bot.remove_cog(cog_class_name)
+                print(f"🗑️ Ancien Cog {cog_class_name} déchargé")
+            
+            # Étape 2: Supprimer les commandes slash du tree
+            for cmd_name in commands_to_remove:
+                try:
+                    # Trouver et supprimer la commande du tree
+                    for command in self.bot.tree._global_commands.copy():
+                        if hasattr(command, 'name') and command.name == cmd_name.replace('_group', ''):
+                            self.bot.tree.remove_command(command.name)
+                            print(f"🗑️ Commande slash '{command.name}' supprimée")
+                except Exception as e:
+                    print(f"⚠️ Erreur suppression commande {cmd_name}: {e}")
+            
+            # Étape 3: Recharger le module Python
+            if module_path in sys.modules:
+                importlib.reload(sys.modules[module_path])
+                print(f"🔄 Module Python {module_path} rechargé")
+            else:
+                # Importer pour la première fois
+                imported_module = importlib.import_module(module_path)
+                print(f"📥 Module Python {module_path} importé")
+            
+            # Étape 4: Recharger le Cog
+            reloaded_module = sys.modules[module_path]
+            cog_class = getattr(reloaded_module, cog_class_name)
+            new_cog = cog_class(self.bot)
+            await self.bot.add_cog(new_cog)
+            print(f"✅ Nouveau Cog {cog_class_name} chargé")
+            
+            # Étape 5: Ré-ajouter les commandes slash
+            for cmd_name in commands_to_remove:
+                try:
+                    if hasattr(reloaded_module, cmd_name):
+                        command_obj = getattr(reloaded_module, cmd_name)
+                        self.bot.tree.add_command(command_obj)
+                        print(f"✅ Commande slash '{cmd_name}' ré-ajoutée")
+                except Exception as e:
+                    print(f"⚠️ Erreur ajout commande {cmd_name}: {e}")
+            
+            # Étape 6: Synchroniser les commandes
+            try:
+                await self.bot.tree.sync()
+                print("🔄 Commandes slash synchronisées")
+            except Exception as e:
+                print(f"⚠️ Erreur sync commandes: {e}")
+            
+            # Log
+            log_entry = {
+                "action": "reload_arsenal",
+                "module": module_name,
+                "timestamp": datetime.now().isoformat(),
+                "success": True,
+                "details": f"Cog {cog_class_name} rechargé avec commandes"
+            }
+            self.reload_log.append(log_entry)
+            
+            return True, f"✅ Module Arsenal '{module_name}' rechargé avec succès!"
+            
+        except Exception as e:
+            error_msg = f"❌ Erreur rechargement {module_name}: {str(e)}"
+            print(f"{error_msg}\n{traceback.format_exc()}")
+            
+            log_entry = {
+                "action": "reload_arsenal",
+                "module": module_name,
+                "timestamp": datetime.now().isoformat(),
+                "success": False,
+                "error": str(e)
+            }
+            self.reload_log.append(log_entry)
+            
+            return False, error_msg
+        
     async def reload_module(self, module_name: str):
         """Recharger un module existant"""
         if module_name not in self.modules_info:
@@ -331,15 +609,6 @@ class ReloaderCommands(commands.Cog):
     @module_management.command(name='reload')
     async def reload_module(self, ctx, module_name: str):
         """Recharger un module spécifique"""
-        if module_name not in self.reloader.modules_info:
-            embed = discord.Embed(
-                title="❌ Module non trouvé",
-                description=f"Le module **{module_name}** n'existe pas",
-                color=0xff0000
-            )
-            await ctx.send(embed=embed)
-            return
-        
         # Message de chargement
         loading_embed = discord.Embed(
             title="🔄 Rechargement en cours...",
@@ -347,6 +616,39 @@ class ReloaderCommands(commands.Cog):
             color=0xffa500
         )
         message = await ctx.send(embed=loading_embed)
+        
+        # Vérifier si c'est un module Arsenal spécial
+        if module_name in self.reloader.arsenal_modules:
+            success, result_message = await self.reloader.reload_arsenal_module(module_name)
+        elif module_name in self.reloader.modules_info:
+            success, result_message = await self.reloader.reload_module(module_name)
+        else:
+            success = False
+            result_message = f"Module **{module_name}** non trouvé"
+        
+        # Résultat
+        embed_color = 0x00ff00 if success else 0xff0000
+        embed_title = "✅ Rechargement réussi" if success else "❌ Échec du rechargement"
+        
+        result_embed = discord.Embed(
+            title=embed_title,
+            description=result_message,
+            color=embed_color
+        )
+        
+        if success:
+            result_embed.add_field(
+                name="📋 Module",
+                value=f"**{module_name}**",
+                inline=True
+            )
+            result_embed.add_field(
+                name="⏰ Heure",
+                value=f"<t:{int(datetime.now().timestamp())}:T>",
+                inline=True
+            )
+        
+        await message.edit(embed=result_embed)
         
         # Recharger le module
         success, result_message = await self.reloader.reload_module(module_name)
@@ -444,6 +746,109 @@ class ReloaderCommands(commands.Cog):
             )
         
         await ctx.send(embed=embed)
+    
+    @module_management.command(name='arsenal')
+    async def arsenal_modules(self, ctx):
+        """Affiche les modules Arsenal spéciaux"""
+        embed = discord.Embed(
+            title="🏹 Modules Arsenal Spéciaux",
+            description="Modules avec rechargement avancé (Cogs + Commandes)",
+            color=0x7289da
+        )
+        
+        for module_name, config in self.reloader.arsenal_modules.items():
+            # Vérifier si le Cog est chargé
+            cog = self.bot.get_cog(config["cog_class"])
+            status = "✅ Chargé" if cog else "❌ Non chargé"
+            
+            embed.add_field(
+                name=f"{status} **{module_name}**",
+                value=f"**Fichier:** `{config['path']}`\n"
+                      f"**Cog:** `{config['cog_class']}`\n"
+                      f"**Commandes:** {len(config.get('commands', []))}",
+                inline=True
+            )
+        
+        embed.add_field(
+            name="🔄 Commandes",
+            value="`!module reload <nom>` - Recharger un module Arsenal\n"
+                  "`!module reload_all` - Recharger tous les modules\n"
+                  "`!module arsenal` - Voir cette liste",
+            inline=False
+        )
+        
+        await ctx.send(embed=embed)
+    
+    @module_management.command(name='reload_all')
+    async def reload_all_arsenal(self, ctx):
+        """Recharge tous les modules Arsenal"""
+        embed = discord.Embed(
+            title="🔄 Rechargement de tous les modules Arsenal",
+            description="Démarrage du rechargement en masse...",
+            color=0xffa500
+        )
+        message = await ctx.send(embed=embed)
+        
+        results = []
+        total = len(self.reloader.arsenal_modules)
+        current = 0
+        
+        for module_name in self.reloader.arsenal_modules.keys():
+            current += 1
+            
+            # Mettre à jour le message de progression
+            progress_embed = discord.Embed(
+                title="🔄 Rechargement en cours...",
+                description=f"Module: **{module_name}** ({current}/{total})",
+                color=0xffa500
+            )
+            await message.edit(embed=progress_embed)
+            
+            # Recharger le module
+            success, result_msg = await self.reloader.reload_arsenal_module(module_name)
+            results.append({
+                "module": module_name,
+                "success": success,
+                "message": result_msg
+            })
+            
+            await asyncio.sleep(1)  # Petite pause entre les modules
+        
+        # Afficher les résultats
+        successful = sum(1 for r in results if r["success"])
+        failed = total - successful
+        
+        final_embed = discord.Embed(
+            title="✅ Rechargement terminé",
+            description=f"**Résultats:** {successful} réussis, {failed} échoués",
+            color=0x00ff00 if failed == 0 else 0xffa500
+        )
+        
+        # Détails des résultats
+        success_list = []
+        error_list = []
+        
+        for result in results:
+            if result["success"]:
+                success_list.append(f"✅ {result['module']}")
+            else:
+                error_list.append(f"❌ {result['module']}: {result['message'][:50]}...")
+        
+        if success_list:
+            final_embed.add_field(
+                name="✅ Succès",
+                value="\n".join(success_list),
+                inline=True
+            )
+        
+        if error_list:
+            final_embed.add_field(
+                name="❌ Erreurs",
+                value="\n".join(error_list),
+                inline=True
+            )
+        
+        await message.edit(embed=final_embed)
     
     @module_management.command(name='logs')
     async def module_logs(self, ctx, limit: int = 10):

@@ -1,0 +1,40 @@
+{
+    "servers": {
+        "1174029948428746792": {
+            "hubs": {}
+        },
+        "1346649383164186654": {
+            "hubs": {
+                "1346649383164186658": {
+                    "name": "vocal",
+                    "hub_channel_id": 1346649383164186658,
+                    "category_id": 1346649383164186656,
+                    "creator_id": 431359112039890945,
+                    "created_at": "2025-08-02T14:52:33.571205",
+                    "settings": {
+                        "auto_delete_empty": true,
+                        "max_temp_channels": 10,
+                        "channel_name_template": "{username}'s Channel",
+                        "default_user_limit": 0,
+                        "auto_move_creator": true,
+                        "temp_channel_prefix": "🎧"
+                    },
+                    "permissions": {
+                        "moderators": [],
+                        "allowed_roles": [],
+                        "banned_users": []
+                    },
+                    "temp_channels": {
+                        "1401185914524270702": {
+                            "channel_id": 1401185914524270702,
+                            "text_channel_id": 1401185915648610386,
+                            "owner_id": 431359112039890945,
+                            "created_at": "2025-08-02T14:52:38.125651",
+                            "last_activity": "2025-08-02T14:55:45.812227"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

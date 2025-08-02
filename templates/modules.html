@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsenal V4 - Modules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-discord { background: linear-gradient(135deg, #7289da, #5865f2); }
+        .text-discord { color: #5865f2; }
+        .sidebar { min-height: 100vh; background: #2c2f33; }
+        .sidebar .nav-link { color: #99aab5; }
+        .sidebar .nav-link:hover { color: #fff; background: #7289da; }
+        .sidebar .nav-link.active { color: #fff; background: #5865f2; }
+        .module-card { transition: transform 0.2s; }
+        .module-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white"><i class="fas fa-robot"></i> Arsenal V4</h4>
+                        <small class="text-muted">WebPanel</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('modules') }}">
+                                <i class="fas fa-puzzle-piece"></i> Modules
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logs') }}">
+                                <i class="fas fa-file-alt"></i> Logs
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-puzzle-piece text-discord"></i> Gestion des Modules</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                                <i class="fas fa-sync-alt"></i> Actualiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hot-Reload System Info -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-info" role="alert">
+                            <h4 class="alert-heading"><i class="fas fa-magic"></i> Système Hot-Reload Actif</h4>
+                            <p>Vous pouvez maintenant recharger les modules <strong>sans redémarrer le bot</strong> ! 
+                            Cliquez sur "Recharger" pour appliquer les modifications en temps réel.</p>
+                            <hr>
+                            <p class="mb-0">
+                                <strong>Avantages :</strong>
+                                ⚡ Pas d'interruption de service • 
+                                🔧 Développement rapide • 
+                                🛡️ Rollback automatique en cas d'erreur
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modules Grid -->
+                <div class="row">
+                    {% for module in modules %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card border-0 shadow-sm module-card h-100">
+                            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    {% if module.name == 'AutoMod System' %}
+                                        <i class="fas fa-shield-alt text-danger"></i>
+                                    {% elif module.name == 'User Profiles' %}
+                                        <i class="fas fa-user text-primary"></i>
+                                    {% elif module.name == 'Hunt Royal' %}
+                                        <i class="fas fa-dragon text-warning"></i>
+                                    {% elif module.name == 'Economy System' %}
+                                        <i class="fas fa-coins text-success"></i>
+                                    {% elif module.name == 'Ticket System' %}
+                                        <i class="fas fa-ticket-alt text-info"></i>
+                                    {% elif module.name == 'Voice Hub' %}
+                                        <i class="fas fa-microphone text-purple"></i>
+                                    {% else %}
+                                        <i class="fas fa-puzzle-piece text-secondary"></i>
+                                    {% endif %}
+                                    {{ module.name }}
+                                </h5>
+                                <span class="badge {% if module.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ module.status|title }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ module.description }}</p>
+                                
+                                <h6 class="mb-2">Commandes principales :</h6>
+                                <div class="mb-3">
+                                    {% for command in module.commands %}
+                                        <code class="d-block text-muted small mb-1">{{ command }}</code>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-0">
+                                <div class="d-grid gap-2">
+                                    {% if module.name == 'AutoMod System' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('automod_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% elif module.name == 'User Profiles' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('user_profiles_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% elif module.name == 'Hunt Royal' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('hunt_royal_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% elif module.name == 'Economy System' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('economy_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% elif module.name == 'Ticket System' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('ticket_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% elif module.name == 'Voice Hub' %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="reloadModule('voice_hub_system')">
+                                            <i class="fas fa-sync-alt"></i> Recharger Module
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Global Actions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cogs text-discord"></i> Actions Globales
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-warning" onclick="reloadAllModules()">
+                                                <i class="fas fa-sync-alt"></i> Recharger TOUS les Modules Arsenal
+                                            </button>
+                                            <button class="btn btn-info" onclick="checkModulesStatus()">
+                                                <i class="fas fa-check-circle"></i> Vérifier Statut des Modules
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-outline-secondary" onclick="viewReloadLogs()">
+                                                <i class="fas fa-file-alt"></i> Voir Logs de Rechargement
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="emergencyRestart()">
+                                                <i class="fas fa-exclamation-triangle"></i> Redémarrage d'Urgence
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Development Guide -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-code text-discord"></i> Guide Développement
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6><i class="fas fa-magic"></i> Workflow Hot-Reload</h6>
+                                        <ol class="text-muted small">
+                                            <li>Modifiez votre fichier Python dans <code>modules/</code></li>
+                                            <li>Cliquez sur "Recharger Module" ci-dessus</li>
+                                            <li>Vos changements sont appliqués <strong>instantanément</strong></li>
+                                            <li>Testez vos commandes sur Discord</li>
+                                        </ol>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6><i class="fas fa-shield-alt"></i> Sécurités</h6>
+                                        <ul class="text-muted small">
+                                            <li>✅ Rollback automatique en cas d'erreur</li>
+                                            <li>✅ Validation de la syntaxe Python</li>
+                                            <li>✅ Logs détaillés des opérations</li>
+                                            <li>✅ Pas d'interruption de service</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success mt-3" role="alert">
+                                    <h6 class="alert-heading"><i class="fas fa-lightbulb"></i> Astuce Pro</h6>
+                                    <p class="mb-0">
+                                        Utilisez les commandes Discord <code>/reload module &lt;nom&gt;</code> 
+                                        directement depuis votre serveur pour un rechargement encore plus rapide !
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Module reload functions
+        function reloadModule(moduleName) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rechargement...';
+            button.disabled = true;
+            
+            fetch(`/api/reload/${moduleName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        button.innerHTML = '<i class="fas fa-check"></i> Rechargé !';
+                        button.className = 'btn btn-success btn-sm';
+                        
+                        // Show success message
+                        showAlert('success', `✅ ${data.message}`);
+                        
+                        // Reset button after 3 seconds
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.className = 'btn btn-outline-primary btn-sm';
+                            button.disabled = false;
+                        }, 3000);
+                    } else {
+                        button.innerHTML = '<i class="fas fa-times"></i> Erreur';
+                        button.className = 'btn btn-danger btn-sm';
+                        
+                        showAlert('danger', `❌ ${data.message}`);
+                        
+                        // Reset button after 3 seconds
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.className = 'btn btn-outline-primary btn-sm';
+                            button.disabled = false;
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    button.innerHTML = '<i class="fas fa-times"></i> Erreur';
+                    button.className = 'btn btn-danger btn-sm';
+                    
+                    showAlert('danger', `❌ Erreur réseau: ${error}`);
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.className = 'btn btn-outline-primary btn-sm';
+                        button.disabled = false;
+                    }, 3000);
+                });
+        }
+        
+        function reloadAllModules() {
+            if (confirm('Êtes-vous sûr de vouloir recharger TOUS les modules Arsenal ? Cette opération peut prendre quelques secondes.')) {
+                showAlert('info', '🔄 Rechargement de tous les modules en cours...');
+                
+                fetch('/api/reload/all')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('success', `✅ ${data.message}`);
+                        } else {
+                            showAlert('danger', `❌ ${data.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        showAlert('danger', `❌ Erreur: ${error}`);
+                    });
+            }
+        }
+        
+        function checkModulesStatus() {
+            showAlert('info', '🔍 Vérification du statut des modules...');
+            
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    showAlert('success', '✅ Tous les modules sont opérationnels');
+                })
+                .catch(error => {
+                    showAlert('danger', `❌ Erreur: ${error}`);
+                });
+        }
+        
+        function viewReloadLogs() {
+            window.open('/logs', '_blank');
+        }
+        
+        function emergencyRestart() {
+            if (confirm('⚠️ ATTENTION: Redémarrage d\'urgence du bot. Tous les utilisateurs seront déconnectés temporairement. Continuer ?')) {
+                showAlert('warning', '⚠️ Redémarrage d\'urgence en cours...');
+                window.location.href = '/bot/restart';
+            }
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert at top of main content
+            const main = document.querySelector('main');
+            main.insertBefore(alertDiv, main.firstChild.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

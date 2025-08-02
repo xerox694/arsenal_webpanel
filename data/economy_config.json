@@ -1,0 +1,190 @@
+{
+    "currency_name": "Arsenal Coins",
+    "currency_symbol": "🪙",
+    "starting_balance": 1000,
+    "starting_xp": 0,
+    "xp_per_message": {
+        "min": 15,
+        "max": 25
+    },
+    "xp_cooldown": 60,
+    "level_multiplier": 100,
+    "daily_reward": {
+        "min": 500,
+        "max": 1500
+    },
+    "work_reward": {
+        "min": 200,
+        "max": 800
+    },
+    "crime_reward": {
+        "min": 100,
+        "max": 2000
+    },
+    "crime_fail_penalty": {
+        "min": 50,
+        "max": 500
+    },
+    "crime_success_rate": 0.6,
+    "bank_interest_rate": 0.02,
+    "shop_items": {
+        "premium_role": {
+            "name": "🌟 Rôle Premium",
+            "description": "Rôle premium avec avantages exclusifs",
+            "price": 50000,
+            "type": "role",
+            "role_id": null,
+            "duration": 2592000
+        },
+        "custom_color": {
+            "name": "🎨 Couleur Personnalisée",
+            "description": "Créer son propre rôle coloré",
+            "price": 25000,
+            "type": "custom_role",
+            "duration": 1209600
+        },
+        "vip_channel": {
+            "name": "💎 Accès VIP",
+            "description": "Accès aux salons VIP privés",
+            "price": 75000,
+            "type": "channel_access",
+            "channel_ids": [],
+            "duration": 2592000
+        },
+        "boost_xp": {
+            "name": "⚡ Boost XP x2",
+            "description": "Double l'expérience gagnée",
+            "price": 15000,
+            "type": "boost",
+            "multiplier": 2.0,
+            "duration": 604800
+        },
+        "boost_money": {
+            "name": "💰 Boost Argent x1.5",
+            "description": "Augmente les gains d'argent de 50%",
+            "price": 20000,
+            "type": "boost",
+            "multiplier": 1.5,
+            "duration": 604800
+        }
+    },
+    "level_rewards": {
+        "5": {
+            "money": 2000,
+            "item": null
+        },
+        "10": {
+            "money": 5000,
+            "item": "boost_xp"
+        },
+        "15": {
+            "money": 7500,
+            "item": null
+        },
+        "20": {
+            "money": 10000,
+            "item": "boost_money"
+        },
+        "25": {
+            "money": 15000,
+            "item": "custom_color"
+        },
+        "30": {
+            "money": 20000,
+            "item": null
+        },
+        "50": {
+            "money": 50000,
+            "item": "premium_role"
+        },
+        "75": {
+            "money": 75000,
+            "item": "vip_channel"
+        },
+        "100": {
+            "money": 100000,
+            "item": "all_boosts"
+        }
+    },
+    "work_jobs": [
+        {
+            "name": "Développeur",
+            "min": 400,
+            "max": 1000,
+            "description": "Coder des applications"
+        },
+        {
+            "name": "Designer",
+            "min": 300,
+            "max": 800,
+            "description": "Créer des designs"
+        },
+        {
+            "name": "Streamer",
+            "min": 200,
+            "max": 600,
+            "description": "Diffuser en live"
+        },
+        {
+            "name": "YouTubeur",
+            "min": 250,
+            "max": 750,
+            "description": "Créer du contenu vidéo"
+        },
+        {
+            "name": "Gamer Pro",
+            "min": 350,
+            "max": 900,
+            "description": "Participer à des tournois"
+        },
+        {
+            "name": "Modérateur",
+            "min": 150,
+            "max": 400,
+            "description": "Modérer des serveurs"
+        },
+        {
+            "name": "Bot Developer",
+            "min": 500,
+            "max": 1200,
+            "description": "Développer des bots Discord"
+        }
+    ],
+    "crime_activities": [
+        {
+            "name": "Hack un site",
+            "min": 500,
+            "max": 2500,
+            "fail_min": 200,
+            "fail_max": 800
+        },
+        {
+            "name": "Vendre des comptes",
+            "min": 300,
+            "max": 1500,
+            "fail_min": 100,
+            "fail_max": 500
+        },
+        {
+            "name": "DDoS un serveur",
+            "min": 800,
+            "max": 3000,
+            "fail_min": 400,
+            "fail_max": 1000
+        },
+        {
+            "name": "Créer un virus",
+            "min": 1000,
+            "max": 4000,
+            "fail_min": 500,
+            "fail_max": 1500
+        },
+        {
+            "name": "Pirater un Discord",
+            "min": 600,
+            "max": 2000,
+            "fail_min": 250,
+            "fail_max": 750
+        }
+    ]
+}

@@ -433,9 +433,21 @@
             const error = urlParams.get('error');
             
             if (error === 'access_denied') {
-                showMessage('Accès refusé. Vous devez être sur un serveur avec Arsenal pour accéder au panel.', 'error');
+                showMessage('❌ Accès refusé. Vous devez être sur un serveur avec Arsenal pour accéder au panel.', 'error');
             } else if (error === 'oauth_failed') {
-                showMessage('Erreur lors de l\'authentification Discord. Veuillez réessayer.', 'error');
+                showMessage('❌ Erreur lors de l\'authentification Discord. Veuillez réessayer.', 'error');
+            } else if (error === 'oauth_expired') {
+                showMessage('⏰ Code d\'authentification expiré. Veuillez vous reconnecter.', 'error');
+            } else if (error === 'discord_api_error') {
+                showMessage('🚫 Erreur API Discord. Veuillez patienter et réessayer.', 'error');
+            } else if (error === 'network_error') {
+                showMessage('🌐 Erreur réseau. Vérifiez votre connexion internet.', 'error');
+            } else if (error === 'user_info_failed') {
+                showMessage('👤 Impossible de récupérer vos informations Discord.', 'error');
+            } else if (error === 'guilds_failed') {
+                showMessage('🏛️ Impossible de récupérer vos serveurs Discord.', 'error');
+            } else if (error === 'user_api_error') {
+                showMessage('⚡ Erreur API utilisateur Discord. Réessayez dans quelques instants.', 'error');
             }
         }
 

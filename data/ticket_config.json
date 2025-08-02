@@ -1,0 +1,42 @@
+{
+    "servers": {
+        "1346649383164186654": {
+            "enabled": true,
+            "category_id": 1346649383164186655,
+            "support_roles": [],
+            "log_channel": 1348622160092205107,
+            "max_tickets_per_user": 3,
+            "auto_close_hours": 72,
+            "ticket_categories": {
+                "support": {
+                    "name": "🆘 Support Général",
+                    "description": "Besoin d'aide générale",
+                    "auto_response": "Merci pour votre demande de support ! Un membre de l'équipe vous répondra bientôt.",
+                    "roles": [],
+                    "emoji": "🆘"
+                },
+                "bug": {
+                    "name": "🐛 Signaler un Bug",
+                    "description": "Signaler un problème technique",
+                    "auto_response": "Merci de signaler ce bug ! Veuillez décrire le problème en détail.",
+                    "roles": [],
+                    "emoji": "🐛"
+                },
+                "suggestion": {
+                    "name": "💡 Suggestion",
+                    "description": "Proposer une amélioration",
+                    "auto_response": "Merci pour votre suggestion ! Nous allons l'étudier attentivement.",
+                    "roles": [],
+                    "emoji": "💡"
+                },
+                "report": {
+                    "name": "⚠️ Signalement",
+                    "description": "Signaler un utilisateur",
+                    "auto_response": "Merci pour votre signalement. Veuillez fournir des preuves si possible.",
+                    "roles": [],
+                    "emoji": "⚠️"
+                }
+            }
+        }
+    }
+}
