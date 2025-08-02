@@ -97,7 +97,10 @@ try:
     print("✅ Modules importés avec succès")
     
     app = Flask(__name__)
-    app.secret_key = secrets.token_hex(32)
+    # Fix: Utiliser une clé secrète stable basée sur les variables d'environnement
+    secret_base = os.environ.get('SECRET_KEY') or f"{oauth.CLIENT_ID}-{oauth.CLIENT_SECRET}"
+    app.secret_key = hashlib.sha256(secret_base.encode()).hexdigest()
+    print(f"🔐 Secret key configurée: {app.secret_key[:16]}...")
     CORS(app, supports_credentials=True)
     
     # Initialiser la base de données
@@ -113,20 +116,22 @@ try:
     is_production = flask_env == 'production' and not debug_mode
     
     app.config['DEBUG'] = debug_mode  # Debug basé sur la variable DEBUG
-    app.config['SESSION_COOKIE_SECURE'] = is_production   # HTTPS en production seulement
+    app.config['SESSION_COOKIE_SECURE'] = False  # Temporairement désactiver pour debug
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SESSION_PERMANENT'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
+    app.config['SESSION_COOKIE_PATH'] = '/'
+    app.config['SESSION_COOKIE_NAME'] = 'arsenal_session'
     
-    # Configuration spéciale pour Render.com
+    # Configuration spéciale pour Render.com - FIX SESSION
     if is_production:
-        # Ne pas définir de domaine spécifique pour éviter les problèmes de session
-        # app.config['SESSION_COOKIE_DOMAIN'] = '.onrender.com'
-        pass
+        # Configuration Render plus permissive
+        app.config['SESSION_COOKIE_DOMAIN'] = None  # Important: laisser None
+        print("🔧 Configuration Render: Domain=None (auto)")
     
-    print(f"🔧 Configuration: Production={is_production}, Secure Cookies={is_production}")
-    print(f"🍪 Session config: Domain={app.config.get('SESSION_COOKIE_DOMAIN', 'localhost')}")
+    print(f"🔧 Configuration: Production={is_production}, Secure Cookies={app.config['SESSION_COOKIE_SECURE']}")
+    print(f"🍪 Session config: Domain={app.config.get('SESSION_COOKIE_DOMAIN', 'None')}")
     
     print("✅ Flask app créée et configurée")
 
