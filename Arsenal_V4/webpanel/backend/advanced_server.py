@@ -1318,9 +1318,43 @@ try:
     @app.route('/api/user/info')
     def get_user_info():
         """Récupérer les infos de l'utilisateur connecté"""
+        # Vérifier la session Flask d'abord
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté"}), 401
+            print("⚠️ API user/info: Session Flask vide, vérification cookie backup...")
+            
+            # Vérifier le cookie de backup
+            backup_token = request.cookies.get('arsenal_session_backup')
+            if backup_token:
+                print(f"🔄 API user/info: Cookie backup trouvé: {backup_token[:20]}...")
+                # Tenter de récupérer la session depuis la DB
+                user_data = db.get_session_user(backup_token)
+                if user_data:
+                    print(f"✅ API user/info: Session restaurée depuis backup pour: {user_data.get('username', 'Inconnu')}")
+                    # Recréer la session Flask
+                    session.permanent = True
+                    session['user_info'] = {
+                        'user_id': user_data['user_id'],
+                        'username': user_data['username'],
+                        'discriminator': user_data['discriminator'],
+                        'avatar': user_data['avatar'],
+                        'session_token': backup_token,
+                        'permission_level': user_data.get('access_level', 'member'),
+                        'accessible_servers': [],  # À récupérer si nécessaire
+                        'guilds_count': 0
+                    }
+                    session.modified = True
+                else:
+                    print("❌ API user/info: Cookie backup invalide")
+                    return jsonify({"error": "Session expirée", "redirect": "/login"}), 401
+            else:
+                print("❌ API user/info: Aucun cookie backup trouvé")
+                return jsonify({"error": "Non connecté", "redirect": "/login"}), 401
         
+        # Vérification finale
+        if 'user_info' not in session:
+            return jsonify({"error": "Non connecté", "redirect": "/login"}), 401
+        
+        print(f"✅ API user/info: Retour des données pour {session['user_info'].get('username', 'Inconnu')}")
         return jsonify({
             "success": True,
             "user": session['user_info']
