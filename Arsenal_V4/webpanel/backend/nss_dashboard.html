@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSS Dashboard - Mode Développement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #fff;
+            text-align: center;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .api-list {
+            list-style: none;
+        }
+        
+        .api-list li {
+            margin: 10px 0;
+        }
+        
+        .api-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .api-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .test-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .result-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            color: #4fc3f7;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+        
+        .env-vars {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #e0e0e0;
+        }
+        
+        .env-vars h4 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 NSS Dashboard - Mode Développement</h1>
+            <p>Not Secure Session - Version sans authentification Discord</p>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ ATTENTION :</strong> Cette version NSS est uniquement pour le développement. 
+            Toutes les routes commencent par /NSS_ et n'ont AUCUNE sécurité !
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🏠 Dashboard Principal</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_dashboard" class="api-link" target="_blank">/NSS_dashboard</a></li>
+                </ul>
+                <p>Interface principale du dashboard sans authentification</p>
+            </div>
+            
+            <div class="card">
+                <h3>👤 APIs Utilisateur</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_api/auth/user" class="api-link" target="_blank">/NSS_api/auth/user</a></li>
+                    <li><a href="/NSS_api/user/info" class="api-link" target="_blank">/NSS_api/user/info</a></li>
+                    <li><a href="/NSS_api/user/profile" class="api-link" target="_blank">/NSS_api/user/profile</a></li>
+                    <li><a href="/NSS_api/user/permissions" class="api-link" target="_blank">/NSS_api/user/permissions</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>📊 APIs Statistiques</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_api/stats" class="api-link" target="_blank">/NSS_api/stats</a></li>
+                    <li><a href="/NSS_api/stats/dashboard" class="api-link" target="_blank">/NSS_api/stats/dashboard</a></li>
+                    <li><a href="/NSS_api/stats/general" class="api-link" target="_blank">/NSS_api/stats/general</a></li>
+                    <li><a href="/NSS_api/stats/real" class="api-link" target="_blank">/NSS_api/stats/real</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>🤖 APIs Bot</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_api/bot/status" class="api-link" target="_blank">/NSS_api/bot/status</a></li>
+                    <li><a href="/NSS_api/bot/performance" class="api-link" target="_blank">/NSS_api/bot/performance</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>🖥️ APIs Serveurs</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_api/servers/list" class="api-link" target="_blank">/NSS_api/servers/list</a></li>
+                    <li><a href="/NSS_api/servers/1095821508219977838/config" class="api-link" target="_blank">/NSS_api/servers/[ID]/config</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>👥 APIs Autres</h3>
+                <ul class="api-list">
+                    <li><a href="/NSS_api/users/list" class="api-link" target="_blank">/NSS_api/users/list</a></li>
+                    <li><a href="/NSS_api/activity/feed" class="api-link" target="_blank">/NSS_api/activity/feed</a></li>
+                    <li><a href="/NSS_api/test" class="api-link" target="_blank">/NSS_api/test</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🧪 Test des APIs</h3>
+            <button class="test-button" onclick="testAllAPIs()">Tester toutes les APIs NSS</button>
+            <button class="test-button" onclick="testAuthFlow()">Tester l'authentification NSS</button>
+            <button class="test-button" onclick="clearResults()">Effacer les résultats</button>
+            
+            <div class="result-area" id="results">
+Cliquez sur "Tester toutes les APIs NSS" pour commencer les tests...
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🔧 Variables d'environnement pour Render</h3>
+            <div class="env-vars">
+                <h4>Variables à ajouter dans Render Dashboard > Environment:</h4>
+DISCORD_CLIENT_ID=1318985419690864680
+DISCORD_CLIENT_SECRET=4KKzE_xwGM9S5k0FTXhkmm2Bf4H3t_7b
+DISCORD_REDIRECT_URI=https://arsenal-webpanel.onrender.com/auth/discord/callback
+DISCORD_BOT_TOKEN=MTMxODk4[...TOKEN_COMPLET_DISPONIBLE_DANS_MESSAGES...]
+SECRET_KEY=xK9mZ4pL7nQ2wE8rT5yU1iO3sA6dF0gH9jC2vB5nM8qP1xL4zW7eR0tY3uI6oA9sD2fG5hJ8kN1mQ4wE7rT0yU3i
+CREATOR_ID=399264495087034378
+ADMIN_IDS=399264495087034378,1095821372685398079
+BOT_SERVERS=1095821508219977838,1318962036244570133
+DEBUG=True
+ALLOWED_ORIGINS=https://arsenal-webpanel.onrender.com,http://localhost:5000,http://127.0.0.1:5000
+
+<strong>💡 Pour le DISCORD_BOT_TOKEN complet, vérifiez vos messages précédents</strong>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const baseUrl = window.location.origin;
+        
+        async function testAllAPIs() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '🧪 Test de toutes les APIs NSS en cours...\n\n';
+            
+            const apis = [
+                '/NSS_api/test',
+                '/NSS_api/auth/user',
+                '/NSS_api/user/info',
+                '/NSS_api/user/profile',
+                '/NSS_api/user/permissions',
+                '/NSS_api/stats',
+                '/NSS_api/stats/dashboard',
+                '/NSS_api/stats/general',
+                '/NSS_api/stats/real',
+                '/NSS_api/bot/status',
+                '/NSS_api/bot/performance',
+                '/NSS_api/servers/list',
+                '/NSS_api/users/list',
+                '/NSS_api/activity/feed'
+            ];
+            
+            for (const api of apis) {
+                try {
+                    resultsDiv.innerHTML += `Testing ${api}... `;
+                    const response = await fetch(baseUrl + api);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultsDiv.innerHTML += `✅ OK (${response.status})\n`;
+                        if (data.nss_mode) {
+                            resultsDiv.innerHTML += `   🚨 NSS Mode confirmé\n`;
+                        }
+                    } else {
+                        resultsDiv.innerHTML += `❌ Erreur ${response.status}\n`;
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML += `❌ Erreur: ${error.message}\n`;
+                }
+                
+                // Petit délai pour la lisibilité
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            resultsDiv.innerHTML += '\n✅ Test terminé !';
+        }
+        
+        async function testAuthFlow() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '🔐 Test du flux d\'authentification NSS...\n\n';
+            
+            try {
+                // Test auth user
+                const authResponse = await fetch(baseUrl + '/NSS_api/auth/user');
+                const authData = await authResponse.json();
+                
+                resultsDiv.innerHTML += `Auth Status: ${authData.authenticated ? '✅ Authentifié' : '❌ Non authentifié'}\n`;
+                resultsDiv.innerHTML += `User ID: ${authData.user?.discord_id || 'N/A'}\n`;
+                resultsDiv.innerHTML += `Access Level: ${authData.user?.access_level || 'N/A'}\n`;
+                resultsDiv.innerHTML += `NSS Mode: ${authData.nss_mode ? '✅ Actif' : '❌ Inactif'}\n\n`;
+                
+                // Test user info
+                const infoResponse = await fetch(baseUrl + '/NSS_api/user/info');
+                const infoData = await infoResponse.json();
+                
+                resultsDiv.innerHTML += `User Info: ${infoData.status === 'success' ? '✅ OK' : '❌ Erreur'}\n`;
+                resultsDiv.innerHTML += `Username: ${infoData.user?.username || 'N/A'}\n`;
+                resultsDiv.innerHTML += `Permissions: ${infoData.user?.permissions?.is_owner ? '👑 Owner' : '👤 User'}\n`;
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `❌ Erreur: ${error.message}\n`;
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = 'Résultats effacés. Prêt pour de nouveaux tests...';
+        }
+    </script>
+</body>
+</html>
