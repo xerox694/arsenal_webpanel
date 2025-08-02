@@ -5457,6 +5457,89 @@ def debug_env():
 # 🚨 VERSION DÉVELOPPEMENT SANS AUTHENTIFICATION - NE PAS UTILISER EN PRODUCTION
 # Ces routes permettent de tester le dashboard sans passer par Discord OAuth
 
+# Route racine NSS pour accès facile
+@app.route('/NSS')
+def NSS_index():
+    """NSS Page d'accueil - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Index - Mode développement sans sécurité")
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 NSS - Not Secure Session</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+            }
+            .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 600px;
+            }
+            h1 { margin-bottom: 20px; color: #ff9800; }
+            .warning {
+                background: rgba(255, 152, 0, 0.2);
+                border: 2px solid #ff9800;
+                border-radius: 10px;
+                padding: 15px;
+                margin: 20px 0;
+            }
+            .btn {
+                display: inline-block;
+                background: linear-gradient(45deg, #4caf50, #45a049);
+                color: white;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 25px;
+                margin: 10px;
+                font-size: 16px;
+                transition: transform 0.3s ease;
+            }
+            .btn:hover { transform: scale(1.05); }
+            .btn.secondary {
+                background: linear-gradient(45deg, #2196f3, #1976d2);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚨 NSS - Not Secure Session</h1>
+            <p>Mode développement sans authentification Discord</p>
+            
+            <div class="warning">
+                <strong>⚠️ ATTENTION :</strong><br>
+                Cette version NSS est uniquement pour le développement.<br>
+                Aucune sécurité - Utilisateur fictif avec permissions owner.
+            </div>
+            
+            <div>
+                <a href="/NSS_dashboard" class="btn">🏠 Accéder au Dashboard NSS</a>
+                <a href="/NSS_test" class="btn secondary">🧪 Page de Test des APIs</a>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+                <p><strong>Routes disponibles :</strong></p>
+                <p>/NSS_dashboard - Interface principale</p>
+                <p>/NSS_test - Page de test complète</p>
+                <p>/NSS_api/* - Toutes les APIs sans auth</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
 @app.route('/NSS_dashboard')
 def NSS_dashboard():
     """NSS Dashboard principal - SANS authentification (développement uniquement)"""
