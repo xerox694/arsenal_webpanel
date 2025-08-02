@@ -1377,18 +1377,6 @@ def login_redirect():
 @app.route('/auth/login')
 def discord_login():
     """Rediriger vers Discord OAuth"""
-    
-    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
-    freeze_token = None
-    if FREEZE_SYSTEM_AVAILABLE:
-        try:
-            freeze_token = create_login_freeze(request)
-            session['freeze_token'] = freeze_token
-            session['login_start'] = datetime.now().isoformat()
-            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
-        except Exception as e:
-            print(f"⚠️ Erreur création freeze: {e}")
-    
     # ðŸ”“ MODE BYPASS TEMPORAIRE pour contourner le rate limiting Discord
     # SÃ‰CURITÃ‰: Plusieurs vÃ©rifications pour limiter l'accÃ¨s au bypass
     if request.args.get('bypass') == 'true':
@@ -1489,10 +1477,6 @@ def discord_callback():
     print(f"   REDIRECT_URI: {DISCORD_REDIRECT_URI}")
     
     try:
-        # 🧊 RÉCUPÉRATION DU FREEZE TOKEN
-        freeze_token = session.get('freeze_token')
-        print(f"🧊 CALLBACK - Freeze token: {freeze_token}")
-        
         token_response = requests.post('https://discord.com/api/oauth2/token', data=token_data, timeout=10)
         print(f"ðŸ“¥ RÃ©ponse Discord: {token_response.status_code}")
         print(f"ðŸ“„ Contenu rÃ©ponse: {token_response.text}")
@@ -5384,18 +5368,6 @@ def auth_discord_redirect():
 @app.route('/auth/login')
 def auth_login_redirect():
     """Route de redirection pour compatibilitÃ© - redirige vers /auth/discord"""
-    
-    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
-    freeze_token = None
-    if FREEZE_SYSTEM_AVAILABLE:
-        try:
-            freeze_token = create_login_freeze(request)
-            session['freeze_token'] = freeze_token
-            session['login_start'] = datetime.now().isoformat()
-            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
-        except Exception as e:
-            print(f"⚠️ Erreur création freeze: {e}")
-    
     return redirect('/auth/discord')
 
 @app.route('/auth/logout')

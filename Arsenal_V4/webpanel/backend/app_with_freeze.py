@@ -1489,10 +1489,6 @@ def discord_callback():
     print(f"   REDIRECT_URI: {DISCORD_REDIRECT_URI}")
     
     try:
-        # 🧊 RÉCUPÉRATION DU FREEZE TOKEN
-        freeze_token = session.get('freeze_token')
-        print(f"🧊 CALLBACK - Freeze token: {freeze_token}")
-        
         token_response = requests.post('https://discord.com/api/oauth2/token', data=token_data, timeout=10)
         print(f"ðŸ“¥ RÃ©ponse Discord: {token_response.status_code}")
         print(f"ðŸ“„ Contenu rÃ©ponse: {token_response.text}")
