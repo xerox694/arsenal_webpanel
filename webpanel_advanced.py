@@ -117,6 +117,14 @@ class ArsenalWebPanel:
             return False, "Le bot est déjà en cours d'exécution"
             
         try:
+            print("🤖 Démarrage du bot Discord...")
+            print(f"🔧 Commande: {sys.executable} main.py")
+            print(f"📁 Répertoire: {os.getcwd()}")
+            
+            # Vérifier que main.py existe
+            if not os.path.exists("main.py"):
+                return False, "Fichier main.py introuvable"
+            
             # Démarrer le bot en arrière-plan
             self.bot_process = subprocess.Popen(
                 [sys.executable, "main.py"],
@@ -128,6 +136,7 @@ class ArsenalWebPanel:
             )
             
             self.bot_status = "starting"
+            print(f"🚀 Bot process PID: {self.bot_process.pid}")
             
             # Surveiller les logs en arrière-plan
             threading.Thread(target=self._monitor_bot_logs, daemon=True).start()
@@ -135,6 +144,7 @@ class ArsenalWebPanel:
             return True, "Bot démarré avec succès"
             
         except Exception as e:
+            print(f"❌ Erreur démarrage bot: {e}")
             return False, f"Erreur démarrage bot: {e}"
     
     def stop_bot(self):

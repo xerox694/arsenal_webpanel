@@ -82,6 +82,17 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 CREATOR_ID = int(os.getenv("CREATOR_ID", 431359112039890945))
 PREFIX = os.getenv("PREFIX", "!")
 
+# Vérification du token Discord
+print("🔍 Vérification des variables d'environnement...")
+print(f"TOKEN présent: {'✅ Oui' if TOKEN else '❌ NON'}")
+print(f"CREATOR_ID: {CREATOR_ID}")
+print(f"PREFIX: {PREFIX}")
+
+if not TOKEN:
+    print("❌ ERREUR CRITIQUE: DISCORD_TOKEN manquant dans les variables d'environnement!")
+    print("📋 Ajoutez DISCORD_TOKEN sur Render avec votre token de bot Discord")
+    sys.exit(1)
+
 intents = discord.Intents.all()
 
 from discord import Activity, ActivityType, Streaming
