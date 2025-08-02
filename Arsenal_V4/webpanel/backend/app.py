@@ -5452,3 +5452,305 @@ def debug_env():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+
+# ==================== ROUTES NSS (Not Secure Session) ====================
+# 🚨 VERSION DÉVELOPPEMENT SANS AUTHENTIFICATION - NE PAS UTILISER EN PRODUCTION
+# Ces routes permettent de tester le dashboard sans passer par Discord OAuth
+
+@app.route('/NSS_dashboard')
+def NSS_dashboard():
+    """NSS Dashboard principal - SANS authentification (développement uniquement)"""
+    print("🚨 NSS Dashboard accédé - Mode développement sans sécurité")
+    return serve_dashboard_interface()
+
+@app.route('/NSS_api/auth/user')
+def NSS_api_auth_user():
+    """NSS API pour vérifier le statut d'authentification - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Auth User - Mode développement sans sécurité")
+    return jsonify({
+        'authenticated': True,
+        'user': {
+            'discord_id': '399264495087034378',  # ID développeur
+            'access_level': 'owner'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/info')
+def NSS_api_user_info():
+    """NSS API informations utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Info - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'user': {
+            'id': '399264495087034378',
+            'username': 'NSS_Dev_User',
+            'discriminator': '0000',
+            'avatar': None,
+            'access_level': 'owner',
+            'permissions': {
+                'can_manage_servers': True,
+                'can_manage_users': True,
+                'can_view_stats': True,
+                'can_manage_bot': True,
+                'is_owner': True
+            }
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/profile')
+def NSS_api_user_profile():
+    """NSS API profil utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Profile - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'profile': {
+            'discord_id': '399264495087034378',
+            'username': 'NSS_Dev_User',
+            'discriminator': '0000',
+            'avatar_url': None,
+            'created_at': datetime.now().isoformat(),
+            'last_login': datetime.now().isoformat(),
+            'access_level': 'owner',
+            'total_commands': 999,
+            'favorite_server': 'NSS Development Server'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/permissions')
+def NSS_api_user_permissions():
+    """NSS API permissions utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Permissions - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'permissions': {
+            'level': 'owner',
+            'can_manage_servers': True,
+            'can_manage_users': True,
+            'can_view_stats': True,
+            'can_manage_bot': True,
+            'can_access_admin_panel': True,
+            'is_owner': True,
+            'managed_servers': ['1095821508219977838', '1318962036244570133']
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats')
+def NSS_api_stats():
+    """NSS API statistiques - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'stats': {
+            'total_servers': 73,
+            'total_users': 12847,
+            'total_commands': 156892,
+            'bot_uptime': '99.8%',
+            'api_calls_today': 2847,
+            'active_sessions': 12
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/dashboard')
+def NSS_api_stats_dashboard():
+    """NSS API statistiques dashboard - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats Dashboard - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'dashboard_stats': {
+            'servers': 73,
+            'members': 12847,
+            'commands_today': 1284,
+            'uptime': 99.8,
+            'response_time': 45,
+            'memory_usage': 67.3
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/general')
+def NSS_api_stats_general():
+    """NSS API statistiques générales - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats General - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'general_stats': {
+            'total_commands': 156892,
+            'commands_today': 1284,
+            'most_used_command': 'hunt',
+            'servers_growth': '+12%',
+            'users_growth': '+8%',
+            'commands_growth': '+15%'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/real')
+def NSS_api_stats_real():
+    """NSS API statistiques temps réel - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats Real - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'real_stats': {
+            'cpu': random.randint(10, 80),
+            'memory': random.randint(60, 85),
+            'active_users': random.randint(100, 500),
+            'commands_per_minute': random.randint(5, 25),
+            'api_response_time': random.randint(20, 100)
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/bot/status')
+def NSS_api_bot_status():
+    """NSS API statut du bot - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Bot Status - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'bot': {
+            'online': True,
+            'latency': random.randint(20, 100),
+            'servers': 73,
+            'users': 12847,
+            'uptime': '12j 8h 34m',
+            'version': '4.2.7',
+            'last_restart': (datetime.now() - timedelta(days=12)).isoformat()
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/bot/performance')
+def NSS_api_bot_performance():
+    """NSS API performance du bot - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Bot Performance - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'performance': {
+            'cpu_usage': random.randint(10, 60),
+            'memory_usage': random.randint(200, 800),
+            'memory_total': 1024,
+            'threads': random.randint(8, 24),
+            'network_in': random.randint(100, 1000),
+            'network_out': random.randint(50, 500),
+            'commands_queue': random.randint(0, 5),
+            'avg_response_time': random.randint(20, 150)
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/servers/list')
+def NSS_api_servers_list():
+    """NSS API liste des serveurs - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Servers List - Mode développement sans sécurité")
+    servers = []
+    for i in range(1, 6):  # 5 serveurs d'exemple
+        servers.append({
+            'id': f'109582150821997783{i}',
+            'name': f'NSS Server {i}',
+            'icon': None,
+            'members': random.randint(50, 500),
+            'online': random.randint(10, 100),
+            'owner': i == 1,
+            'permissions': ['administrator'] if i <= 2 else ['manage_guild'],
+            'bot_joined': (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat()
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'servers': servers,
+        'total': len(servers),
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/servers/<server_id>/config')
+def NSS_api_server_config(server_id):
+    """NSS API configuration serveur - MODE DÉVELOPPEMENT"""
+    print(f"🚨 NSS Server Config {server_id} - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'config': {
+            'server_id': server_id,
+            'prefix': '!',
+            'welcome_enabled': True,
+            'welcome_channel': '1095821508219977999',
+            'moderation_enabled': True,
+            'auto_role': '1095821508219977888',
+            'economy_enabled': True,
+            'hunt_enabled': True,
+            'music_enabled': False
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/users/list')
+def NSS_api_users_list():
+    """NSS API liste des utilisateurs - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Users List - Mode développement sans sécurité")
+    users = []
+    for i in range(1, 11):  # 10 utilisateurs d'exemple
+        users.append({
+            'id': f'39926449508703437{i}',
+            'username': f'NSS_User_{i}',
+            'discriminator': f'000{i}',
+            'avatar': None,
+            'joined': (datetime.now() - timedelta(days=random.randint(1, 100))).isoformat(),
+            'commands_used': random.randint(10, 1000),
+            'level': random.randint(1, 50),
+            'balance': random.randint(100, 10000)
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'users': users,
+        'total': len(users),
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/activity/feed')
+def NSS_api_activity_feed():
+    """NSS API flux d'activité - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Activity Feed - Mode développement sans sécurité")
+    activities = []
+    activity_types = ['command', 'join', 'leave', 'level_up', 'achievement']
+    
+    for i in range(10):
+        activity_type = random.choice(activity_types)
+        activities.append({
+            'id': f'activity_{i}',
+            'type': activity_type,
+            'user': f'NSS_User_{random.randint(1, 20)}',
+            'description': f'Action {activity_type} #{i}',
+            'timestamp': (datetime.now() - timedelta(minutes=random.randint(1, 120))).isoformat(),
+            'server': f'NSS Server {random.randint(1, 5)}'
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'activities': activities,
+        'nss_mode': True
+    })
+
+# Route NSS pour servir les fichiers statiques du dashboard
+@app.route('/NSS_static/<path:filename>')
+def NSS_serve_static(filename):
+    """NSS Servir les fichiers statiques - MODE DÉVELOPPEMENT"""
+    print(f"🚨 NSS Static {filename} - Mode développement sans sécurité")
+    return send_from_directory('../frontend/build/static', filename)
+
+# Route NSS pour le test API
+@app.route('/NSS_api/test')
+def NSS_api_test():
+    """NSS Route de test API - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS API Test - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'message': 'NSS API fonctionnelle - Mode développement',
+        'timestamp': datetime.now().isoformat(),
+        'nss_mode': True,
+        'version': '4.2.7'
+    })
+
