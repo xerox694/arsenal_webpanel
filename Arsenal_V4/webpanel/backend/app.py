@@ -5420,3 +5420,35 @@ def auth_logout():
     response.set_cookie('arsenal_session', '', expires=0)
     return response
 
+# ⚠️ ROUTE DE DIAGNOSTIC TEMPORAIRE - À SUPPRIMER EN PRODUCTION
+@app.route('/debug/env')
+def debug_env():
+    """Route de diagnostic des variables d'environnement"""
+    try:
+        required_vars = [
+            'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_REDIRECT_URI',
+            'DISCORD_BOT_TOKEN', 'SECRET_KEY', 'CREATOR_ID', 'ADMIN_IDS', 'BOT_SERVERS'
+        ]
+        
+        env_status = {}
+        for var in required_vars:
+            value = os.getenv(var)
+            if value:
+                # Masquer les valeurs sensibles
+                if any(sensitive in var.lower() for sensitive in ['secret', 'token', 'key']):
+                    env_status[var] = f"***{value[-4:]}" if len(value) > 4 else "***"
+                else:
+                    env_status[var] = value[:20] + "..." if len(value) > 20 else value
+            else:
+                env_status[var] = "MANQUANT"
+        
+        return jsonify({
+            'status': 'success',
+            'variables': env_status,
+            'routes_actives': len([rule.rule for rule in app.url_map.iter_rules()]),
+            'freeze_system': FREEZE_SYSTEM_AVAILABLE
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
