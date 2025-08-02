@@ -5461,7 +5461,199 @@ def debug_env():
 def NSS_dashboard():
     """NSS Dashboard principal - SANS authentification (développement uniquement)"""
     print("🚨 NSS Dashboard accédé - Mode développement sans sécurité")
-    return serve_dashboard_interface()
+    
+    # Au lieu d'utiliser serve_dashboard_interface(), on crée une interface NSS simple
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 NSS Dashboard - Arsenal V4</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #333;
+            }
+            .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+            .header {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 30px;
+                text-align: center;
+                color: white;
+            }
+            .warning {
+                background: rgba(255, 152, 0, 0.2);
+                border: 2px solid #ff9800;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+                color: #fff;
+                text-align: center;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .card {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 20px;
+                color: white;
+                transition: transform 0.3s ease;
+            }
+            .card:hover { transform: translateY(-5px); }
+            .card h3 { margin-bottom: 15px; color: #fff; }
+            .stat-number { font-size: 2em; font-weight: bold; color: #4fc3f7; }
+            .stat-label { font-size: 0.9em; opacity: 0.8; }
+            .btn { 
+                background: linear-gradient(45deg, #4caf50, #45a049);
+                color: white; border: none; padding: 12px 24px;
+                border-radius: 25px; cursor: pointer; margin: 5px;
+                text-decoration: none; display: inline-block;
+            }
+            .btn:hover { transform: scale(1.05); }
+            .servers-list { max-height: 200px; overflow-y: auto; }
+            .server-item { 
+                background: rgba(255,255,255,0.1); 
+                margin: 5px 0; padding: 10px; 
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🚨 NSS Dashboard - Arsenal V4</h1>
+                <p>Not Secure Session - Mode Développement Sans Authentification</p>
+                <p>👑 Connecté en tant que: NSS_Dev_User (Owner Level)</p>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ MODE DÉVELOPPEMENT :</strong> Cette version NSS n'a AUCUNE sécurité !<br>
+                Utilisateur fictif avec permissions owner. Données de test uniquement.
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📊 Statistiques Générales</h3>
+                    <div class="stat-number">73</div>
+                    <div class="stat-label">Serveurs Discord</div>
+                    <div class="stat-number">12,847</div>
+                    <div class="stat-label">Utilisateurs Totaux</div>
+                    <div class="stat-number">156,892</div>
+                    <div class="stat-label">Commandes Exécutées</div>
+                </div>
+                
+                <div class="card">
+                    <h3>🤖 Statut du Bot</h3>
+                    <div class="stat-number" style="color: #4caf50;">🟢 ONLINE</div>
+                    <div class="stat-label">Arsenal Bot Status</div>
+                    <div class="stat-number">45ms</div>
+                    <div class="stat-label">Latence</div>
+                    <div class="stat-number">99.8%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                
+                <div class="card">
+                    <h3>📈 Performance</h3>
+                    <div class="stat-number">67%</div>
+                    <div class="stat-label">Utilisation Mémoire</div>
+                    <div class="stat-number">23%</div>
+                    <div class="stat-label">Utilisation CPU</div>
+                    <div class="stat-number">1,284</div>
+                    <div class="stat-label">Commandes Aujourd'hui</div>
+                </div>
+                
+                <div class="card">
+                    <h3>🖥️ Mes Serveurs</h3>
+                    <div class="servers-list">
+                        <div class="server-item">
+                            <strong>NSS Dev Server 1</strong><br>
+                            <small>Members: 234 | Owner: ✅</small>
+                        </div>
+                        <div class="server-item">
+                            <strong>NSS Dev Server 2</strong><br>
+                            <small>Members: 567 | Admin: ✅</small>
+                        </div>
+                        <div class="server-item">
+                            <strong>NSS Dev Server 3</strong><br>
+                            <small>Members: 123 | Moderator: ✅</small>
+                        </div>
+                    </div>
+                    <a href="/NSS_api/servers/list" class="btn">Voir tous les serveurs</a>
+                </div>
+                
+                <div class="card">
+                    <h3>🔧 Actions Rapides</h3>
+                    <a href="/NSS_api/user/info" class="btn">Mon Profil</a>
+                    <a href="/NSS_api/stats" class="btn">Statistiques</a>
+                    <a href="/NSS_api/bot/status" class="btn">Statut Bot</a>
+                    <a href="/NSS_test" class="btn">Page de Test</a>
+                </div>
+                
+                <div class="card">
+                    <h3>📋 APIs Disponibles</h3>
+                    <div style="font-family: monospace; font-size: 0.8em;">
+                        <div>✅ /NSS_api/auth/user</div>
+                        <div>✅ /NSS_api/user/info</div>
+                        <div>✅ /NSS_api/stats</div>
+                        <div>✅ /NSS_api/bot/status</div>
+                        <div>✅ /NSS_api/servers/list</div>
+                        <div style="margin-top: 10px;">
+                            <a href="/NSS_test" class="btn">Tester toutes les APIs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🔄 Données Temps Réel</h3>
+                <div id="realtime-stats">Chargement des données en temps réel...</div>
+                <script>
+                    // Simulation données temps réel NSS
+                    function updateRealTimeStats() {
+                        const statsDiv = document.getElementById('realtime-stats');
+                        const cpu = Math.floor(Math.random() * 50) + 10;
+                        const memory = Math.floor(Math.random() * 30) + 60;
+                        const activeUsers = Math.floor(Math.random() * 400) + 100;
+                        
+                        statsDiv.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                                <div>
+                                    <div class="stat-number">${cpu}%</div>
+                                    <div class="stat-label">CPU</div>
+                                </div>
+                                <div>
+                                    <div class="stat-number">${memory}%</div>
+                                    <div class="stat-label">RAM</div>
+                                </div>
+                                <div>
+                                    <div class="stat-number">${activeUsers}</div>
+                                    <div class="stat-label">Utilisateurs Actifs</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Mettre à jour toutes les 3 secondes
+                    updateRealTimeStats();
+                    setInterval(updateRealTimeStats, 3000);
+                </script>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
 
 @app.route('/NSS_api/auth/user')
 def NSS_api_auth_user():
