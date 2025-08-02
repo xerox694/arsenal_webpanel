@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Arsenal V4 WebPanel Backend
-Backend Flask complet avec toutes les API nÃ©cessaires
+Backend Flask complet avec toutes les API nécessaires
 Auteur: xero3elite
 Version: 4.2.7
 """
@@ -27,11 +27,11 @@ from datetime import datetime, timedelta
 
 # ==================== CONFIGURATION ====================
 
-# Configuration du logging sÃ©curisÃ©
+# Configuration du logging sécurisé
 DEBUG_MODE = os.getenv('DEBUG', 'False').lower() == 'true'
 if not DEBUG_MODE:
     logging.basicConfig(level=logging.WARNING)
-    # DÃ©sactiver les logs verbeux en production
+    # Désactiver les logs verbeux en production
     log = logging.getLogger(__name__)
     log.setLevel(logging.WARNING)
 else:
@@ -39,7 +39,7 @@ else:
     log = logging.getLogger(__name__)
 
 def safe_print(message, level='info'):
-    """Fonction de logging sÃ©curisÃ©e"""
+    """Fonction de logging sécurisée"""
     if DEBUG_MODE:
         if level == 'warning':
             log.warning(message)
@@ -51,7 +51,7 @@ def safe_print(message, level='info'):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
-# CORS Configuration sÃ©curisÃ©e
+# CORS Configuration sécurisée
 allowed_origins = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
 CORS(app, supports_credentials=True, origins=allowed_origins)
 
@@ -67,16 +67,16 @@ DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
 DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI')
 
 if not all([DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI]):
-    raise ValueError("Variables d'environnement Discord manquantes. VÃ©rifiez DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET et DISCORD_REDIRECT_URI")
+    raise ValueError("Variables d'environnement Discord manquantes. Vérifiez DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET et DISCORD_REDIRECT_URI")
 
-# Configuration des serveurs oÃ¹ le bot est prÃ©sent
+# Configuration des serveurs où le bot est présent
 BOT_SERVERS = os.getenv('BOT_SERVERS', '').split(',') if os.getenv('BOT_SERVERS') else []
 
 def get_bot_guilds() -> List[str]:
-    """RÃ©cupÃ¨re dynamiquement les IDs des serveurs oÃ¹ le bot Arsenal est prÃ©sent via l'API Discord."""
+    """Récupère dynamiquement les IDs des serveurs où le bot Arsenal est présent via l'API Discord."""
     bot_token = os.getenv('DISCORD_BOT_TOKEN')
     if not bot_token:
-        safe_print("âŒ DISCORD_BOT_TOKEN manquant pour la dÃ©tection auto des serveurs.", 'error')
+        safe_print("❌ DISCORD_BOT_TOKEN manquant pour la détection auto des serveurs.", 'error')
         return []
     headers = {
         'Authorization': f'Bot {bot_token}'
@@ -87,29 +87,29 @@ def get_bot_guilds() -> List[str]:
             guilds = response.json()
             return [str(g['id']) for g in guilds]
         else:
-            safe_print(f"âŒ Erreur Discord API bot guilds: {response.status_code}", 'error')
+            safe_print(f"❌ Erreur Discord API bot guilds: {response.status_code}", 'error')
             return []
     except Exception as e:
-        safe_print(f"âŒ Exception Discord API bot guilds: {e}", 'error')
+        safe_print(f"❌ Exception Discord API bot guilds: {e}", 'error')
         return []
 
 BOT_SERVERS_DYNAMIC = get_bot_guilds()
 if not BOT_SERVERS_DYNAMIC:
-    safe_print("âš ï¸  Aucun serveur dÃ©tectÃ© pour le bot Arsenal (API Discord).", 'warning')
+    safe_print("⚠️  Aucun serveur détecté pour le bot Arsenal (API Discord).", 'warning')
 
 # Configuration CREATOR/ADMIN (bypass toutes les restrictions)
 CREATOR_ID = os.getenv('CREATOR_ID', '')
 ADMIN_IDS = os.getenv('ADMIN_IDS', '').split(',') if os.getenv('ADMIN_IDS') else []
 
-# Ajouter le creator aux admins s'il n'y est pas dÃ©jÃ 
+# Ajouter le creator aux admins s'il n'y est pas déjà
 if CREATOR_ID and CREATOR_ID not in ADMIN_IDS:
     ADMIN_IDS.append(CREATOR_ID)
 
-# Variables globales pour simuler l'Ã©tat du bot - Ã€ connecter avec le vrai bot
+# Variables globales pour simuler l'état du bot - À connecter avec le vrai bot
 bot_stats = {
     'online': True,
     'servers': len(BOT_SERVERS) if BOT_SERVERS else 0,
-    'users': 57,   # Nombre rÃ©el d'utilisateurs total
+    'users': 57,   # Nombre réel d'utilisateurs total
     'commands_executed': 2847,
     'uptime': '2j 15h 42m',
     'cpu_usage': '8%',
@@ -117,23 +117,23 @@ bot_stats = {
     'discord_latency': '38ms'
 }
 
-# ==================== FONCTIONS DE SÃ‰CURITÃ‰ ====================
+# ==================== FONCTIONS DE SÉCURITÉ ====================
 
 def validate_input(data, max_length=1000):
-    """Validation sÃ©curisÃ©e des entrÃ©es utilisateur"""
+    """Validation sécurisée des entrées utilisateur"""
     if not data:
         return None
     
-    # Convertir en string si nÃ©cessaire
+    # Convertir en string si nécessaire
     if not isinstance(data, str):
         data = str(data)
     
-    # VÃ©rifier la longueur
+    # Vérifier la longueur
     if len(data) > max_length:
         return None
     
-    # Supprimer les caractÃ¨res dangereux
-    # Autoriser seulement les caractÃ¨res alphanumÃ©riques, espaces et quelques symboles sÃ»rs
+    # Supprimer les caractères dangereux
+    # Autoriser seulement les caractères alphanumériques, espaces et quelques symboles sûrs
     safe_pattern = re.compile(r'^[a-zA-Z0-9\s\-_.,!?@#]*$')
     if not safe_pattern.match(data):
         return None
@@ -152,28 +152,28 @@ def validate_server_id(server_id):
     return True
 
 def is_creator_or_admin(user_id):
-    """VÃ©rifier si l'utilisateur est crÃ©ateur ou admin (bypass tout)"""
+    """Vérifier si l'utilisateur est créateur ou admin (bypass tout)"""
     if not user_id:
         return False
     
     user_id_str = str(user_id)
     
-    # VÃ©rifier si c'est le crÃ©ateur
+    # Vérifier si c'est le créateur
     if CREATOR_ID and user_id_str == CREATOR_ID:
         return True
     
-    # VÃ©rifier si c'est un admin
+    # Vérifier si c'est un admin
     if user_id_str in ADMIN_IDS:
         return True
     
     return False
 
 def user_has_access(user_id, user_guilds=None):
-    """VÃ©rifier si un utilisateur a accÃ¨s au webpanel"""
-    # Si c'est le creator ou un admin, accÃ¨s total
+    """Vérifier si un utilisateur a accès au webpanel"""
+    # Si c'est le creator ou un admin, accès total
     if is_creator_or_admin(user_id):
         return True
-    # DÃ©tection dynamique des serveurs du bot
+    # Détection dynamique des serveurs du bot
     bot_guilds = BOT_SERVERS_DYNAMIC if BOT_SERVERS_DYNAMIC else BOT_SERVERS
     if not user_guilds or not bot_guilds:
         return False
@@ -181,10 +181,10 @@ def user_has_access(user_id, user_guilds=None):
     return any(server_id in user_guild_ids for server_id in bot_guilds)
 
 def get_real_bot_stats():
-    """RÃ©cupÃ©rer les vraies statistiques du bot"""
-    # Utiliser la dÃ©tection dynamique des serveurs
+    """Récupérer les vraies statistiques du bot"""
+    # Utiliser la détection dynamique des serveurs
     bot_guilds = BOT_SERVERS_DYNAMIC if BOT_SERVERS_DYNAMIC else BOT_SERVERS
-    dynamic_server_count = len(bot_guilds) if bot_guilds else 6  # Fallback pour vos 6 serveurs rÃ©els
+    dynamic_server_count = len(bot_guilds) if bot_guilds else 6  # Fallback pour vos 6 serveurs réels
     
     return {
         'online': True,
@@ -198,11 +198,11 @@ def get_real_bot_stats():
         'version': '4.2.7'
     }
 
-# ==================== BASE DE DONNÃ‰ES ====================
+# ==================== BASE DE DONNÉES ====================
 
 def init_db():
-    """Initialiser la base de donnÃ©es SQLite"""
-    print("âœ… Connexion SQLite rÃ©ussie")
+    """Initialiser la base de données SQLite"""
+    print("✅ Connexion SQLite réussie")
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
@@ -218,7 +218,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table users crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table users créée/vérifiée")
     
     # Table des serveurs
     cursor.execute('''
@@ -231,7 +231,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table servers crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table servers créée/vérifiée")
     
     # Table user_servers pour la relation many-to-many
     cursor.execute('''
@@ -243,9 +243,9 @@ def init_db():
             joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table user_servers crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table user_servers créée/vérifiée")
     
-    # Table des serveurs connectÃ©s au bot
+    # Table des serveurs connectés au bot
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS connected_servers (
             id INTEGER PRIMARY KEY,
@@ -256,7 +256,7 @@ def init_db():
             connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table connected_servers crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table connected_servers créée/vérifiée")
     
     # Table de la queue musicale
     cursor.execute('''
@@ -270,9 +270,9 @@ def init_db():
             added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table music_queue crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_queue créée/vérifiée")
     
-    # Table des logs de modÃ©ration
+    # Table des logs de modération
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS moderation_logs (
             id INTEGER PRIMARY KEY,
@@ -284,7 +284,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table moderation_logs crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table moderation_logs créée/vérifiée")
     
     # Table des statistiques du bot
     cursor.execute('''
@@ -297,7 +297,7 @@ def init_db():
             recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table bot_stats crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table bot_stats créée/vérifiée")
     
     # Table des logs de commandes
     cursor.execute('''
@@ -310,7 +310,7 @@ def init_db():
             executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table commands_log crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table commands_log créée/vérifiée")
     
     # Table des sessions du panel - utilise la structure existante
     cursor.execute('''
@@ -324,9 +324,9 @@ def init_db():
             expires_at TIMESTAMP
         )
     ''')
-    print("âœ… Table panel_sessions crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table panel_sessions créée/vérifiée")
     
-    # Tables pour le systÃ¨me Ã©conomique
+    # Tables pour le système économique
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS economy_users (
             id INTEGER PRIMARY KEY,
@@ -339,7 +339,7 @@ def init_db():
             UNIQUE(user_id, server_id)
         )
     ''')
-    print("âœ… Table economy_users crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table economy_users créée/vérifiée")
     
     # Table des niveaux
     cursor.execute('''
@@ -356,15 +356,15 @@ def init_db():
             UNIQUE(user_id, server_id)
         )
     ''')
-    print("âœ… Table user_levels crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table user_levels créée/vérifiée")
     
-    # Configuration Ã©conomique par serveur
+    # Configuration économique par serveur
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS economy_config (
             id INTEGER PRIMARY KEY,
             server_id TEXT UNIQUE,
             currency_name TEXT DEFAULT 'ArsenalCoins',
-            currency_symbol TEXT DEFAULT 'ðŸª™',
+            currency_symbol TEXT DEFAULT '🪙',
             daily_reward INTEGER DEFAULT 100,
             weekly_reward INTEGER DEFAULT 1000,
             message_reward INTEGER DEFAULT 5,
@@ -374,9 +374,9 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table economy_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table economy_config créée/vérifiée")
     
-    # Transactions Ã©conomiques
+    # Transactions économiques
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS economy_transactions (
             id INTEGER PRIMARY KEY,
@@ -389,7 +389,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table economy_transactions crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table economy_transactions créée/vérifiée")
     
     # Configuration des niveaux par serveur
     cursor.execute('''
@@ -404,9 +404,9 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table level_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table level_config créée/vérifiée")
     
-    # RÃ©compenses de niveau
+    # Récompenses de niveau
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS level_rewards (
             id INTEGER PRIMARY KEY,
@@ -417,9 +417,9 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table level_rewards crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table level_rewards créée/vérifiée")
     
-    # Configuration Ã©conomique globale (pour crÃ©ateur)
+    # Configuration économique globale (pour créateur)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS global_economy_config (
             id INTEGER PRIMARY KEY DEFAULT 1,
@@ -434,9 +434,9 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table global_economy_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table global_economy_config créée/vérifiée")
     
-    # Configuration des niveaux globale (pour crÃ©ateur)
+    # Configuration des niveaux globale (pour créateur)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS global_levels_config (
             id INTEGER PRIMARY KEY DEFAULT 1,
@@ -450,9 +450,9 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table global_levels_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table global_levels_config créée/vérifiée")
     
-    # RÃ©compenses globales de niveaux (pour crÃ©ateur)
+    # Récompenses globales de niveaux (pour créateur)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS global_level_rewards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -463,9 +463,9 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table global_level_rewards crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table global_level_rewards créée/vérifiée")
     
-    # Tables de modÃ©ration (Phase 3)
+    # Tables de modération (Phase 3)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS moderation_config (
             server_id TEXT PRIMARY KEY,
@@ -477,7 +477,7 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table moderation_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table moderation_config créée/vérifiée")
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS automod_config (
@@ -492,10 +492,10 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    print("âœ… Table automod_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table automod_config créée/vérifiée")
     
     # =====================================
-    # ðŸŽµ TABLES MUSIQUE (PHASE 4)
+    # 🎵 TABLES MUSIQUE (PHASE 4)
     # =====================================
     
     # Queue musicale
@@ -513,7 +513,7 @@ def init_db():
             added_at TEXT
         )
     ''')
-    print("âœ… Table music_queue crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_queue créée/vérifiée")
     
     # Piste actuelle
     cursor.execute('''
@@ -530,7 +530,7 @@ def init_db():
             UNIQUE(server_id)
         )
     ''')
-    print("âœ… Table music_current crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_current créée/vérifiée")
     
     # Statut de lecture
     cursor.execute('''
@@ -547,7 +547,7 @@ def init_db():
             UNIQUE(server_id)
         )
     ''')
-    print("âœ… Table music_status crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_status créée/vérifiée")
     
     # Configuration musicale
     cursor.execute('''
@@ -566,7 +566,7 @@ def init_db():
             UNIQUE(server_id)
         )
     ''')
-    print("âœ… Table music_config crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_config créée/vérifiée")
     
     # Logs musicaux
     cursor.execute('''
@@ -578,13 +578,13 @@ def init_db():
             timestamp TEXT
         )
     ''')
-    print("âœ… Table music_logs crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table music_logs créée/vérifiée")
     
     # =====================================
-    # ðŸŽ® TABLES GAMING (PHASE 5)
+    # 🎮 TABLES GAMING (PHASE 5)
     # =====================================
     
-    # SystÃ¨me de niveaux
+    # Système de niveaux
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gaming_levels (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -601,9 +601,9 @@ def init_db():
             UNIQUE(server_id, user_id)
         )
     ''')
-    print("âœ… Table gaming_levels crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table gaming_levels créée/vérifiée")
     
-    # RÃ©compenses de niveau
+    # Récompenses de niveau
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gaming_rewards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -614,7 +614,7 @@ def init_db():
             created_at TEXT
         )
     ''')
-    print("âœ… Table gaming_rewards crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table gaming_rewards créée/vérifiée")
     
     # Mini-jeux
     cursor.execute('''
@@ -630,13 +630,13 @@ def init_db():
             updated_at TEXT
         )
     ''')
-    print("âœ… Table gaming_minigames crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table gaming_minigames créée/vérifiée")
     
     # =====================================
-    # ðŸ“Š TABLES ANALYTICS (PHASE 6)
+    # 📊 TABLES ANALYTICS (PHASE 6)
     # =====================================
     
-    # MÃ©triques serveur
+    # Métriques serveur
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS analytics_server_metrics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -652,9 +652,9 @@ def init_db():
             UNIQUE(server_id, date)
         )
     ''')
-    print("âœ… Table analytics_server_metrics crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table analytics_server_metrics créée/vérifiée")
     
-    # MÃ©triques utilisateur
+    # Métriques utilisateur
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS analytics_user_metrics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -669,9 +669,9 @@ def init_db():
             UNIQUE(server_id, user_id, date)
         )
     ''')
-    print("âœ… Table analytics_user_metrics crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table analytics_user_metrics créée/vérifiée")
     
-    # Ã‰vÃ©nements personnalisÃ©s
+    # Événements personnalisés
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS analytics_events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -682,19 +682,19 @@ def init_db():
             timestamp TEXT
         )
     ''')
-    print("âœ… Table analytics_events crÃ©Ã©e/vÃ©rifiÃ©e")
+    print("✅ Table analytics_events créée/vérifiée")
     
     conn.commit()
     conn.close()
-    print("âœ… Base de donnÃ©es initialisÃ©e avec toutes les phases (1-6)")
-    print("ðŸ¦ Phase 2: Tables Ã©conomie")
-    print("ðŸ›¡ï¸ Phase 3: Tables modÃ©ration")
-    print("ðŸŽµ Phase 4: Tables musique")
-    print("ðŸŽ® Phase 5: Tables gaming")
-    print("ðŸ“Š Phase 6: Tables analytics")
+    print("✅ Base de données initialisée avec toutes les phases (1-6)")
+    print("🏦 Phase 2: Tables économie")
+    print("🛡️ Phase 3: Tables modération")
+    print("🎵 Phase 4: Tables musique")
+    print("🎮 Phase 5: Tables gaming")
+    print("📊 Phase 6: Tables analytics")
 
-# Initialiser la base de donnÃ©es au dÃ©marrage de l'application
-print("ðŸ”§ Initialisation de la base de donnÃ©es au dÃ©marrage...")
+# Initialiser la base de données au démarrage de l'application
+print("🔧 Initialisation de la base de données au démarrage...")
 init_db()
 
 # ==================== ROUTES PRINCIPALES ====================
@@ -702,10 +702,10 @@ init_db()
 @app.route('/')
 def index():
     """Servir la page de login ou le dashboard selon l'authentification"""
-    # VÃ©rifier si l'utilisateur est dÃ©jÃ  connectÃ©
+    # Vérifier si l'utilisateur est déjà connecté
     session_token = request.cookies.get('arsenal_session')
     if session_token:
-        # VÃ©rifier la session en base de donnÃ©es
+        # Vérifier la session en base de données
         conn = sqlite3.connect('arsenal_v4.db')
         cursor = conn.cursor()
         cursor.execute('''
@@ -767,7 +767,7 @@ def serve_login_page():
                 position: relative;
             }
 
-            /* Particules d'arriÃ¨re-plan */
+            /* Particules d'arrière-plan */
             body::before {
                 content: '';
                 position: fixed;
@@ -965,29 +965,29 @@ def serve_login_page():
     </head>
     <body>
         <div class="login-container">
-            <div class="logo">ðŸš€</div>
+            <div class="logo">🚀</div>
             <h1 class="login-title">Arsenal V4 WebPanel</h1>
             <p class="login-subtitle">Panneau d'administration Discord Bot</p>
-            <div class="version-badge">Version 4.2.7 - SÃ©curisÃ©</div>
+            <div class="version-badge">Version 4.2.7 - Sécurisé</div>
             
             <div id="error-container"></div>
             
             <div class="features-list">
                 <div class="feature-item">
                     <i class="fas fa-shield-alt feature-icon"></i>
-                    <span>Authentification Discord OAuth 2.0 sÃ©curisÃ©e</span>
+                    <span>Authentification Discord OAuth 2.0 sécurisée</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-server feature-icon"></i>
-                    <span>Gestion multi-serveurs en temps rÃ©el</span>
+                    <span>Gestion multi-serveurs en temps réel</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-chart-line feature-icon"></i>
-                    <span>Statistiques avancÃ©es et analytics</span>
+                    <span>Statistiques avancées et analytics</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-music feature-icon"></i>
-                    <span>ContrÃ´le musique et modÃ©ration</span>
+                    <span>Contrôle musique et modération</span>
                 </div>
             </div>
             
@@ -996,18 +996,18 @@ def serve_login_page():
                 Se connecter avec Discord
             </a>
             
-            <!-- SECTION BYPASS DÃ‰SACTIVÃ‰E POUR PRODUCTION -->
+            <!-- SECTION BYPASS DÉSACTIVÉE POUR PRODUCTION -->
             <!--
             <div id="bypass-section" style="display: none;">
                 <a href="#" class="discord-login-btn" style="background: linear-gradient(45deg, #ff6b6b, #ffa500); border-color: #ff6b6b;" onclick="showBypassForm(event)">
                     <i class="fas fa-unlock"></i>
-                    Mode DEV (AccÃ¨s Restreint)
+                    Mode DEV (Accès Restreint)
                 </a>
             </div>
             
             <div id="bypass-form" style="display: none; margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                <h4 style="color: #ff6b6b; margin-bottom: 15px;">ðŸ” AccÃ¨s DÃ©veloppeur</h4>
-                <input type="password" id="bypass-token" placeholder="Token d'accÃ¨s dÃ©veloppeur" style="
+                <h4 style="color: #ff6b6b; margin-bottom: 15px;">🔐 Accès Développeur</h4>
+                <input type="password" id="bypass-token" placeholder="Token d'accès développeur" style="
                     width: 100%; 
                     padding: 10px; 
                     margin-bottom: 10px; 
@@ -1026,26 +1026,26 @@ def serve_login_page():
                     cursor: pointer;
                     width: 100%;
                     font-weight: bold;
-                ">ðŸš€ Activer le Bypass</button>
+                ">🚀 Activer le Bypass</button>
                 <small style="color: #ccc; display: block; margin-top: 10px;">
-                    AccÃ¨s rÃ©servÃ© au dÃ©veloppeur du bot Arsenal
+                    Accès réservé au développeur du bot Arsenal
                 </small>
             </div>
             -->
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Connexion Ã  Discord en cours...</p>
+                <p>Connexion à Discord en cours...</p>
             </div>
             
             <div class="footer-info">
-                Arsenal V4 WebPanel - DÃ©veloppÃ© par xero3elite<br>
-                Connexion sÃ©curisÃ©e via Discord OAuth 2.0
+                Arsenal V4 WebPanel - Développé par xero3elite<br>
+                Connexion sécurisée via Discord OAuth 2.0
             </div>
         </div>
 
         <script>
-            // VÃ©rifier s'il y a une erreur dans l'URL
+            // Vérifier s'il y a une erreur dans l'URL
             const urlParams = new URLSearchParams(window.location.search);
             const error = urlParams.get('error');
             
@@ -1056,15 +1056,15 @@ def serve_login_page():
             function showError(message) {
                 const errorContainer = document.getElementById('error-container');
                 
-                // Gestion spÃ©ciale pour le rate limiting
+                // Gestion spéciale pour le rate limiting
                 let errorContent;
                 if (message.includes('tentatives de connexion') || message.includes('patienter')) {
                     errorContent = `
                         <div class="error-message">
                             <i class="fas fa-hourglass-half"></i>
                             <strong>Rate Limite Discord:</strong> ${message}
-                            <br><small>Discord limite temporairement les connexions pour Ã©viter les abus. C'est normal.</small>
-                            <br><small>ðŸ’¡ Conseil: Patientez quelques minutes avant de rÃ©essayer.</small>
+                            <br><small>Discord limite temporairement les connexions pour éviter les abus. C'est normal.</small>
+                            <br><small>💡 Conseil: Patientez quelques minutes avant de réessayer.</small>
                         </div>
                     `;
                 } else {
@@ -1072,7 +1072,7 @@ def serve_login_page():
                         <div class="error-message">
                             <i class="fas fa-exclamation-triangle"></i>
                             <strong>Erreur de connexion:</strong> ${message}
-                            <br><small>Veuillez rÃ©essayer ou contacter l'administrateur si le problÃ¨me persiste.</small>
+                            <br><small>Veuillez réessayer ou contacter l'administrateur si le problème persiste.</small>
                         </div>
                     `;
                 }
@@ -1088,28 +1088,28 @@ def serve_login_page():
                 document.querySelector('.discord-login-btn').style.opacity = '0.7';
                 document.querySelector('.discord-login-btn').style.pointerEvents = 'none';
                 
-                // Rediriger vers Discord OAuth aprÃ¨s un petit dÃ©lai
+                // Rediriger vers Discord OAuth après un petit délai
                 setTimeout(() => {
                     window.location.href = '/auth/login';
                 }, 500);
             }
 
-            // FONCTIONS BYPASS DÃ‰SACTIVÃ‰ES POUR PRODUCTION
+            // FONCTIONS BYPASS DÉSACTIVÉES POUR PRODUCTION
             /*
             function showBypassForm(event) {
-                // DÃ©sactivÃ© en production
+                // Désactivé en production
             }
 
             function executeBypass() {
-                // DÃ©sactivÃ© en production
+                // Désactivé en production
             }
 
             function checkBypassAccess() {
-                // DÃ©sactivÃ© en production
+                // Désactivé en production
             }
             */
 
-            // VÃ©rifier si l'utilisateur est dÃ©jÃ  connectÃ©
+            // Vérifier si l'utilisateur est déjà connecté
             /*
             fetch('/api/auth/user', {
                 credentials: 'include'
@@ -1117,13 +1117,13 @@ def serve_login_page():
             .then(response => response.json())
             .then(data => {
                 if (data.authenticated) {
-                    // DÃ©jÃ  connectÃ©, afficher un message optionnel
-                    console.log('Utilisateur dÃ©jÃ  connectÃ©:', data.user);
+                    // Déjà connecté, afficher un message optionnel
+                    console.log('Utilisateur déjà connecté:', data.user);
                     // Option: afficher un bouton "Aller au dashboard" au lieu de rediriger automatiquement
                 }
             })
             .catch(error => {
-                console.log('Non authentifiÃ©, affichage de la page de login');
+                console.log('Non authentifié, affichage de la page de login');
             });
             */
         </script>
@@ -1132,14 +1132,14 @@ def serve_login_page():
     '''
 
 def serve_dashboard_interface():
-    """Servir l'interface du dashboard pour les utilisateurs connectÃ©s"""
+    """Servir l'interface du dashboard pour les utilisateurs connectés"""
     try:
-        # Chercher l'interface dans le dossier frontend - chemins mis Ã  jour pour production
+        # Chercher l'interface dans le dossier frontend - chemins mis à jour pour production
         frontend_paths = [
             # Chemins relatifs depuis le backend
             os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html'),
             os.path.join(os.path.dirname(__file__), 'frontend', 'index.html'),
-            # Chemins absolus pour le dÃ©veloppement
+            # Chemins absolus pour le développement
             os.path.join('Arsenal_V4', 'webpanel', 'frontend', 'index.html'),
             'Arsenal_V4/webpanel/frontend/index.html',
             # Chemins legacy
@@ -1152,26 +1152,26 @@ def serve_dashboard_interface():
             '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
         ]
         
-        print(f"ðŸ” Recherche interface frontend dans {len(frontend_paths)} emplacements...")
+        print(f"🔍 Recherche interface frontend dans {len(frontend_paths)} emplacements...")
         
         for path in frontend_paths:
             try:
-                print(f"   ðŸ”Ž Tentative: {path}")
+                print(f"   🔎 Tentative: {path}")
                 if os.path.isfile(path):
-                    print(f"âœ… Interface trouvÃ©e: {path}")
+                    print(f"✅ Interface trouvée: {path}")
                     with open(path, 'r', encoding='utf-8') as f:
                         content = f.read()
                     # Injecter les variables d'environnement
                     content = content.replace('{{DISCORD_CLIENT_ID}}', DISCORD_CLIENT_ID or '')
-                    print(f"ðŸ“„ Interface chargÃ©e: {len(content)} caractÃ¨res")
+                    print(f"📄 Interface chargée: {len(content)} caractères")
                     return content
                 else:
-                    print(f"   âŒ Fichier non trouvÃ©: {path}")
+                    print(f"   ❌ Fichier non trouvé: {path}")
             except Exception as e:
-                print(f"âŒ Erreur lecture {path}: {e}")
+                print(f"❌ Erreur lecture {path}: {e}")
                 continue
         
-        print("âš ï¸ Aucune interface frontend trouvÃ©e, utilisation du fallback")
+        print("⚠️ Aucune interface frontend trouvée, utilisation du fallback")
         
         # Interface de fallback avec redirection vers login
         return '''
@@ -1200,14 +1200,14 @@ def serve_dashboard_interface():
             </style>
         </head>
         <body>
-            <div class="loading">ðŸš€ Arsenal V4 WebPanel</div>
+            <div class="loading">🚀 Arsenal V4 WebPanel</div>
             <p>Chargement de l'interface...</p>
             <p><a href="/auth/login" style="color: #00fff7;">Se connecter avec Discord</a></p>
         </body>
         </html>
         '''
     except Exception as e:
-        print(f"âŒ Erreur route dashboard: {e}")
+        print(f"❌ Erreur route dashboard: {e}")
         return f"Erreur: {e}", 500
 
 # ==================== FICHIERS STATIQUES ====================
@@ -1226,10 +1226,10 @@ def serve_js(filename):
             if os.path.exists(os.path.join(js_path, filename)):
                 return send_from_directory(js_path, filename, mimetype='application/javascript')
         
-        print(f"âŒ Fichier JS non trouvÃ©: {filename}")
-        return "JS non trouvÃ©", 404
+        print(f"❌ Fichier JS non trouvé: {filename}")
+        return "JS non trouvé", 404
     except Exception as e:
-        print(f"âŒ Erreur servir JS {filename}: {e}")
+        print(f"❌ Erreur servir JS {filename}: {e}")
         return f"Erreur JS: {e}", 500
 
 @app.route('/css/<path:filename>')
@@ -1247,20 +1247,20 @@ def serve_css(filename):
             if os.path.exists(os.path.join(css_path, filename)):
                 return send_from_directory(css_path, filename, mimetype='text/css')
         
-        print(f"âŒ Fichier CSS non trouvÃ©: {filename}")
-        return "CSS non trouvÃ©", 404
+        print(f"❌ Fichier CSS non trouvé: {filename}")
+        return "CSS non trouvé", 404
     except Exception as e:
-        print(f"âŒ Erreur servir CSS {filename}: {e}")
+        print(f"❌ Erreur servir CSS {filename}: {e}")
         return f"Erreur CSS: {e}", 500
         
-        # Lister le contenu du rÃ©pertoire parent pour debug
+        # Lister le contenu du répertoire parent pour debug
         parent_dir = os.path.dirname(script_dir)
         if os.path.exists(parent_dir):
             files = os.listdir(parent_dir)
-            print(f"ðŸ” Contenu du rÃ©pertoire parent ({parent_dir}): {files}")
+            print(f"🔍 Contenu du répertoire parent ({parent_dir}): {files}")
         
-        # Si aucun fichier trouvÃ©, retourner une page complÃ¨te et fonctionnelle
-        print("âŒ Aucun fichier HTML trouvÃ©, utilisation de la page de fallback")
+        # Si aucun fichier trouvé, retourner une page complète et fonctionnelle
+        print("❌ Aucun fichier HTML trouvé, utilisation de la page de fallback")
         return '''
         <!DOCTYPE html>
         <html lang="fr">
@@ -1337,17 +1337,17 @@ def serve_css(filename):
         </head>
         <body>
             <div class="container">
-                <h1>ðŸš€ Arsenal V4 WebPanel</h1>
-                <div class="status">âœ… Backend OpÃ©rationnel - Version 4.2.7</div>
-                <p>Panneau d'administration Arsenal V4<br>SystÃ¨me de gestion Discord Bot</p>
+                <h1>🚀 Arsenal V4 WebPanel</h1>
+                <div class="status">✅ Backend Opérationnel - Version 4.2.7</div>
+                <p>Panneau d'administration Arsenal V4<br>Système de gestion Discord Bot</p>
                 
-                <a href="/auth/login" class="btn">ðŸ” Se connecter avec Discord</a>
-                <a href="/api/test" class="btn">ðŸ§ª Test API</a>
-                <a href="/api/stats" class="btn">ðŸ“Š Statistiques</a>
+                <a href="/auth/login" class="btn">🔐 Se connecter avec Discord</a>
+                <a href="/api/test" class="btn">🧪 Test API</a>
+                <a href="/api/stats" class="btn">📊 Statistiques</a>
                 
                 <div class="version">
-                    Arsenal V4 WebPanel - Backend dÃ©ployÃ© sur Render<br>
-                    Connexion sÃ©curisÃ©e via Discord OAuth 2.0
+                    Arsenal V4 WebPanel - Backend déployé sur Render<br>
+                    Connexion sécurisée via Discord OAuth 2.0
                 </div>
             </div>
         </body>
@@ -1355,69 +1355,69 @@ def serve_css(filename):
         '''
     except Exception as e:
         error_msg = str(e)
-        print(f"âŒ Erreur index: {error_msg}")
+        print(f"❌ Erreur index: {error_msg}")
         return jsonify({'error': 'Webpanel error', 'details': error_msg}), 500
 
 # ==================== ROUTES D'AUTHENTIFICATION DISCORD ====================
 
 @app.route('/login')
 def login_redirect():
-    """Redirection vers /auth/login pour compatibilitÃ©"""
+    """Redirection vers /auth/login pour compatibilité"""
     return redirect('/auth/login')
 
 @app.route('/auth/login')
 def discord_login():
     """Rediriger vers Discord OAuth"""
-    # ðŸ”“ MODE BYPASS TEMPORAIRE pour contourner le rate limiting Discord
-    # SÃ‰CURITÃ‰: Plusieurs vÃ©rifications pour limiter l'accÃ¨s au bypass
+    # 🔓 MODE BYPASS TEMPORAIRE pour contourner le rate limiting Discord
+    # SÉCURITÉ: Plusieurs vérifications pour limiter l'accès au bypass
     if request.args.get('bypass') == 'true':
-        # 1. VÃ©rification IP - seulement certaines IPs autorisÃ©es
+        # 1. Vérification IP - seulement certaines IPs autorisées
         client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
         allowed_ips = os.getenv('BYPASS_ALLOWED_IPS', '').split(',') if os.getenv('BYPASS_ALLOWED_IPS') else []
         
-        # 2. VÃ©rification token secret dans l'URL
+        # 2. Vérification token secret dans l'URL
         bypass_token = request.args.get('token')
         secret_bypass_token = os.getenv('BYPASS_SECRET_TOKEN', 'default_secret_change_me')
         
-        # 3. VÃ©rification User-Agent (optionnel - votre navigateur)
+        # 3. Vérification User-Agent (optionnel - votre navigateur)
         user_agent = request.headers.get('User-Agent', '')
         
-        print(f"ðŸ”“ TENTATIVE BYPASS - IP: {client_ip}, Token: {bypass_token}, UA: {user_agent[:50]}...")
+        print(f"🔓 TENTATIVE BYPASS - IP: {client_ip}, Token: {bypass_token}, UA: {user_agent[:50]}...")
         
-        # VÃ©rifier les conditions de sÃ©curitÃ©
+        # Vérifier les conditions de sécurité
         security_checks = []
         
         # Check 1: Token secret obligatoire
         if bypass_token == secret_bypass_token:
-            security_checks.append("âœ… Token valide")
+            security_checks.append("✅ Token valide")
         else:
-            security_checks.append("âŒ Token invalide ou manquant")
-            print(f"âŒ BYPASS REFUSÃ‰ - Token incorrect: {bypass_token}")
-            return redirect('/?error=AccÃ¨s bypass non autorisÃ© - Token manquant')
+            security_checks.append("❌ Token invalide ou manquant")
+            print(f"❌ BYPASS REFUSÉ - Token incorrect: {bypass_token}")
+            return redirect('/?error=Accès bypass non autorisé - Token manquant')
         
-        # Check 2: IP autorisÃ©e (si configurÃ©e)
+        # Check 2: IP autorisée (si configurée)
         if allowed_ips and client_ip not in allowed_ips:
-            security_checks.append(f"âŒ IP non autorisÃ©e: {client_ip}")
-            print(f"âŒ BYPASS REFUSÃ‰ - IP non autorisÃ©e: {client_ip}")
-            return redirect('/?error=AccÃ¨s bypass non autorisÃ© - IP restreinte')
+            security_checks.append(f"❌ IP non autorisée: {client_ip}")
+            print(f"❌ BYPASS REFUSÉ - IP non autorisée: {client_ip}")
+            return redirect('/?error=Accès bypass non autorisé - IP restreinte')
         else:
-            security_checks.append(f"âœ… IP autorisÃ©e: {client_ip}")
+            security_checks.append(f"✅ IP autorisée: {client_ip}")
         
-        print(f"ðŸ” VÃ©rifications sÃ©curitÃ© bypass: {security_checks}")
+        print(f"🔐 Vérifications sécurité bypass: {security_checks}")
         
-        # Si toutes les vÃ©rifications passent
-        if all("âœ…" in check for check in security_checks):
-            print("ðŸ”“ MODE BYPASS ACTIVÃ‰ - Toutes les vÃ©rifications sÃ©curitÃ© passÃ©es")
+        # Si toutes les vérifications passent
+        if all("✅" in check for check in security_checks):
+            print("🔓 MODE BYPASS ACTIVÉ - Toutes les vérifications sécurité passées")
             return simulate_discord_login()
         else:
-            print("âŒ BYPASS REFUSÃ‰ - VÃ©rifications sÃ©curitÃ© Ã©chouÃ©es")
-            return redirect('/?error=AccÃ¨s bypass non autorisÃ©')
+            print("❌ BYPASS REFUSÉ - Vérifications sécurité échouées")
+            return redirect('/?error=Accès bypass non autorisé')
     
     if not DISCORD_CLIENT_SECRET:
-        print("âŒ ERREUR: DISCORD_CLIENT_SECRET n'est pas configurÃ©!")
+        print("❌ ERREUR: DISCORD_CLIENT_SECRET n'est pas configuré!")
         return jsonify({
             'error': 'Discord OAuth not configured',
-            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas dÃ©finie dans l\'environnement Render.',
+            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas définie dans l\'environnement Render.',
             'solution': 'Configurez DISCORD_CLIENT_SECRET dans les variables d\'environnement Render.'
         }), 500
     
@@ -1434,9 +1434,9 @@ def discord_login():
     
     discord_url = f"https://discord.com/api/oauth2/authorize?{urllib.parse.urlencode(params)}"
     
-    print(f"ðŸŒ URL gÃ©nÃ©rÃ©e: {discord_url}")
-    print(f"ðŸ”‘ CLIENT_ID utilisÃ©: {DISCORD_CLIENT_ID}")
-    print(f"ðŸ“ REDIRECT_URI utilisÃ©: {DISCORD_REDIRECT_URI}")
+    print(f"🌐 URL générée: {discord_url}")
+    print(f"🔑 CLIENT_ID utilisé: {DISCORD_CLIENT_ID}")
+    print(f"📍 REDIRECT_URI utilisé: {DISCORD_REDIRECT_URI}")
     
     return redirect(discord_url)
 
@@ -1446,14 +1446,14 @@ def discord_callback():
     code = request.args.get('code')
     state = request.args.get('state')
     
-    print(f"ðŸ”„ Callback reÃ§u - Args: {dict(request.args)}")
-    print(f"ðŸ”‘ Code reÃ§u: {code}")
+    print(f"🔄 Callback reçu - Args: {dict(request.args)}")
+    print(f"🔑 Code reçu: {code}")
     
     if not code:
         error_msg = "Code d'autorisation manquant"
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     
-    # Ã‰changer le code contre un token
+    # Échanger le code contre un token
     token_data = {
         'client_id': DISCORD_CLIENT_ID,
         'client_secret': DISCORD_CLIENT_SECRET,
@@ -1462,20 +1462,20 @@ def discord_callback():
         'redirect_uri': DISCORD_REDIRECT_URI
     }
     
-    print(f"ðŸ“¤ Envoi vers Discord API:")
+    print(f"📤 Envoi vers Discord API:")
     print(f"   CLIENT_ID: {DISCORD_CLIENT_ID}")
     print(f"   CLIENT_SECRET: {'*' * 24 + DISCORD_CLIENT_SECRET[-4:] if DISCORD_CLIENT_SECRET else 'None'}")
     print(f"   REDIRECT_URI: {DISCORD_REDIRECT_URI}")
     
     try:
         token_response = requests.post('https://discord.com/api/oauth2/token', data=token_data, timeout=10)
-        print(f"ðŸ“¥ RÃ©ponse Discord: {token_response.status_code}")
-        print(f"ðŸ“„ Contenu rÃ©ponse: {token_response.text}")
+        print(f"📥 Réponse Discord: {token_response.status_code}")
+        print(f"📄 Contenu réponse: {token_response.text}")
         
         if token_response.status_code == 429:
             # Rate limited - attendre avant de rediriger
             retry_after = token_response.headers.get('Retry-After', '60')
-            error_msg = f"Trop de tentatives de connexion. Veuillez patienter {retry_after} secondes avant de rÃ©essayer."
+            error_msg = f"Trop de tentatives de connexion. Veuillez patienter {retry_after} secondes avant de réessayer."
             return redirect(f'/?error={urllib.parse.quote(error_msg)}')
         elif token_response.status_code != 200:
             error_msg = f"Erreur Discord API (Code: {token_response.status_code})"
@@ -1485,32 +1485,32 @@ def discord_callback():
         access_token = token_json.get('access_token')
         
         if not access_token:
-            error_msg = "Token d'accÃ¨s manquant dans la rÃ©ponse Discord"
+            error_msg = "Token d'accès manquant dans la réponse Discord"
             return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     
     except requests.RequestException as e:
-        error_msg = f"Erreur de connexion Ã  Discord: {str(e)}"
+        error_msg = f"Erreur de connexion à Discord: {str(e)}"
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     except Exception as e:
         error_msg = f"Erreur technique: {str(e)}"
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     
-    # RÃ©cupÃ©rer les infos utilisateur
+    # Récupérer les infos utilisateur
     try:
         headers = {'Authorization': f"Bearer {access_token}"}
         user_response = requests.get('https://discord.com/api/users/@me', headers=headers, timeout=10)
         
         if user_response.status_code != 200:
-            error_msg = "Impossible de rÃ©cupÃ©rer vos informations Discord"
+            error_msg = "Impossible de récupérer vos informations Discord"
             return redirect(f'/?error={urllib.parse.quote(error_msg)}')
             
         user_data = user_response.json()
         
-        # RÃ©cupÃ©rer les serveurs de l'utilisateur
+        # Récupérer les serveurs de l'utilisateur
         guilds_response = requests.get('https://discord.com/api/users/@me/guilds', headers=headers, timeout=10)
         
         if guilds_response.status_code != 200:
-            error_msg = "Impossible de rÃ©cupÃ©rer vos serveurs Discord"
+            error_msg = "Impossible de récupérer vos serveurs Discord"
             return redirect(f'/?error={urllib.parse.quote(error_msg)}')
             
         guilds_data = guilds_response.json()
@@ -1519,19 +1519,19 @@ def discord_callback():
         error_msg = f"Erreur de communication avec Discord: {str(e)}"
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     except Exception as e:
-        error_msg = f"Erreur lors de la rÃ©cupÃ©ration des donnÃ©es: {str(e)}"
+        error_msg = f"Erreur lors de la récupération des données: {str(e)}"
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     
-    print(f"ðŸ” Serveurs Discord de l'utilisateur: {len(guilds_data)} serveurs trouvÃ©s")
+    print(f"🔍 Serveurs Discord de l'utilisateur: {len(guilds_data)} serveurs trouvés")
     
-    # VÃ©rifier les permissions et l'accÃ¨s
+    # Vérifier les permissions et l'accès
     access_info = check_user_access(user_data, guilds_data)
     
     if access_info['level'] == 'denied':
-        error_msg = "AccÃ¨s refusÃ©. Vous devez Ãªtre sur un serveur avec le bot Arsenal."
+        error_msg = "Accès refusé. Vous devez être sur un serveur avec le bot Arsenal."
         return redirect(f'/?error={urllib.parse.quote(error_msg)}')
     
-    # CrÃ©er une session
+    # Créer une session
     session_token = secrets.token_urlsafe(32)
     session_data = {
         'user_id': user_data['id'],
@@ -1547,7 +1547,7 @@ def discord_callback():
     # Stocker la session
     store_session(session_token, user_data, session_data, access_info['level'])
     
-    print(f"âœ… Session crÃ©Ã©e pour {user_data['username']} - Niveau: {access_info['level']} ({access_info['display_name']}) - Token: {session_token}")
+    print(f"✅ Session créée pour {user_data['username']} - Niveau: {access_info['level']} ({access_info['display_name']}) - Token: {session_token}")
     
     # Rediriger vers le dashboard avec le token en cookie
     response = redirect('/dashboard')
@@ -1556,13 +1556,13 @@ def discord_callback():
 
 @app.route('/dashboard')
 def dashboard():
-    """Dashboard principal - nÃ©cessite une authentification"""
+    """Dashboard principal - nécessite une authentification"""
     session_token = request.cookies.get('arsenal_session')
     
     if not session_token:
-        return redirect('/?error=Session expirÃ©e, veuillez vous reconnecter')
+        return redirect('/?error=Session expirée, veuillez vous reconnecter')
     
-    # VÃ©rifier la session directement en base de donnÃ©es
+    # Vérifier la session directement en base de données
     try:
         conn = sqlite3.connect('arsenal_v4.db')
         cursor = conn.cursor()
@@ -1578,10 +1578,10 @@ def dashboard():
             return redirect('/?error=Session invalide, veuillez vous reconnecter')
         
         user_id, access_level = result
-        print(f"âœ… Dashboard accÃ©dÃ© par {user_id} (niveau: {access_level})")
+        print(f"✅ Dashboard accédé par {user_id} (niveau: {access_level})")
         
     except Exception as e:
-        print(f"âŒ Erreur vÃ©rification session: {e}")
+        print(f"❌ Erreur vérification session: {e}")
         return redirect('/?error=Erreur de session, veuillez vous reconnecter')
     
     # Servir l'interface dashboard depuis le frontend
@@ -1589,7 +1589,7 @@ def dashboard():
 
 @app.route('/api/auth/user')
 def api_auth_user():
-    """API pour vÃ©rifier le statut d'authentification de l'utilisateur"""
+    """API pour vérifier le statut d'authentification de l'utilisateur"""
     session_token = request.cookies.get('arsenal_session')
     
     if not session_token:
@@ -1597,7 +1597,7 @@ def api_auth_user():
     
     # Utiliser la fonction existante get_session_info si elle existe
     try:
-        # VÃ©rifier directement en base de donnÃ©es
+        # Vérifier directement en base de données
         conn = sqlite3.connect('arsenal_v4.db')
         cursor = conn.cursor()
         cursor.execute('''
@@ -1620,22 +1620,22 @@ def api_auth_user():
             return jsonify({'authenticated': False, 'error': 'Invalid or expired session'})
             
     except Exception as e:
-        print(f"âŒ Erreur vÃ©rification auth: {e}")
+        print(f"❌ Erreur vérification auth: {e}")
         return jsonify({'authenticated': False, 'error': 'Database error'})
 
 def check_user_access(user_data, guilds_data):
-    """SystÃ¨me de permissions hiÃ©rarchique avancÃ©"""
-    print(f"ðŸ” Analyse des permissions pour {len(guilds_data)} serveurs...")
+    """Système de permissions hiérarchique avancé"""
+    print(f"🔐 Analyse des permissions pour {len(guilds_data)} serveurs...")
     
-    # SystÃ¨me de niveaux hiÃ©rarchiques
+    # Système de niveaux hiérarchiques
     access_levels = {
-        'bot_creator': 1000,      # Creator - AccÃ¨s total
-        'admin': 800,             # Admins - AccÃ¨s Ã©tendu  
-        'server_owner': 600,      # PropriÃ©taires de serveurs avec le bot
+        'bot_creator': 1000,      # Creator - Accès total
+        'admin': 800,             # Admins - Accès étendu  
+        'server_owner': 600,      # Propriétaires de serveurs avec le bot
         'administrator': 400,     # Administrateurs sur serveurs avec bot
-        'moderator': 200,         # ModÃ©rateurs sur serveurs avec bot
+        'moderator': 200,         # Modérateurs sur serveurs avec bot
         'member': 100,            # Membres avec bot
-        'denied': 0               # AccÃ¨s refusÃ©
+        'denied': 0               # Accès refusé
     }
     
     user_level = 0
@@ -1643,19 +1643,19 @@ def check_user_access(user_data, guilds_data):
     highest_guild = None
     accessible_servers = []
     
-    # VÃ©rification Creator/Admin (bypass total)
+    # Vérification Creator/Admin (bypass total)
     if is_creator_or_admin(user_data['id']):
         if user_data['id'] == CREATOR_ID:
-            print("  ðŸš€ CRÃ‰ATEUR DU BOT DÃ‰TECTÃ‰ - AccÃ¨s total")
+            print("  🚀 CRÉATEUR DU BOT DÉTECTÉ - Accès total")
             return {
                 'level': 'bot_creator',
-                'display_name': 'CrÃ©ateur du Bot',
+                'display_name': 'Créateur du Bot',
                 'numeric_level': access_levels['bot_creator'],
                 'servers': guilds_data,
                 'special_access': True
             }
         else:
-            print("  ðŸ”§ ADMIN DÃ‰TECTÃ‰ - AccÃ¨s Ã©tendu")
+            print("  🔧 ADMIN DÉTECTÉ - Accès étendu")
             return {
                 'level': 'admin',
                 'display_name': 'Administrateur',
@@ -1671,71 +1671,71 @@ def check_user_access(user_data, guilds_data):
         is_owner = guild.get('owner', False)
         guild_name = guild['name']
         
-        # VÃ©rifier si le bot est sur ce serveur (dÃ©tection dynamique)
+        # Vérifier si le bot est sur ce serveur (détection dynamique)
         bot_guilds = BOT_SERVERS_DYNAMIC if BOT_SERVERS_DYNAMIC else BOT_SERVERS
         bot_on_server = guild_id in bot_guilds
         
         if not bot_on_server:
-            print(f"  âŒ Serveur {guild_name} - Bot absent, ignorÃ© (dÃ©tection dynamique)")
+            print(f"  ❌ Serveur {guild_name} - Bot absent, ignoré (détection dynamique)")
             continue
             
-        print(f"  âœ… Serveur {guild_name} - Bot prÃ©sent, analyse des permissions...")
+        print(f"  ✅ Serveur {guild_name} - Bot présent, analyse des permissions...")
         accessible_servers.append(guild)
         
-        # DÃ©terminer le niveau sur ce serveur
+        # Déterminer le niveau sur ce serveur
         current_level = 0
         current_role = 'member'
         
-        # PropriÃ©taire du serveur
+        # Propriétaire du serveur
         if is_owner:
             current_level = access_levels['server_owner']
             current_role = 'server_owner'
-            print(f"    ðŸ‘‘ PROPRIÃ‰TAIRE du serveur {guild_name}")
+            print(f"    👑 PROPRIÉTAIRE du serveur {guild_name}")
         
         # Administrateur (permission ADMINISTRATOR - bit 3)
         elif (permissions & 0x8) != 0:
             current_level = access_levels['administrator']
             current_role = 'administrator'
-            print(f"    â­ ADMINISTRATEUR sur {guild_name}")
+            print(f"    ⭐ ADMINISTRATEUR sur {guild_name}")
         
-        # ModÃ©rateur (permissions de modÃ©ration)
+        # Modérateur (permissions de modération)
         elif (permissions & 0x10000000) != 0 or (permissions & 0x2000000) != 0:  # MANAGE_CHANNELS ou MANAGE_MESSAGES
             current_level = access_levels['moderator']
             current_role = 'moderator'
-            print(f"    ðŸ›¡ï¸ MODÃ‰RATEUR sur {guild_name}")
+            print(f"    🛡️ MODÉRATEUR sur {guild_name}")
         
         # Membre normal
         else:
             current_level = access_levels['member']
             current_role = 'member'
-            print(f"    ðŸ‘¤ MEMBRE sur {guild_name}")
+            print(f"    👤 MEMBRE sur {guild_name}")
         
-        # Garder le niveau le plus Ã©levÃ©
+        # Garder le niveau le plus élevé
         if current_level > user_level:
             user_level = current_level
             user_role = current_role
             highest_guild = guild
     
-    # DÃ©terminer l'affichage du rÃ´le
+    # Déterminer l'affichage du rôle
     role_displays = {
         'server_owner': 'Fondateur de Serveur',
         'administrator': 'Administrateur',
-        'moderator': 'ModÃ©rateur',
+        'moderator': 'Modérateur',
         'member': 'Membre'
     }
     
     if not accessible_servers:
-        print("  âŒ ACCÃˆS REFUSÃ‰ - Aucun serveur avec le bot trouvÃ©")
+        print("  ❌ ACCÈS REFUSÉ - Aucun serveur avec le bot trouvé")
         return {
             'level': 'denied',
-            'display_name': 'AccÃ¨s RefusÃ©',
+            'display_name': 'Accès Refusé',
             'numeric_level': 0,
             'servers': [],
             'special_access': False
         }
     
     display_name = role_displays.get(user_role, 'Membre')
-    print(f"âœ… AccÃ¨s autorisÃ© - Niveau: {user_role} ({display_name})")
+    print(f"✅ Accès autorisé - Niveau: {user_role} ({display_name})")
     
     return {
         'level': user_role,
@@ -1747,7 +1747,7 @@ def check_user_access(user_data, guilds_data):
     }
 
 def store_session(session_token, user_data, session_data, access_level):
-    """Stocker la session en base de donnÃ©es avec structure existante"""
+    """Stocker la session en base de données avec structure existante"""
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
@@ -1768,24 +1768,24 @@ def store_session(session_token, user_data, session_data, access_level):
     
     conn.commit()
     conn.close()
-    print(f"ðŸ’¾ Session stockÃ©e: {user_data['username']} - Niveau: {access_level}")
+    print(f"💾 Session stockée: {user_data['username']} - Niveau: {access_level}")
 
 def simulate_discord_login():
     """Mode bypass temporaire pour contourner le rate limiting Discord"""
-    print("ðŸ”“ SIMULATION: CrÃ©ation d'une session de test pour contourner le rate limiting")
+    print("🔓 SIMULATION: Création d'une session de test pour contourner le rate limiting")
     
-    # DonnÃ©es utilisateur simulÃ©es (Creator du bot)
+    # Données utilisateur simulées (Creator du bot)
     fake_user_data = {
-        'id': CREATOR_ID,  # Utiliser l'ID du crÃ©ateur
+        'id': CREATOR_ID,  # Utiliser l'ID du créateur
         'username': 'DevCreator',
         'avatar': None,
         'discriminator': '0000'
     }
     
-    # ðŸš€ BYPASS SPÃ‰CIAL: Donner directement les permissions crÃ©ateur
-    print("ðŸ”“ BYPASS ACTIVÃ‰: Attribution des permissions crÃ©ateur pour test")
+    # 🚀 BYPASS SPÉCIAL: Donner directement les permissions créateur
+    print("🔓 BYPASS ACTIVÉ: Attribution des permissions créateur pour test")
     
-    # CrÃ©er une session de test avec permissions maximales
+    # Créer une session de test avec permissions maximales
     session_token = f"bypass_{secrets.token_urlsafe(24)}"
     session_data = {
         'user_id': fake_user_data['id'],
@@ -1793,7 +1793,7 @@ def simulate_discord_login():
         'avatar': fake_user_data.get('avatar'),
         'guilds': [{'id': 'bypass_server', 'name': 'Bypass Test Server'}],
         'access_level': 'bot_creator',  # Permissions maximales
-        'display_role': 'CrÃ©ateur du Bot (Mode Test)',
+        'display_role': 'Créateur du Bot (Mode Test)',
         'numeric_level': 1000,
         'special_access': True,
         'is_simulation': True,  # Marquer comme simulation
@@ -1803,7 +1803,7 @@ def simulate_discord_login():
     # Stocker la session avec la nouvelle structure
     store_session(session_token, fake_user_data, session_data, 'bot_creator')
     
-    print(f"âœ… Session BYPASS crÃ©Ã©e - Niveau: bot_creator (Permissions maximales) - Token: {session_token}")
+    print(f"✅ Session BYPASS créée - Niveau: bot_creator (Permissions maximales) - Token: {session_token}")
     
     # Rediriger vers le dashboard avec le token
     response = redirect('/dashboard')
@@ -1812,14 +1812,52 @@ def simulate_discord_login():
 
 # ==================== ROUTES API UTILISATEUR ====================
 
+@app.route('/api/auth/user')
+def auth_user():
+    """Vérifier l'état d'authentification de l'utilisateur"""
+    session_token = request.cookies.get('arsenal_session')
+    if not session_token:
+        return jsonify({'authenticated': False}), 200
+    
+    # Récupérer les données de session avec structure existante
+    conn = sqlite3.connect('arsenal_v4.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result:
+        session_data = json.loads(result[0])
+        permission_level = result[1]
+        
+        return jsonify({
+            'authenticated': True,
+            'id': session_data['user_id'],
+            'username': session_data['username'],
+            'display_name': session_data['username'],
+            'role_display': session_data.get('display_role', 'Membre'),
+            'avatar': f"https://cdn.discordapp.com/avatars/{session_data['user_id']}/{session_data['avatar']}.png" if session_data.get('avatar') else 'https://cdn.discordapp.com/embed/avatars/0.png',
+            'permission_level': permission_level,
+            'numeric_level': session_data.get('numeric_level', 200),
+            'special_access': session_data.get('special_access', False),
+            'is_bot_creator': permission_level == 'bot_creator',
+            'is_server_owner': permission_level == 'server_owner',
+            'is_administrator': permission_level in ['bot_creator', 'server_owner', 'administrator'],
+            'is_moderator': permission_level in ['bot_creator', 'server_owner', 'administrator', 'moderator'],
+            'accessible_servers': len(session_data.get('guilds', [])),
+            'last_seen': datetime.now().isoformat()
+        })
+    
+    return jsonify({'authenticated': False}), 200
+
 @app.route('/api/user/info')
 def user_info():
-    """Informations utilisateur avec nouveau systÃ¨me de permissions"""
+    """Informations utilisateur avec nouveau système de permissions"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'authenticated': False}), 401
     
-    # RÃ©cupÃ©rer les donnÃ©es de session
+    # Récupérer les données de session
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -1845,12 +1883,12 @@ def user_info():
 
 @app.route('/api/user/profile')
 def user_profile():
-    """Profil utilisateur dÃ©taillÃ© avec nouveau systÃ¨me"""
+    """Profil utilisateur détaillé avec nouveau système"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # RÃ©cupÃ©rer les donnÃ©es de session
+    # Récupérer les données de session
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -1915,7 +1953,7 @@ def user_permissions():
 
 @app.route('/api/stats')
 def get_stats():
-    """Statistiques principales du bot (donnÃ©es rÃ©elles)"""
+    """Statistiques principales du bot (données réelles)"""
     real_stats = get_real_bot_stats()
     
     stats_data = {
@@ -1935,12 +1973,12 @@ def get_stats():
         'uptime': real_stats['uptime'],
         'version': real_stats['version']
     }
-    print(f"âœ… API stats OK: {stats_data}")
+    print(f"✅ API stats OK: {stats_data}")
     return jsonify(stats_data)
 
 @app.route('/api/stats/dashboard')
 def dashboard_stats():
-    """Statistiques pour le dashboard (donnÃ©es rÃ©elles)"""
+    """Statistiques pour le dashboard (données réelles)"""
     real_stats = get_real_bot_stats()
     
     dashboard_data = {
@@ -1959,7 +1997,7 @@ def dashboard_stats():
 
 @app.route('/api/stats/general')
 def stats_general():
-    """Statistiques gÃ©nÃ©rales (donnÃ©es rÃ©elles)"""
+    """Statistiques générales (données réelles)"""
     real_stats = get_real_bot_stats()
     
     general_data = {
@@ -1976,7 +2014,7 @@ def stats_general():
 
 @app.route('/api/stats/real')
 def real_time_stats():
-    """Statistiques temps rÃ©el"""
+    """Statistiques temps réel"""
     return jsonify({
         'users': random.randint(30, 50),
         'online_now': random.randint(8, 20),
@@ -1988,7 +2026,7 @@ def real_time_stats():
 
 @app.route('/api/bot/status')
 def bot_status():
-    """Statut du bot Discord (donnÃ©es rÃ©elles)"""
+    """Statut du bot Discord (données réelles)"""
     real_stats = get_real_bot_stats()
     
     status_data = {
@@ -2002,12 +2040,12 @@ def bot_status():
         'version': real_stats['version'],
         'commands_today': real_stats['commands_executed_today']
     }
-    print(f"âœ… API bot/status OK: {status_data}")
+    print(f"✅ API bot/status OK: {status_data}")
     return jsonify(status_data)
 
 @app.route('/api/bot/performance')
 def bot_performance():
-    """MÃ©triques de performance du bot"""
+    """Métriques de performance du bot"""
     try:
         cpu_percent = psutil.cpu_percent(interval=1)
         memory_info = psutil.virtual_memory()
@@ -2025,7 +2063,7 @@ def bot_performance():
             'discord_latency': bot_stats['discord_latency']
         })
     except:
-        # DonnÃ©es de fallback si psutil Ã©choue
+        # Données de fallback si psutil échoue
         return jsonify({
             'cpu_usage': f"{random.randint(15, 35)}%",
             'memory_usage': f"{random.randint(180, 250)}MB", 
@@ -2039,11 +2077,11 @@ def bot_performance():
             'discord_latency': '38ms'
         })
 
-# ==================== NOUVELLES APIS POUR LES ONGLETS DÃ‰TAILLÃ‰S ====================
+# ==================== NOUVELLES APIS POUR LES ONGLETS DÉTAILLÉS ====================
 
 @app.route('/api/bot/detailed')
 def bot_detailed():
-    """Informations dÃ©taillÃ©es du bot avec donnÃ©es rÃ©elles"""
+    """Informations détaillées du bot avec données réelles"""
     real_stats = get_real_bot_stats()
     
     detailed_data = {
@@ -2070,21 +2108,21 @@ def bot_detailed():
             'events_handled': random.randint(1000, 5000)
         },
         'health': {
-            'database': 'ConnectÃ©e',
+            'database': 'Connectée',
             'discord_api': 'Fonctionnelle',
-            'cache': 'OpÃ©rationnel',
+            'cache': 'Opérationnel',
             'websocket': 'Stable'
         }
     }
     
-    print(f"âœ… API bot/detailed OK")
+    print(f"✅ API bot/detailed OK")
     return jsonify(detailed_data)
 
 @app.route('/api/servers/detailed')
 def servers_detailed():
-    """Liste dÃ©taillÃ©e des serveurs avec informations complÃ¨tes"""
+    """Liste détaillée des serveurs avec informations complètes"""
     
-    # Simuler des serveurs rÃ©els avec donnÃ©es variÃ©es
+    # Simuler des serveurs réels avec données variées
     servers_data = [
         {
             'id': '1234567890123456789',
@@ -2146,7 +2184,7 @@ def servers_detailed():
         'last_updated': datetime.now().isoformat()
     }
     
-    print(f"âœ… API servers/detailed OK: {len(servers_data)} serveurs")
+    print(f"✅ API servers/detailed OK: {len(servers_data)} serveurs")
     return jsonify(result)
     
     session_data = json.loads(result[0])
@@ -2200,9 +2238,9 @@ def servers_detailed():
 
 @app.route('/api/users/detailed')
 def users_detailed():
-    """Liste dÃ©taillÃ©e des utilisateurs avec informations complÃ¨tes"""
+    """Liste détaillée des utilisateurs avec informations complètes"""
     
-    # Simuler des utilisateurs avec donnÃ©es variÃ©es
+    # Simuler des utilisateurs avec données variées
     users_data = [
         {
             'id': '123456789012345678',
@@ -2304,12 +2342,12 @@ def users_detailed():
         'last_updated': datetime.now().isoformat()
     }
     
-    print(f"âœ… API users/detailed OK: {len(users_data)} utilisateurs")
+    print(f"✅ API users/detailed OK: {len(users_data)} utilisateurs")
     return jsonify(result)
 
 @app.route('/api/commands/detailed')
 def commands_detailed():
-    """Liste dÃ©taillÃ©e des commandes avec statistiques d'utilisation"""
+    """Liste détaillée des commandes avec statistiques d'utilisation"""
     
     # Simuler des commandes avec statistiques
     commands_data = [
@@ -2370,7 +2408,7 @@ def commands_detailed():
         {
             'name': 'warn',
             'category': 'Moderation',
-            'description': 'Donne un avertissement Ã  un utilisateur',
+            'description': 'Donne un avertissement à un utilisateur',
             'usage': '!warn <@utilisateur> <raison>',
             'permissions': ['MODERATE_MEMBERS'],
             'stats': {
@@ -2388,7 +2426,7 @@ def commands_detailed():
         {
             'name': 'economy',
             'category': 'Economy',
-            'description': 'Affiche le profil Ã©conomique',
+            'description': 'Affiche le profil économique',
             'usage': '!economy [utilisateur]',
             'permissions': ['SEND_MESSAGES'],
             'stats': {
@@ -2423,19 +2461,19 @@ def commands_detailed():
         'last_updated': datetime.now().isoformat()
     }
     
-    print(f"âœ… API commands/detailed OK: {len(commands_data)} commandes")
+    print(f"✅ API commands/detailed OK: {len(commands_data)} commandes")
     return jsonify(result)
 
 # ==================== ROUTES API SERVEURS ====================
 
 @app.route('/api/servers/list')
 def servers_list():
-    """Liste des serveurs Discord oÃ¹ le bot est prÃ©sent ET oÃ¹ l'utilisateur a des permissions"""
+    """Liste des serveurs Discord où le bot est présent ET où l'utilisateur a des permissions"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated', 'servers': []}), 401
     
-    # RÃ©cupÃ©rer les donnÃ©es de session
+    # Récupérer les données de session
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -2448,15 +2486,15 @@ def servers_list():
     session_data = json.loads(result[0])
     user_guilds = session_data.get('guilds', [])
     
-    # Utiliser la dÃ©tection dynamique des serveurs
+    # Utiliser la détection dynamique des serveurs
     bot_guilds = BOT_SERVERS_DYNAMIC if BOT_SERVERS_DYNAMIC else BOT_SERVERS
     
-    # PrÃ©parer les donnÃ©es des serveurs oÃ¹ le bot est prÃ©sent
+    # Préparer les données des serveurs où le bot est présent
     servers_data = []
     for guild in user_guilds:
         guild_id = guild['id']
         
-        # VÃ©rifier si le bot est prÃ©sent sur ce serveur (dÃ©tection dynamique)
+        # Vérifier si le bot est présent sur ce serveur (détection dynamique)
         if guild_id in bot_guilds:
             server_info = {
                 'id': guild_id,
@@ -2487,7 +2525,7 @@ def servers_list():
             }
             servers_data.append(server_info)
     
-    print(f"âœ… API servers/list OK: {len(servers_data)} serveurs avec bot accessibles")
+    print(f"✅ API servers/list OK: {len(servers_data)} serveurs avec bot accessibles")
     return jsonify({
         'success': True,
         'servers': servers_data,
@@ -2550,24 +2588,24 @@ def users_list():
         }
     })
 
-# ==================== ROUTES API ACTIVITÃ‰ ====================
+# ==================== ROUTES API ACTIVITÉ ====================
 
 @app.route('/api/activity/feed')
 def activity_feed():
-    """Flux d'activitÃ© rÃ©cente"""
+    """Flux d'activité récente"""
     activities = [
         {
             'id': 1,
             'user': 'xero3elite',
             'action': 'Connexion WebPanel',
-            'details': 'AccÃ¨s au dashboard',
+            'details': 'Accès au dashboard',
             'timestamp': datetime.now().isoformat(),
             'icon': 'login'
         },
         {
             'id': 2,
             'user': 'xero3elite',
-            'action': 'Commande exÃ©cutÃ©e',
+            'action': 'Commande exécutée',
             'details': '!play Imagine Dragons',
             'timestamp': (datetime.now() - timedelta(minutes=5)).isoformat(),
             'icon': 'music'
@@ -2576,23 +2614,23 @@ def activity_feed():
             'id': 3,
             'user': 'ModUser',
             'action': 'Utilisateur averti',
-            'details': 'Langage inappropriÃ©',
+            'details': 'Langage inapproprié',
             'timestamp': (datetime.now() - timedelta(minutes=15)).isoformat(),
             'icon': 'warn'
         },
         {
             'id': 4,
             'user': 'System',
-            'action': 'Bot redÃ©marrÃ©',
-            'details': 'Mise Ã  jour v4.2.7',
+            'action': 'Bot redémarré',
+            'details': 'Mise à jour v4.2.7',
             'timestamp': (datetime.now() - timedelta(hours=2)).isoformat(),
             'icon': 'restart'
         },
         {
             'id': 5,
             'user': 'AutoMod',
-            'action': 'Message supprimÃ©',
-            'details': 'Spam dÃ©tectÃ©',
+            'action': 'Message supprimé',
+            'details': 'Spam détecté',
             'timestamp': (datetime.now() - timedelta(hours=3)).isoformat(),
             'icon': 'delete'
         }
@@ -2601,7 +2639,7 @@ def activity_feed():
 
 @app.route('/api/activity/recent')
 def recent_activity():
-    """ActivitÃ© temps rÃ©el"""
+    """Activité temps réel"""
     return jsonify([
         {
             'user': 'xero3elite',
@@ -2623,16 +2661,16 @@ def recent_activity():
         }
     ])
 
-# ==================== ROUTES API Ã‰CONOMIE & NIVEAUX ====================
+# ==================== ROUTES API ÉCONOMIE & NIVEAUX ====================
 
 @app.route('/api/economy/overview')
 def economy_overview():
-    """Vue d'ensemble de l'Ã©conomie globale - AccÃ¨s CrÃ©ateur uniquement"""
+    """Vue d'ensemble de l'économie globale - Accès Créateur uniquement"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -2640,7 +2678,7 @@ def economy_overview():
     
     if not result or result[1] != 'bot_creator':
         conn.close()
-        return jsonify({'error': 'AccÃ¨s refusÃ© - CrÃ©ateur uniquement'}), 403
+        return jsonify({'error': 'Accès refusé - Créateur uniquement'}), 403
     
     # Statistiques globales
     cursor.execute('SELECT COUNT(*) FROM economy_users WHERE credits > 0')
@@ -2678,7 +2716,7 @@ def economy_overview():
 
 @app.route('/api/economy/config/global', methods=['GET', 'POST'])
 def economy_global_config():
-    """Configuration Ã©conomique globale - CrÃ©ateur uniquement"""
+    """Configuration économique globale - Créateur uniquement"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2690,10 +2728,10 @@ def economy_global_config():
     
     if not result or result[0] != 'bot_creator':
         conn.close()
-        return jsonify({'error': 'AccÃ¨s refusÃ© - CrÃ©ateur uniquement'}), 403
+        return jsonify({'error': 'Accès refusé - Créateur uniquement'}), 403
     
     if request.method == 'GET':
-        # RÃ©cupÃ©rer la configuration globale
+        # Récupérer la configuration globale
         cursor.execute('SELECT * FROM global_economy_config LIMIT 1')
         config = cursor.fetchone()
         conn.close()
@@ -2709,7 +2747,7 @@ def economy_global_config():
                 'economy_enabled': bool(config[7])
             })
         else:
-            # Configuration par dÃ©faut
+            # Configuration par défaut
             return jsonify({
                 'default_daily_credits': 100,
                 'max_balance': 1000000,
@@ -2738,11 +2776,11 @@ def economy_global_config():
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'Configuration globale mise Ã  jour'})
+        return jsonify({'success': True, 'message': 'Configuration globale mise à jour'})
 
 @app.route('/api/economy/servers')
 def economy_servers():
-    """Liste des serveurs avec Ã©conomie active - CrÃ©ateur/Fondateur"""
+    """Liste des serveurs avec économie active - Créateur/Fondateur"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2759,7 +2797,7 @@ def economy_servers():
     session_data = json.loads(result[0])
     permission_level = result[1]
     
-    # CrÃ©ateur voit tout, Fondateur voit ses serveurs
+    # Créateur voit tout, Fondateur voit ses serveurs
     if permission_level == 'bot_creator':
         cursor.execute('''
             SELECT ec.guild_id, ec.daily_credits, ec.max_balance, ec.economy_enabled,
@@ -2805,7 +2843,7 @@ def economy_servers():
 
 @app.route('/api/economy/server/<guild_id>/config', methods=['GET', 'POST'])
 def economy_server_config(guild_id):
-    """Configuration Ã©conomique d'un serveur spÃ©cifique"""
+    """Configuration économique d'un serveur spécifique"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2822,12 +2860,12 @@ def economy_server_config(guild_id):
     session_data = json.loads(result[0])
     permission_level = result[1]
     
-    # VÃ©rifier l'accÃ¨s au serveur
+    # Vérifier l'accès au serveur
     if permission_level != 'bot_creator':
         accessible_guilds = [str(g.get('id')) for g in session_data.get('guilds', [])]
         if guild_id not in accessible_guilds:
             conn.close()
-            return jsonify({'error': 'AccÃ¨s refusÃ© Ã  ce serveur'}), 403
+            return jsonify({'error': 'Accès refusé à ce serveur'}), 403
     
     if request.method == 'GET':
         cursor.execute('SELECT * FROM economy_config WHERE guild_id = ?', (guild_id,))
@@ -2873,11 +2911,11 @@ def economy_server_config(guild_id):
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'Configuration du serveur mise Ã  jour'})
+        return jsonify({'success': True, 'message': 'Configuration du serveur mise à jour'})
 
 @app.route('/api/levels/overview')
 def levels_overview():
-    """Vue d'ensemble du systÃ¨me de niveaux - AccÃ¨s CrÃ©ateur"""
+    """Vue d'ensemble du système de niveaux - Accès Créateur"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2889,7 +2927,7 @@ def levels_overview():
     
     if not result or result[0] != 'bot_creator':
         conn.close()
-        return jsonify({'error': 'AccÃ¨s refusÃ© - CrÃ©ateur uniquement'}), 403
+        return jsonify({'error': 'Accès refusé - Créateur uniquement'}), 403
     
     # Statistiques globales des niveaux
     cursor.execute('SELECT COUNT(*) FROM user_levels WHERE xp > 0')
@@ -2928,7 +2966,7 @@ def levels_overview():
 
 @app.route('/api/levels/config/global', methods=['GET', 'POST'])
 def levels_global_config():
-    """Configuration globale du systÃ¨me de niveaux - CrÃ©ateur uniquement"""
+    """Configuration globale du système de niveaux - Créateur uniquement"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2940,7 +2978,7 @@ def levels_global_config():
     
     if not result or result[0] != 'bot_creator':
         conn.close()
-        return jsonify({'error': 'AccÃ¨s refusÃ© - CrÃ©ateur uniquement'}), 403
+        return jsonify({'error': 'Accès refusé - Créateur uniquement'}), 403
     
     if request.method == 'GET':
         cursor.execute('SELECT * FROM global_levels_config LIMIT 1')
@@ -2983,11 +3021,11 @@ def levels_global_config():
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'Configuration globale des niveaux mise Ã  jour'})
+        return jsonify({'success': True, 'message': 'Configuration globale des niveaux mise à jour'})
 
 @app.route('/api/levels/rewards/global', methods=['GET', 'POST'])
 def levels_global_rewards():
-    """Gestion des rÃ©compenses globales - CrÃ©ateur uniquement"""
+    """Gestion des récompenses globales - Créateur uniquement"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -2999,7 +3037,7 @@ def levels_global_rewards():
     
     if not result or result[0] != 'bot_creator':
         conn.close()
-        return jsonify({'error': 'AccÃ¨s refusÃ© - CrÃ©ateur uniquement'}), 403
+        return jsonify({'error': 'Accès refusé - Créateur uniquement'}), 403
     
     if request.method == 'GET':
         cursor.execute('SELECT * FROM global_level_rewards ORDER BY level_required')
@@ -3033,13 +3071,13 @@ def levels_global_rewards():
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'RÃ©compense globale ajoutÃ©e'})
+        return jsonify({'success': True, 'message': 'Récompense globale ajoutée'})
 
 # ==================== ROUTES API MUSIQUE ====================
 
 @app.route('/api/music/status')
 def music_status():
-    """Statut du systÃ¨me musical"""
+    """Statut du système musical"""
     return jsonify({
         'playing': True,
         'current_track': {
@@ -3070,11 +3108,11 @@ def music_queue():
         ]
     })
 
-# ==================== ROUTES API MODÃ‰RATION ====================
+# ==================== ROUTES API MODÉRATION ====================
 
 @app.route('/api/moderation/logs')
 def moderation_logs():
-    """Logs de modÃ©ration"""
+    """Logs de modération"""
     return jsonify({
         'logs': [
             {
@@ -3082,7 +3120,7 @@ def moderation_logs():
                 'moderator': 'ModUser',
                 'target': 'SpamUser',
                 'action': 'ban',
-                'reason': 'Spam rÃ©pÃ©tÃ©',
+                'reason': 'Spam répété',
                 'timestamp': (datetime.now() - timedelta(hours=2)).isoformat()
             },
             {
@@ -3090,7 +3128,7 @@ def moderation_logs():
                 'moderator': 'xero3elite',
                 'target': 'ToxicUser',
                 'action': 'mute',
-                'reason': 'Langage inappropriÃ©',
+                'reason': 'Langage inapproprié',
                 'timestamp': (datetime.now() - timedelta(hours=5)).isoformat()
             }
         ]
@@ -3100,7 +3138,7 @@ def moderation_logs():
 
 @app.route('/api/admin/backup-database', methods=['POST'])
 def backup_database():
-    """CrÃ©er un backup de la base de donnÃ©es"""
+    """Créer un backup de la base de données"""
     return jsonify({
         'success': True,
         'filename': f'arsenal_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.db',
@@ -3148,7 +3186,7 @@ def channels_list():
         'channels': [
             {
                 'id': '123456789',
-                'name': 'gÃ©nÃ©ral',
+                'name': 'général',
                 'type': 'text',
                 'position': 0
             },
@@ -3169,7 +3207,7 @@ def channels_list():
 
 @app.route('/api/performance')
 def performance_general():
-    """MÃ©triques de performance gÃ©nÃ©rales"""
+    """Métriques de performance générales"""
     try:
         cpu_percent = psutil.cpu_percent(interval=0.1)
         memory = psutil.virtual_memory()
@@ -3233,29 +3271,29 @@ def api_info():
 @socketio.on('connect')
 def handle_connect():
     """Connexion WebSocket"""
-    print(f'Client connectÃ©: {request.sid}')
+    print(f'Client connecté: {request.sid}')
     emit('connected', {
-        'message': 'ConnectÃ© au serveur Arsenal V4',
+        'message': 'Connecté au serveur Arsenal V4',
         'timestamp': datetime.now().isoformat()
     })
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    """DÃ©connexion WebSocket"""
-    print(f'Client dÃ©connectÃ©: {request.sid}')
+    """Déconnexion WebSocket"""
+    print(f'Client déconnecté: {request.sid}')
 
 @socketio.on('subscribe_stats')
 def handle_subscribe_stats():
-    """S'abonner aux statistiques en temps rÃ©el"""
+    """S'abonner aux statistiques en temps réel"""
     join_room('stats_updates')
     emit('stats_subscribed', {
-        'message': 'AbonnÃ© aux mises Ã  jour statistiques',
+        'message': 'Abonné aux mises à jour statistiques',
         'room': 'stats_updates'
     })
 
 @socketio.on('get_live_data')
 def handle_get_live_data():
-    """RÃ©cupÃ©rer les donnÃ©es en temps rÃ©el"""
+    """Récupérer les données en temps réel"""
     emit('live_data', {
         'stats': {
             'users': bot_stats['users'],
@@ -3265,10 +3303,10 @@ def handle_get_live_data():
         'timestamp': datetime.now().isoformat()
     })
 
-# ==================== MISE Ã€ JOUR TEMPS RÃ‰EL ====================
+# ==================== MISE À JOUR TEMPS RÉEL ====================
 
 def broadcast_stats_update():
-    """Diffuser les mises Ã  jour de statistiques"""
+    """Diffuser les mises à jour de statistiques"""
     while True:
         try:
             # Simuler des changements de stats
@@ -3280,7 +3318,7 @@ def broadcast_stats_update():
             if bot_stats['users'] < 30:
                 bot_stats['users'] = 42
             
-            # Broadcast aux clients connectÃ©s
+            # Broadcast aux clients connectés
             socketio.emit('stats_update', {
                 'users': bot_stats['users'],
                 'commands': bot_stats['commands_executed'],
@@ -3288,59 +3326,59 @@ def broadcast_stats_update():
                 'timestamp': datetime.now().isoformat()
             }, to='stats_updates')
             
-            time.sleep(15)  # Mise Ã  jour toutes les 15 secondes
+            time.sleep(15)  # Mise à jour toutes les 15 secondes
         except Exception as e:
             print(f'Erreur broadcast stats: {e}')
             time.sleep(30)
 
-# ==================== SYSTÃˆME Ã‰CONOMIQUE & NIVEAUX ====================
+# ==================== SYSTÈME ÉCONOMIQUE & NIVEAUX ====================
 
 @app.route('/api/economy/user/<user_id>')
 def get_user_economy(user_id):
-    """Profil Ã©conomique d'un utilisateur"""
-    print(f"ðŸ‘¤ Phase 2: API get_user_economy appelÃ©e pour user_id: {user_id}")
+    """Profil économique d'un utilisateur"""
+    print(f"👤 Phase 2: API get_user_economy appelée pour user_id: {user_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
-        print("âŒ Phase 2: Pas de token de session")
+        print("❌ Phase 2: Pas de token de session")
         return jsonify({'error': 'Not authenticated'}), 401
     
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
-    print("ðŸ” Phase 2: VÃ©rification de la session...")
+    # Vérifier l'accès utilisateur
+    print("🔍 Phase 2: Vérification de la session...")
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
-        print("âŒ Phase 2: Session non trouvÃ©e")
+        print("❌ Phase 2: Session non trouvée")
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    print(f"âœ… Phase 2: Session valide - Permission: {session_result[1]}")
+    print(f"✅ Phase 2: Session valide - Permission: {session_result[1]}")
     
-    # RÃ©cupÃ©rer les donnÃ©es Ã©conomiques
-    print("ðŸ” Phase 2: Recherche des donnÃ©es Ã©conomiques...")
+    # Récupérer les données économiques
+    print("🔍 Phase 2: Recherche des données économiques...")
     cursor.execute('''
         SELECT balance, bank_balance, daily_streak, last_daily, total_earned, total_spent
         FROM economy_users WHERE user_id = ?
     ''', (user_id,))
     economy_result = cursor.fetchone()
-    print(f"ðŸ’° Phase 2: DonnÃ©es Ã©conomiques: {economy_result}")
+    print(f"💰 Phase 2: Données économiques: {economy_result}")
     
-    # RÃ©cupÃ©rer les donnÃ©es de niveau
-    print("ðŸ” Phase 2: Recherche des donnÃ©es de niveau...")
+    # Récupérer les données de niveau
+    print("🔍 Phase 2: Recherche des données de niveau...")
     cursor.execute('''
         SELECT level, xp, total_xp, messages_sent, voice_time
         FROM user_levels WHERE user_id = ?
     ''', (user_id,))
     level_result = cursor.fetchone()
-    print(f"â­ Phase 2: DonnÃ©es de niveau: {level_result}")
+    print(f"⭐ Phase 2: Données de niveau: {level_result}")
     
     conn.close()
     
     if economy_result and level_result:
-        print("âœ… Phase 2: DonnÃ©es utilisateur complÃ¨tes trouvÃ©es")
+        print("✅ Phase 2: Données utilisateur complètes trouvées")
         balance, bank_balance, daily_streak, last_daily, total_earned, total_spent = economy_result
         level, xp, total_xp, messages_sent, voice_time = level_result
         
@@ -3368,15 +3406,15 @@ def get_user_economy(user_id):
                 'xp_progress': round(xp_progress, 1),
                 'messages_sent': messages_sent,
                 'voice_time': voice_time,
-                'rank': 'CalculÃ© dynamiquement' # TODO: Calculer le rang rÃ©el
+                'rank': 'Calculé dynamiquement' # TODO: Calculer le rang réel
             }
         }
         
-        print(f"ðŸ“Š Phase 2: RÃ©ponse compilÃ©e: {result}")
+        print(f"📊 Phase 2: Réponse compilée: {result}")
         return jsonify(result)
     else:
-        print("âš ï¸ Phase 2: DonnÃ©es manquantes, crÃ©ation des valeurs par dÃ©faut")
-        # CrÃ©er des donnÃ©es par dÃ©faut si elles n'existent pas
+        print("⚠️ Phase 2: Données manquantes, création des valeurs par défaut")
+        # Créer des données par défaut si elles n'existent pas
         default_result = {
             'user_id': user_id,
             'economy': {
@@ -3401,45 +3439,45 @@ def get_user_economy(user_id):
             }
         }
         
-        print(f"ðŸ“Š Phase 2: RÃ©ponse par dÃ©faut: {default_result}")
+        print(f"📊 Phase 2: Réponse par défaut: {default_result}")
         return jsonify(default_result)
 
-# ==================== SYSTÃˆME DE MODÃ‰RATION ====================
+# ==================== SYSTÈME DE MODÉRATION ====================
 
 @app.route('/api/moderation/logs/<server_id>')
 def get_moderation_logs(server_id):
-    """Historique des actions de modÃ©ration"""
-    print(f"ðŸ›¡ï¸ Phase 3: API get_moderation_logs appelÃ©e pour server_id: {server_id}")
+    """Historique des actions de modération"""
+    print(f"🛡️ Phase 3: API get_moderation_logs appelée pour server_id: {server_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
-        print("âŒ Phase 3: Pas de token de session")
+        print("❌ Phase 3: Pas de token de session")
         return jsonify({'error': 'Not authenticated'}), 401
     
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
-    print("ðŸ” Phase 3: VÃ©rification de la session...")
+    # Vérifier l'accès utilisateur
+    print("🔍 Phase 3: Vérification de la session...")
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
-        print("âŒ Phase 3: Session non trouvÃ©e")
+        print("❌ Phase 3: Session non trouvée")
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    # VÃ©rifier les permissions de modÃ©ration
+    # Vérifier les permissions de modération
     permission_level = session_result[1]
     if permission_level not in ['moderator', 'admin', 'founder']:
-        print(f"âŒ Phase 3: Permissions insuffisantes: {permission_level}")
+        print(f"❌ Phase 3: Permissions insuffisantes: {permission_level}")
         conn.close()
         return jsonify({'error': 'Insufficient permissions'}), 403
     
-    print(f"âœ… Phase 3: Session valide - Permission: {permission_level}")
+    print(f"✅ Phase 3: Session valide - Permission: {permission_level}")
     
     try:
-        print("ðŸ” Phase 3: Recherche des logs de modÃ©ration...")
-        # RÃ©cupÃ©rer les logs de modÃ©ration pour ce serveur
+        print("🔍 Phase 3: Recherche des logs de modération...")
+        # Récupérer les logs de modération pour ce serveur
         cursor.execute('''
             SELECT id, action_type, target_user_id, moderator_user_id, reason, 
                    timestamp, duration, active
@@ -3449,7 +3487,7 @@ def get_moderation_logs(server_id):
             LIMIT 100
         ''', (server_id,))
         logs_data = cursor.fetchall()
-        print(f"ðŸ“‹ Phase 3: {len(logs_data)} logs trouvÃ©s")
+        print(f"📋 Phase 3: {len(logs_data)} logs trouvés")
         
         conn.close()
         
@@ -3461,7 +3499,7 @@ def get_moderation_logs(server_id):
                 'target_user_id': log[2],
                 'target_username': f'User_{log[2][-4:]}' if log[2] else 'Inconnu',  # Pseudonyme temporaire
                 'moderator_id': log[3],
-                'moderator_username': f'Mod_{log[3][-4:]}' if log[3] else 'SystÃ¨me',  # Pseudonyme temporaire
+                'moderator_username': f'Mod_{log[3][-4:]}' if log[3] else 'Système',  # Pseudonyme temporaire
                 'reason': log[4],
                 'timestamp': log[5],
                 'duration': log[6],
@@ -3474,11 +3512,11 @@ def get_moderation_logs(server_id):
             'total_count': len(logs)
         }
         
-        print(f"âœ… Phase 3: Logs de modÃ©ration retournÃ©s: {len(logs)} entrÃ©es")
+        print(f"✅ Phase 3: Logs de modération retournés: {len(logs)} entrées")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 3: Erreur dans get_moderation_logs: {e}")
+        print(f"❌ Phase 3: Erreur dans get_moderation_logs: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3489,33 +3527,33 @@ def get_moderation_logs(server_id):
 @app.route('/api/moderation/warnings/<server_id>')
 def get_moderation_warnings(server_id):
     """Avertissements actifs pour un serveur"""
-    print(f"âš ï¸ Phase 3: API get_moderation_warnings appelÃ©e pour server_id: {server_id}")
+    print(f"⚠️ Phase 3: API get_moderation_warnings appelée pour server_id: {server_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
-        print("âŒ Phase 3: Pas de token de session")
+        print("❌ Phase 3: Pas de token de session")
         return jsonify({'error': 'Not authenticated'}), 401
     
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
+    # Vérifier l'accès utilisateur
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
-        print("âŒ Phase 3: Session non trouvÃ©e")
+        print("❌ Phase 3: Session non trouvée")
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     permission_level = session_result[1]
     if permission_level not in ['moderator', 'admin', 'founder']:
-        print(f"âŒ Phase 3: Permissions insuffisantes: {permission_level}")
+        print(f"❌ Phase 3: Permissions insuffisantes: {permission_level}")
         conn.close()
         return jsonify({'error': 'Insufficient permissions'}), 403
     
     try:
-        print("ðŸ” Phase 3: Recherche des avertissements actifs...")
+        print("🔍 Phase 3: Recherche des avertissements actifs...")
         # Compter les avertissements actifs par utilisateur
         cursor.execute('''
             SELECT target_user_id, COUNT(*) as warning_count, MAX(timestamp) as last_warning
@@ -3526,7 +3564,7 @@ def get_moderation_warnings(server_id):
             ORDER BY warning_count DESC, last_warning DESC
         ''', (server_id,))
         warnings_data = cursor.fetchall()
-        print(f"âš ï¸ Phase 3: {len(warnings_data)} utilisateurs avec avertissements trouvÃ©s")
+        print(f"⚠️ Phase 3: {len(warnings_data)} utilisateurs avec avertissements trouvés")
         
         conn.close()
         
@@ -3545,11 +3583,11 @@ def get_moderation_warnings(server_id):
             'total_users': len(warnings)
         }
         
-        print(f"âœ… Phase 3: Avertissements retournÃ©s: {len(warnings)} utilisateurs")
+        print(f"✅ Phase 3: Avertissements retournés: {len(warnings)} utilisateurs")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 3: Erreur dans get_moderation_warnings: {e}")
+        print(f"❌ Phase 3: Erreur dans get_moderation_warnings: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3559,8 +3597,8 @@ def get_moderation_warnings(server_id):
 
 @app.route('/api/moderation/config/<server_id>')
 def get_moderation_config(server_id):
-    """Configuration de modÃ©ration pour un serveur"""
-    print(f"âš™ï¸ Phase 3: API get_moderation_config appelÃ©e pour server_id: {server_id}")
+    """Configuration de modération pour un serveur"""
+    print(f"⚙️ Phase 3: API get_moderation_config appelée pour server_id: {server_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
@@ -3569,23 +3607,23 @@ def get_moderation_config(server_id):
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
+    # Vérifier l'accès utilisateur
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     permission_level = session_result[1]
     if permission_level not in ['moderator', 'admin', 'founder']:
         conn.close()
         return jsonify({'error': 'Insufficient permissions'}), 403
     
     try:
-        print("ðŸ” Phase 3: Recherche de la configuration de modÃ©ration...")
+        print("🔍 Phase 3: Recherche de la configuration de modération...")
         
-        # Configuration de modÃ©ration
+        # Configuration de modération
         cursor.execute('''
             SELECT automod_enabled, logging_enabled, auto_ban_threshold, word_filter_enabled
             FROM moderation_config 
@@ -3593,7 +3631,7 @@ def get_moderation_config(server_id):
         ''', (server_id,))
         mod_config = cursor.fetchone()
         
-        # Configuration d'auto-modÃ©ration
+        # Configuration d'auto-modération
         cursor.execute('''
             SELECT spam_detection, link_filter, invite_filter, caps_filter, 
                    mention_limit, word_filter_list
@@ -3604,12 +3642,12 @@ def get_moderation_config(server_id):
         
         conn.close()
         
-        # Configuration par dÃ©faut si aucune trouvÃ©e
+        # Configuration par défaut si aucune trouvée
         if not mod_config:
-            mod_config = (True, True, 5, True)  # Valeurs par dÃ©faut
+            mod_config = (True, True, 5, True)  # Valeurs par défaut
         
         if not automod_config:
-            automod_config = (True, True, True, True, 5, "")  # Valeurs par dÃ©faut
+            automod_config = (True, True, True, True, 5, "")  # Valeurs par défaut
         
         result = {
             'server_id': server_id,
@@ -3629,11 +3667,11 @@ def get_moderation_config(server_id):
             }
         }
         
-        print(f"âœ… Phase 3: Configuration modÃ©ration retournÃ©e: {result}")
+        print(f"✅ Phase 3: Configuration modération retournée: {result}")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 3: Erreur dans get_moderation_config: {e}")
+        print(f"❌ Phase 3: Erreur dans get_moderation_config: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3644,8 +3682,8 @@ def get_moderation_config(server_id):
 
 @app.route('/api/moderation/action/<server_id>', methods=['POST'])
 def execute_moderation_action(server_id):
-    """ExÃ©cuter une action de modÃ©ration"""
-    print(f"âš¡ Phase 3: API execute_moderation_action appelÃ©e pour server_id: {server_id}")
+    """Exécuter une action de modération"""
+    print(f"⚡ Phase 3: API execute_moderation_action appelée pour server_id: {server_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
@@ -3654,14 +3692,14 @@ def execute_moderation_action(server_id):
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
+    # Vérifier l'accès utilisateur
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     permission_level = session_result[1]
     if permission_level not in ['moderator', 'admin', 'founder']:
         conn.close()
@@ -3671,13 +3709,13 @@ def execute_moderation_action(server_id):
         data = request.get_json()
         action = data.get('action')
         user_id = data.get('user_id')
-        reason = data.get('reason', 'Aucune raison spÃ©cifiÃ©e')
+        reason = data.get('reason', 'Aucune raison spécifiée')
         duration = data.get('duration')
         moderator_id = data.get('moderator_id')
         
-        print(f"ðŸ“ Phase 3: Action {action} sur {user_id} par {moderator_id}")
+        print(f"📝 Phase 3: Action {action} sur {user_id} par {moderator_id}")
         
-        # InsÃ©rer l'action dans les logs
+        # Insérer l'action dans les logs
         cursor.execute('''
             INSERT INTO moderation_logs 
             (server_id, action_type, target_user_id, moderator_user_id, reason, timestamp, duration, active)
@@ -3699,11 +3737,11 @@ def execute_moderation_action(server_id):
             'timestamp': datetime.now().isoformat()
         }
         
-        print(f"âœ… Phase 3: Action {action} exÃ©cutÃ©e avec succÃ¨s - ID: {action_id}")
+        print(f"✅ Phase 3: Action {action} exécutée avec succès - ID: {action_id}")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 3: Erreur dans execute_moderation_action: {e}")
+        print(f"❌ Phase 3: Erreur dans execute_moderation_action: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3712,8 +3750,8 @@ def execute_moderation_action(server_id):
 
 @app.route('/api/moderation/config/<server_id>', methods=['POST'])
 def save_moderation_config(server_id):
-    """Sauvegarder la configuration de modÃ©ration"""
-    print(f"ðŸ’¾ Phase 3: API save_moderation_config appelÃ©e pour server_id: {server_id}")
+    """Sauvegarder la configuration de modération"""
+    print(f"💾 Phase 3: API save_moderation_config appelée pour server_id: {server_id}")
     
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
@@ -3722,14 +3760,14 @@ def save_moderation_config(server_id):
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
-    # VÃ©rifier l'accÃ¨s utilisateur
+    # Vérifier l'accès utilisateur
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
     session_result = cursor.fetchone()
     if not session_result:
         conn.close()
         return jsonify({'error': 'Session not found'}), 401
     
-    # VÃ©rifier les permissions (Admin+ requis)
+    # Vérifier les permissions (Admin+ requis)
     permission_level = session_result[1]
     if permission_level not in ['admin', 'founder']:
         conn.close()
@@ -3740,10 +3778,10 @@ def save_moderation_config(server_id):
         moderation_config = data.get('moderation', {})
         automod_config = data.get('automod', {})
         
-        print(f"ðŸ“ Phase 3: Sauvegarde config modÃ©ration: {moderation_config}")
-        print(f"ðŸ“ Phase 3: Sauvegarde config automod: {automod_config}")
+        print(f"📝 Phase 3: Sauvegarde config modération: {moderation_config}")
+        print(f"📝 Phase 3: Sauvegarde config automod: {automod_config}")
         
-        # Sauvegarder la configuration de modÃ©ration
+        # Sauvegarder la configuration de modération
         if moderation_config:
             cursor.execute('''
                 INSERT OR REPLACE INTO moderation_config 
@@ -3757,7 +3795,7 @@ def save_moderation_config(server_id):
                 moderation_config.get('word_filter_enabled', True)
             ))
         
-        # Sauvegarder la configuration d'auto-modÃ©ration
+        # Sauvegarder la configuration d'auto-modération
         if automod_config:
             word_list = ','.join(automod_config.get('word_filter_list', []))
             cursor.execute('''
@@ -3784,11 +3822,11 @@ def save_moderation_config(server_id):
             'automod_updated': bool(automod_config)
         }
         
-        print(f"âœ… Phase 3: Configuration sauvegardÃ©e avec succÃ¨s")
+        print(f"✅ Phase 3: Configuration sauvegardée avec succès")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 3: Erreur dans save_moderation_config: {e}")
+        print(f"❌ Phase 3: Erreur dans save_moderation_config: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3797,14 +3835,14 @@ def save_moderation_config(server_id):
 
 @app.route('/api/economy/leaderboard')
 def economy_leaderboard():
-    """Classement Ã©conomique"""
-    print("ðŸ† Phase 2: API economy_leaderboard appelÃ©e")
+    """Classement économique"""
+    print("🏆 Phase 2: API economy_leaderboard appelée")
     
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     
     try:
-        print("ðŸ” Phase 2: Recherche des top balances...")
+        print("🔍 Phase 2: Recherche des top balances...")
         # Top balance total
         cursor.execute('''
             SELECT user_id, balance + bank_balance as total_balance, daily_streak
@@ -3813,9 +3851,9 @@ def economy_leaderboard():
             LIMIT 10
         ''', )
         balance_leaders = cursor.fetchall()
-        print(f"ðŸ“Š Phase 2: {len(balance_leaders)} utilisateurs trouvÃ©s pour balance")
+        print(f"📊 Phase 2: {len(balance_leaders)} utilisateurs trouvés pour balance")
         
-        print("ðŸ” Phase 2: Recherche des top niveaux...")
+        print("🔍 Phase 2: Recherche des top niveaux...")
         # Top niveaux
         cursor.execute('''
             SELECT user_id, level, total_xp, messages_sent
@@ -3824,7 +3862,7 @@ def economy_leaderboard():
             LIMIT 10
         ''', )
         level_leaders = cursor.fetchall()
-        print(f"â­ Phase 2: {len(level_leaders)} utilisateurs trouvÃ©s pour niveaux")
+        print(f"⭐ Phase 2: {len(level_leaders)} utilisateurs trouvés pour niveaux")
         
         conn.close()
         
@@ -3850,11 +3888,11 @@ def economy_leaderboard():
             ]
         }
         
-        print(f"âœ… Phase 2: Leaderboard retournÃ© avec {len(result['balance_leaderboard'])} balance et {len(result['level_leaderboard'])} niveaux")
+        print(f"✅ Phase 2: Leaderboard retourné avec {len(result['balance_leaderboard'])} balance et {len(result['level_leaderboard'])} niveaux")
         return jsonify(result)
         
     except Exception as e:
-        print(f"âŒ Phase 2: Erreur dans economy_leaderboard: {e}")
+        print(f"❌ Phase 2: Erreur dans economy_leaderboard: {e}")
         conn.close()
         return jsonify({
             'error': 'Database error',
@@ -3865,12 +3903,12 @@ def economy_leaderboard():
 
 @app.route('/api/economy/config/<server_id>')
 def get_economy_config(server_id):
-    """Configuration Ã©conomique d'un serveur"""
+    """Configuration économique d'un serveur"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -3888,7 +3926,7 @@ def get_economy_config(server_id):
         conn.close()
         return jsonify({'error': 'Insufficient permissions'}), 403
     
-    # RÃ©cupÃ©rer la configuration
+    # Récupérer la configuration
     cursor.execute('''
         SELECT daily_amount, work_min, work_max, crime_min, crime_max, 
                crime_fail_penalty, bank_interest_rate, level_multiplier, economy_enabled
@@ -3927,7 +3965,7 @@ def get_economy_config(server_id):
             }
         })
     else:
-        # Configuration par dÃ©faut
+        # Configuration par défaut
         return jsonify({
             'server_id': server_id,
             'economy': {
@@ -3949,12 +3987,12 @@ def get_economy_config(server_id):
 
 @app.route('/api/economy/config/<server_id>', methods=['POST'])
 def update_economy_config(server_id):
-    """Mise Ã  jour de la configuration Ã©conomique"""
+    """Mise à jour de la configuration économique"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -3978,7 +4016,7 @@ def update_economy_config(server_id):
         conn.close()
         return jsonify({'error': 'No data provided'}), 400
     
-    # Mettre Ã  jour la configuration Ã©conomique
+    # Mettre à jour la configuration économique
     if 'economy' in data:
         economy = data['economy']
         cursor.execute('''
@@ -4001,7 +4039,7 @@ def update_economy_config(server_id):
             datetime.now().isoformat()
         ))
     
-    # Mettre Ã  jour la configuration des niveaux
+    # Mettre à jour la configuration des niveaux
     if 'levels' in data:
         levels = data['levels']
         cursor.execute('''
@@ -4023,19 +4061,19 @@ def update_economy_config(server_id):
     
     return jsonify({
         'success': True,
-        'message': 'Configuration mise Ã  jour avec succÃ¨s',
+        'message': 'Configuration mise à jour avec succès',
         'updated_by': user_id,
         'updated_at': datetime.now().isoformat()
     })
 
 @app.route('/api/economy/global/config')
 def get_global_economy_config():
-    """Configuration Ã©conomique globale (Creator only)"""
+    """Configuration économique globale (Creator only)"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # VÃ©rifier les permissions Creator uniquement
+    # Vérifier les permissions Creator uniquement
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -4052,7 +4090,7 @@ def get_global_economy_config():
         conn.close()
         return jsonify({'error': 'Creator access required'}), 403
     
-    # RÃ©cupÃ©rer la configuration globale
+    # Récupérer la configuration globale
     cursor.execute('''
         SELECT max_daily_amount, max_work_amount, max_crime_amount, max_bank_interest,
                global_economy_enabled, currency_name, currency_symbol
@@ -4090,7 +4128,7 @@ def get_global_economy_config():
             }
         })
     else:
-        # Configuration par dÃ©faut
+        # Configuration par défaut
         return jsonify({
             'global_economy': {
                 'enabled': True,
@@ -4099,7 +4137,7 @@ def get_global_economy_config():
                 'max_crime_amount': 2000,
                 'max_bank_interest': 0.10,
                 'currency_name': 'Arsenal Coins',
-                'currency_symbol': 'ðŸª™'
+                'currency_symbol': '🪙'
             },
             'global_levels': {
                 'enabled': True,
@@ -4111,12 +4149,12 @@ def get_global_economy_config():
 
 @app.route('/api/economy/transactions/<server_id>')
 def get_economy_transactions(server_id):
-    """Historique des transactions Ã©conomiques"""
+    """Historique des transactions économiques"""
     session_token = request.cookies.get('arsenal_session')
     if not session_token:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    # VÃ©rifier les permissions
+    # Vérifier les permissions
     conn = sqlite3.connect('arsenal_v4.db')
     cursor = conn.cursor()
     cursor.execute('SELECT permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
@@ -4133,7 +4171,7 @@ def get_economy_transactions(server_id):
         conn.close()
         return jsonify({'error': 'Insufficient permissions'}), 403
     
-    # RÃ©cupÃ©rer les transactions rÃ©centes
+    # Récupérer les transactions récentes
     cursor.execute('''
         SELECT user_id, transaction_type, amount, description, created_at
         FROM economy_transactions 
@@ -4167,7 +4205,7 @@ def not_found(error):
     return jsonify({
         'error': 'Endpoint not found',
         'code': 404,
-        'message': 'L\'endpoint demandÃ© n\'existe pas'
+        'message': 'L\'endpoint demandé n\'existe pas'
     }), 404
 
 @app.errorhandler(500)
@@ -4183,7 +4221,7 @@ def forbidden(error):
     return jsonify({
         'error': 'Permission denied',
         'code': 403,
-        'message': 'AccÃ¨s refusÃ©'
+        'message': 'Accès refusé'
     }), 403
 
 @app.errorhandler(401)
@@ -4195,14 +4233,14 @@ def unauthorized(error):
     }), 401
 
 # ========================================
-# ðŸŽµ ROUTES MUSIC MANAGER (PHASE 4)
+# 🎵 ROUTES MUSIC MANAGER (PHASE 4)
 # ========================================
 
 @app.route('/api/music/queue/<server_id>')
 @cross_origin()
 def get_music_queue(server_id):
-    """RÃ©cupÃ¨re la queue musicale d'un serveur"""
-    print(f"ðŸŽµ Phase 4: RÃ©cupÃ©ration queue musicale pour serveur {server_id}")
+    """Récupère la queue musicale d'un serveur"""
+    print(f"🎵 Phase 4: Récupération queue musicale pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4250,7 +4288,7 @@ def get_music_queue(server_id):
                 "started_at": current_row[7]
             }
         
-        print(f"âœ… Phase 4: Queue rÃ©cupÃ©rÃ©e - {len(queue)} pistes en attente")
+        print(f"✅ Phase 4: Queue récupérée - {len(queue)} pistes en attente")
         return jsonify({
             "success": True,
             "queue": queue,
@@ -4259,14 +4297,14 @@ def get_music_queue(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration de la queue:", str(e))
+        print("❌ Erreur lors de la récupération de la queue:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/music/status/<server_id>')
 @cross_origin()
 def get_music_status(server_id):
-    """RÃ©cupÃ¨re le statut de lecture d'un serveur"""
-    print(f"ðŸŽµ Phase 4: RÃ©cupÃ©ration statut musical pour serveur {server_id}")
+    """Récupère le statut de lecture d'un serveur"""
+    print(f"🎵 Phase 4: Récupération statut musical pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4289,7 +4327,7 @@ def get_music_status(server_id):
                 "last_updated": row[6]
             }
         else:
-            # Statut par dÃ©faut
+            # Statut par défaut
             status = {
                 "isPlaying": False,
                 "volume": 50,
@@ -4300,21 +4338,21 @@ def get_music_status(server_id):
                 "last_updated": None
             }
         
-        print(f"âœ… Phase 4: Statut rÃ©cupÃ©rÃ© - En lecture: {status['isPlaying']}")
+        print(f"✅ Phase 4: Statut récupéré - En lecture: {status['isPlaying']}")
         return jsonify({
             "success": True,
             "status": status
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration du statut:", str(e))
+        print("❌ Erreur lors de la récupération du statut:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/music/config/<server_id>')
 @cross_origin()
 def get_music_config(server_id):
-    """RÃ©cupÃ¨re la configuration musicale d'un serveur"""
-    print(f"ðŸŽµ Phase 4: RÃ©cupÃ©ration config musicale pour serveur {server_id}")
+    """Récupère la configuration musicale d'un serveur"""
+    print(f"🎵 Phase 4: Récupération config musicale pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4339,7 +4377,7 @@ def get_music_config(server_id):
                 "created_at": row[7]
             }
         else:
-            # Configuration par dÃ©faut
+            # Configuration par défaut
             config = {
                 "max_queue_size": 100,
                 "default_volume": 50,
@@ -4351,25 +4389,25 @@ def get_music_config(server_id):
                 "created_at": None
             }
         
-        print(f"âœ… Phase 4: Configuration rÃ©cupÃ©rÃ©e")
+        print(f"✅ Phase 4: Configuration récupérée")
         return jsonify({
             "success": True,
             "config": config
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration de la config:", str(e))
+        print("❌ Erreur lors de la récupération de la config:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/music/control/<server_id>', methods=['POST'])
 @cross_origin()
 def music_control(server_id):
-    """ContrÃ´le la lecture musicale"""
+    """Contrôle la lecture musicale"""
     data = request.get_json()
     action = data.get('action')
     value = data.get('value')
     
-    print(f"ðŸŽµ Phase 4: ContrÃ´le musical - Action: {action}, Serveur: {server_id}")
+    print(f"🎵 Phase 4: Contrôle musical - Action: {action}, Serveur: {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4379,28 +4417,28 @@ def music_control(server_id):
         cursor.execute("""
             INSERT INTO music_logs (server_id, action, details, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, action, f"ContrÃ´le: {action} - Valeur: {value}", datetime.now().isoformat()))
+        """, (server_id, action, f"Contrôle: {action} - Valeur: {value}", datetime.now().isoformat()))
         
         if action == 'play':
             cursor.execute("""
                 INSERT OR REPLACE INTO music_status (server_id, is_playing, last_updated)
                 VALUES (?, 1, ?)
             """, (server_id, datetime.now().isoformat()))
-            print("â–¶ï¸ Phase 4: Lecture dÃ©marrÃ©e")
+            print("▶️ Phase 4: Lecture démarrée")
             
         elif action == 'pause':
             cursor.execute("""
                 INSERT OR REPLACE INTO music_status (server_id, is_playing, last_updated)
                 VALUES (?, 0, ?)
             """, (server_id, datetime.now().isoformat()))
-            print("â¸ï¸ Phase 4: Lecture mise en pause")
+            print("⏸️ Phase 4: Lecture mise en pause")
             
         elif action == 'skip':
-            # DÃ©placer la piste actuelle vers l'historique et passer Ã  la suivante
+            # Déplacer la piste actuelle vers l'historique et passer à la suivante
             cursor.execute("""
                 DELETE FROM music_current WHERE server_id = ?
             """, (server_id,))
-            print("â­ï¸ Phase 4: Piste suivante")
+            print("⏭️ Phase 4: Piste suivante")
             
         elif action == 'volume':
             volume = int(value) if value else 50
@@ -4408,30 +4446,30 @@ def music_control(server_id):
                 INSERT OR REPLACE INTO music_status (server_id, volume, last_updated)
                 VALUES (?, ?, ?)
             """, (server_id, volume, datetime.now().isoformat()))
-            print(f"ðŸ”Š Phase 4: Volume modifiÃ© Ã  {volume}%")
+            print(f"🔊 Phase 4: Volume modifié à {volume}%")
         
         conn.commit()
         
         return jsonify({
             "success": True,
-            "message": f"Action {action} exÃ©cutÃ©e avec succÃ¨s",
+            "message": f"Action {action} exécutée avec succès",
             "action": action,
             "server_id": server_id
         })
         
     except Exception as e:
-        print("âŒ Erreur lors du contrÃ´le musical:", str(e))
+        print("❌ Erreur lors du contrôle musical:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/music/add/<server_id>', methods=['POST'])
 @cross_origin()
 def add_to_queue(server_id):
-    """Ajoute une musique Ã  la queue"""
+    """Ajoute une musique à la queue"""
     data = request.get_json()
     url = data.get('url', '').strip()
     requested_by = data.get('requested_by', 'Inconnu')
     
-    print(f"ðŸŽµ Phase 4: Ajout musique - URL: {url[:50]}..., Serveur: {server_id}")
+    print(f"🎵 Phase 4: Ajout musique - URL: {url[:50]}..., Serveur: {server_id}")
     
     if not url:
         return jsonify({"success": False, "error": "URL manquante"}), 400
@@ -4446,13 +4484,13 @@ def add_to_queue(server_id):
         """, (server_id,))
         next_position = cursor.fetchone()[0]
         
-        # Simulation d'extraction des mÃ©tadonnÃ©es (Ã  remplacer par vraie API)
+        # Simulation d'extraction des métadonnées (à remplacer par vraie API)
         title = f"Musique {next_position}"
         artist = "Artiste"
-        duration = 180  # 3 minutes par dÃ©faut
+        duration = 180  # 3 minutes par défaut
         thumbnail = None
         
-        # DÃ©tection du type de source
+        # Détection du type de source
         if 'youtube.com' in url or 'youtu.be' in url:
             title = f"YouTube - {title}"
         elif 'spotify.com' in url:
@@ -4460,7 +4498,7 @@ def add_to_queue(server_id):
         elif 'soundcloud.com' in url:
             title = f"SoundCloud - {title}"
         
-        # Ajouter Ã  la queue
+        # Ajouter à la queue
         cursor.execute("""
             INSERT INTO music_queue (server_id, title, artist, url, duration, thumbnail, 
                                    requested_by, position, added_at)
@@ -4472,14 +4510,14 @@ def add_to_queue(server_id):
         cursor.execute("""
             INSERT INTO music_logs (server_id, action, details, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, "add_queue", f"AjoutÃ©: {title} par {requested_by}", datetime.now().isoformat()))
+        """, (server_id, "add_queue", f"Ajouté: {title} par {requested_by}", datetime.now().isoformat()))
         
         conn.commit()
         
-        print(f"âœ… Phase 4: Musique ajoutÃ©e Ã  la position {next_position}")
+        print(f"✅ Phase 4: Musique ajoutée à la position {next_position}")
         return jsonify({
             "success": True,
-            "message": "Musique ajoutÃ©e Ã  la queue",
+            "message": "Musique ajoutée à la queue",
             "track": {
                 "title": title,
                 "artist": artist,
@@ -4489,7 +4527,7 @@ def add_to_queue(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de l'ajout Ã  la queue:", str(e))
+        print("❌ Erreur lors de l'ajout à la queue:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/music/config/<server_id>', methods=['POST'])
@@ -4498,7 +4536,7 @@ def save_music_config(server_id):
     """Sauvegarde la configuration musicale"""
     data = request.get_json()
     
-    print(f"ðŸŽµ Phase 4: Sauvegarde config musicale pour serveur {server_id}")
+    print(f"🎵 Phase 4: Sauvegarde config musicale pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4525,29 +4563,29 @@ def save_music_config(server_id):
         cursor.execute("""
             INSERT INTO music_logs (server_id, action, details, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, "config_update", "Configuration musicale mise Ã  jour", datetime.now().isoformat()))
+        """, (server_id, "config_update", "Configuration musicale mise à jour", datetime.now().isoformat()))
         
         conn.commit()
         
-        print("âœ… Phase 4: Configuration musicale sauvegardÃ©e")
+        print("✅ Phase 4: Configuration musicale sauvegardée")
         return jsonify({
             "success": True,
-            "message": "Configuration musicale mise Ã  jour"
+            "message": "Configuration musicale mise à jour"
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la sauvegarde config:", str(e))
+        print("❌ Erreur lors de la sauvegarde config:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ========================================
-# ðŸŽ® ROUTES GAMING MANAGER (PHASE 5)
+# 🎮 ROUTES GAMING MANAGER (PHASE 5)
 # ========================================
 
 @app.route('/api/gaming/levels/<server_id>')
 @cross_origin()
 def get_gaming_levels(server_id):
-    """RÃ©cupÃ¨re les niveaux et XP des utilisateurs"""
-    print(f"ðŸŽ® Phase 5: RÃ©cupÃ©ration niveaux pour serveur {server_id}")
+    """Récupère les niveaux et XP des utilisateurs"""
+    print(f"🎮 Phase 5: Récupération niveaux pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4574,7 +4612,7 @@ def get_gaming_levels(server_id):
                 "updated_at": row[7]
             })
         
-        print(f"âœ… Phase 5: {len(levels)} niveaux rÃ©cupÃ©rÃ©s")
+        print(f"✅ Phase 5: {len(levels)} niveaux récupérés")
         return jsonify({
             "success": True,
             "levels": levels,
@@ -4582,14 +4620,14 @@ def get_gaming_levels(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des niveaux:", str(e))
+        print("❌ Erreur lors de la récupération des niveaux:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/config/<server_id>')
 @cross_origin()
 def get_gaming_config(server_id):
-    """RÃ©cupÃ¨re la configuration gaming d'un serveur"""
-    print(f"ðŸŽ® Phase 5: RÃ©cupÃ©ration config gaming pour serveur {server_id}")
+    """Récupère la configuration gaming d'un serveur"""
+    print(f"🎮 Phase 5: Récupération config gaming pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4613,7 +4651,7 @@ def get_gaming_config(server_id):
                 "created_at": row[6]
             }
         else:
-            # Configuration par dÃ©faut
+            # Configuration par défaut
             config = {
                 "xp_per_message": 10,
                 "xp_per_voice_minute": 5,
@@ -4624,21 +4662,21 @@ def get_gaming_config(server_id):
                 "created_at": None
             }
         
-        print(f"âœ… Phase 5: Configuration gaming rÃ©cupÃ©rÃ©e")
+        print(f"✅ Phase 5: Configuration gaming récupérée")
         return jsonify({
             "success": True,
             "config": config
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration de la config gaming:", str(e))
+        print("❌ Erreur lors de la récupération de la config gaming:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/minigames/<server_id>')
 @cross_origin()
 def get_gaming_minigames(server_id):
-    """RÃ©cupÃ¨re les statistiques de mini-jeux"""
-    print(f"ðŸŽ® Phase 5: RÃ©cupÃ©ration mini-jeux pour serveur {server_id}")
+    """Récupère les statistiques de mini-jeux"""
+    print(f"🎮 Phase 5: Récupération mini-jeux pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4663,7 +4701,7 @@ def get_gaming_minigames(server_id):
                 "updated_at": row[5]
             })
         
-        print(f"âœ… Phase 5: {len(minigames)} stats mini-jeux rÃ©cupÃ©rÃ©es")
+        print(f"✅ Phase 5: {len(minigames)} stats mini-jeux récupérées")
         return jsonify({
             "success": True,
             "minigames": minigames,
@@ -4671,14 +4709,14 @@ def get_gaming_minigames(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des mini-jeux:", str(e))
+        print("❌ Erreur lors de la récupération des mini-jeux:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/rewards/<server_id>')
 @cross_origin()
 def get_gaming_rewards(server_id):
-    """RÃ©cupÃ¨re les rÃ©compenses configurÃ©es"""
-    print(f"ðŸŽ® Phase 5: RÃ©cupÃ©ration rÃ©compenses pour serveur {server_id}")
+    """Récupère les récompenses configurées"""
+    print(f"🎮 Phase 5: Récupération récompenses pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4699,7 +4737,7 @@ def get_gaming_rewards(server_id):
                 "created_at": row[3]
             })
         
-        print(f"âœ… Phase 5: {len(rewards)} rÃ©compenses rÃ©cupÃ©rÃ©es")
+        print(f"✅ Phase 5: {len(rewards)} récompenses récupérées")
         return jsonify({
             "success": True,
             "rewards": rewards,
@@ -4707,29 +4745,29 @@ def get_gaming_rewards(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des rÃ©compenses:", str(e))
+        print("❌ Erreur lors de la récupération des récompenses:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/xp/<server_id>', methods=['POST'])
 @cross_origin()
 def give_xp(server_id):
-    """Donne de l'XP Ã  un utilisateur"""
+    """Donne de l'XP à un utilisateur"""
     data = request.get_json()
     user_id = data.get('user_id')
     amount = data.get('amount', 0)
     reason = data.get('reason', 'Manuel')
     given_by = data.get('given_by', 'System')
     
-    print(f"ðŸŽ® Phase 5: Attribution XP - User: {user_id}, Amount: {amount}")
+    print(f"🎮 Phase 5: Attribution XP - User: {user_id}, Amount: {amount}")
     
     if not user_id or amount <= 0:
-        return jsonify({"success": False, "error": "DonnÃ©es invalides"}), 400
+        return jsonify({"success": False, "error": "Données invalides"}), 400
     
     try:
         cursor = get_db_connection().cursor()
         conn = get_db_connection()
         
-        # RÃ©cupÃ©rer les donnÃ©es actuelles de l'utilisateur
+        # Récupérer les données actuelles de l'utilisateur
         cursor.execute("""
             SELECT level, xp, total_xp, messages_count FROM gaming_levels 
             WHERE server_id = ? AND user_id = ?
@@ -4754,7 +4792,7 @@ def give_xp(server_id):
             new_level += 1
             xp_for_next_level = 100 * (1.5 ** new_level)
         
-        # Mettre Ã  jour ou insÃ©rer les donnÃ©es
+        # Mettre à jour ou insérer les données
         cursor.execute("""
             INSERT OR REPLACE INTO gaming_levels 
             (server_id, user_id, level, xp, total_xp, messages_count, last_xp_gain, updated_at)
@@ -4766,17 +4804,17 @@ def give_xp(server_id):
         cursor.execute("""
             INSERT INTO gaming_logs (server_id, user_id, action, details, timestamp)
             VALUES (?, ?, ?, ?, ?)
-        """, (server_id, user_id, "xp_given", f"{amount} XP attribuÃ© par {given_by} - Raison: {reason}", 
+        """, (server_id, user_id, "xp_given", f"{amount} XP attribué par {given_by} - Raison: {reason}", 
               datetime.now().isoformat()))
         
         conn.commit()
         
         level_up = new_level > current_level
         
-        print(f"âœ… Phase 5: XP attribuÃ© - Niveau: {current_level} -> {new_level}")
+        print(f"✅ Phase 5: XP attribué - Niveau: {current_level} -> {new_level}")
         return jsonify({
             "success": True,
-            "message": f"{amount} XP attribuÃ© avec succÃ¨s",
+            "message": f"{amount} XP attribué avec succès",
             "level_up": level_up,
             "old_level": current_level,
             "new_level": new_level,
@@ -4784,22 +4822,22 @@ def give_xp(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de l'attribution XP:", str(e))
+        print("❌ Erreur lors de l'attribution XP:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/rewards/<server_id>', methods=['POST'])
 @cross_origin()
 def add_gaming_reward(server_id):
-    """Ajoute une rÃ©compense de niveau"""
+    """Ajoute une récompense de niveau"""
     data = request.get_json()
     level = data.get('level')
     reward_type = data.get('reward_type')
     reward_value = data.get('reward_value')
     
-    print(f"ðŸŽ® Phase 5: Ajout rÃ©compense - Niveau: {level}, Type: {reward_type}")
+    print(f"🎮 Phase 5: Ajout récompense - Niveau: {level}, Type: {reward_type}")
     
     if not all([level, reward_type, reward_value]):
-        return jsonify({"success": False, "error": "DonnÃ©es manquantes"}), 400
+        return jsonify({"success": False, "error": "Données manquantes"}), 400
     
     try:
         cursor = get_db_connection().cursor()
@@ -4814,15 +4852,15 @@ def add_gaming_reward(server_id):
         cursor.execute("""
             INSERT INTO gaming_logs (server_id, action, details, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, "reward_added", f"RÃ©compense niveau {level}: {reward_type} - {reward_value}", 
+        """, (server_id, "reward_added", f"Récompense niveau {level}: {reward_type} - {reward_value}", 
               datetime.now().isoformat()))
         
         conn.commit()
         
-        print(f"âœ… Phase 5: RÃ©compense ajoutÃ©e pour niveau {level}")
+        print(f"✅ Phase 5: Récompense ajoutée pour niveau {level}")
         return jsonify({
             "success": True,
-            "message": "RÃ©compense ajoutÃ©e avec succÃ¨s",
+            "message": "Récompense ajoutée avec succès",
             "reward": {
                 "level": level,
                 "reward_type": reward_type,
@@ -4831,7 +4869,7 @@ def add_gaming_reward(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de l'ajout de rÃ©compense:", str(e))
+        print("❌ Erreur lors de l'ajout de récompense:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/gaming/config/<server_id>', methods=['POST'])
@@ -4840,7 +4878,7 @@ def save_gaming_config(server_id):
     """Sauvegarde la configuration gaming"""
     data = request.get_json()
     
-    print(f"ðŸŽ® Phase 5: Sauvegarde config gaming pour serveur {server_id}")
+    print(f"🎮 Phase 5: Sauvegarde config gaming pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4866,33 +4904,33 @@ def save_gaming_config(server_id):
         cursor.execute("""
             INSERT INTO gaming_logs (server_id, action, details, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, "config_update", "Configuration gaming mise Ã  jour", datetime.now().isoformat()))
+        """, (server_id, "config_update", "Configuration gaming mise à jour", datetime.now().isoformat()))
         
         conn.commit()
         
-        print("âœ… Phase 5: Configuration gaming sauvegardÃ©e")
+        print("✅ Phase 5: Configuration gaming sauvegardée")
         return jsonify({
             "success": True,
-            "message": "Configuration gaming mise Ã  jour"
+            "message": "Configuration gaming mise à jour"
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la sauvegarde config gaming:", str(e))
+        print("❌ Erreur lors de la sauvegarde config gaming:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ========================================
-# ðŸ“Š ROUTES ANALYTICS MANAGER (PHASE 6)
+# 📊 ROUTES ANALYTICS MANAGER (PHASE 6)
 # ========================================
 
 @app.route('/api/analytics/dashboard')
 @cross_origin()
 def analytics_dashboard():
-    """Dashboard analytics gÃ©nÃ©ral"""
+    """Dashboard analytics général"""
     try:
         conn = sqlite3.connect('arsenal_v4.db')
         cursor = conn.cursor()
         
-        # MÃ©triques gÃ©nÃ©rales
+        # Métriques générales
         cursor.execute('SELECT COUNT(*) FROM analytics_server_metrics')
         total_metrics = cursor.fetchone()[0] or 0
         
@@ -4932,14 +4970,14 @@ def analytics_dashboard():
             }
         })
     except Exception as e:
-        print(f"âŒ Erreur analytics dashboard: {e}")
+        print(f"❌ Erreur analytics dashboard: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/analytics/metrics/<server_id>')
 @cross_origin()
 def get_analytics_metrics(server_id):
-    """RÃ©cupÃ¨re les mÃ©triques du serveur"""
-    print(f"ðŸ“Š Phase 6: RÃ©cupÃ©ration mÃ©triques pour serveur {server_id}")
+    """Récupère les métriques du serveur"""
+    print(f"📊 Phase 6: Récupération métriques pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -4966,7 +5004,7 @@ def get_analytics_metrics(server_id):
                 "created_at": row[7]
             })
         
-        print(f"âœ… Phase 6: {len(metrics)} mÃ©triques rÃ©cupÃ©rÃ©es")
+        print(f"✅ Phase 6: {len(metrics)} métriques récupérées")
         return jsonify({
             "success": True,
             "metrics": metrics,
@@ -4974,14 +5012,14 @@ def get_analytics_metrics(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des mÃ©triques:", str(e))
+        print("❌ Erreur lors de la récupération des métriques:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/analytics/users/<server_id>')
 @cross_origin()
 def get_analytics_users(server_id):
-    """RÃ©cupÃ¨re les mÃ©triques utilisateurs"""
-    print(f"ðŸ“Š Phase 6: RÃ©cupÃ©ration mÃ©triques utilisateurs pour serveur {server_id}")
+    """Récupère les métriques utilisateurs"""
+    print(f"📊 Phase 6: Récupération métriques utilisateurs pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -5008,7 +5046,7 @@ def get_analytics_users(server_id):
                 "created_at": row[6]
             })
         
-        print(f"âœ… Phase 6: {len(users)} mÃ©triques utilisateurs rÃ©cupÃ©rÃ©es")
+        print(f"✅ Phase 6: {len(users)} métriques utilisateurs récupérées")
         return jsonify({
             "success": True,
             "users": users,
@@ -5016,14 +5054,14 @@ def get_analytics_users(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des mÃ©triques utilisateurs:", str(e))
+        print("❌ Erreur lors de la récupération des métriques utilisateurs:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/analytics/events/<server_id>')
 @cross_origin()
 def get_analytics_events(server_id):
-    """RÃ©cupÃ¨re les Ã©vÃ©nements du serveur"""
-    print(f"ðŸ“Š Phase 6: RÃ©cupÃ©ration Ã©vÃ©nements pour serveur {server_id}")
+    """Récupère les événements du serveur"""
+    print(f"📊 Phase 6: Récupération événements pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -5046,7 +5084,7 @@ def get_analytics_events(server_id):
                 "timestamp": row[3]
             })
         
-        print(f"âœ… Phase 6: {len(events)} Ã©vÃ©nements rÃ©cupÃ©rÃ©s")
+        print(f"✅ Phase 6: {len(events)} événements récupérés")
         return jsonify({
             "success": True,
             "events": events,
@@ -5054,14 +5092,14 @@ def get_analytics_events(server_id):
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration des Ã©vÃ©nements:", str(e))
+        print("❌ Erreur lors de la récupération des événements:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/analytics/config/<server_id>')
 @cross_origin()
 def get_analytics_config(server_id):
-    """RÃ©cupÃ¨re la configuration analytics"""
-    print(f"ðŸ“Š Phase 6: RÃ©cupÃ©ration config analytics pour serveur {server_id}")
+    """Récupère la configuration analytics"""
+    print(f"📊 Phase 6: Récupération config analytics pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -5086,7 +5124,7 @@ def get_analytics_config(server_id):
                 "created_at": row[7]
             }
         else:
-            # Configuration par dÃ©faut
+            # Configuration par défaut
             config = {
                 "track_messages": True,
                 "track_voice": True,
@@ -5098,32 +5136,32 @@ def get_analytics_config(server_id):
                 "created_at": None
             }
         
-        print(f"âœ… Phase 6: Configuration analytics rÃ©cupÃ©rÃ©e")
+        print(f"✅ Phase 6: Configuration analytics récupérée")
         return jsonify({
             "success": True,
             "config": config
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la rÃ©cupÃ©ration de la config analytics:", str(e))
+        print("❌ Erreur lors de la récupération de la config analytics:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/analytics/report/<server_id>', methods=['POST'])
 @cross_origin()
 def generate_analytics_report(server_id):
-    """GÃ©nÃ¨re un rapport analytics"""
+    """Génère un rapport analytics"""
     data = request.get_json()
     report_type = data.get('type', 'weekly')
     period = data.get('period', 'week')
     generated_by = data.get('generated_by', 'System')
     
-    print(f"ðŸ“Š Phase 6: GÃ©nÃ©ration rapport - Type: {report_type}, PÃ©riode: {period}")
+    print(f"📊 Phase 6: Génération rapport - Type: {report_type}, Période: {period}")
     
     try:
         cursor = get_db_connection().cursor()
         conn = get_db_connection()
         
-        # Calculer la pÃ©riode
+        # Calculer la période
         if period == 'week':
             days_back = 7
         elif period == 'month':
@@ -5133,7 +5171,7 @@ def generate_analytics_report(server_id):
         else:
             days_back = 7
         
-        # RÃ©cupÃ©rer les donnÃ©es pour le rapport
+        # Récupérer les données pour le rapport
         cursor.execute("""
             SELECT date, member_count, messages_count, voice_minutes, commands_used
             FROM analytics_server_metrics 
@@ -5143,7 +5181,7 @@ def generate_analytics_report(server_id):
         
         metrics_data = cursor.fetchall()
         
-        # CrÃ©er le contenu du rapport
+        # Créer le contenu du rapport
         report_content = {
             "server_id": server_id,
             "period": period,
@@ -5167,7 +5205,7 @@ def generate_analytics_report(server_id):
             ]
         }
         
-        # Log de la gÃ©nÃ©ration
+        # Log de la génération
         cursor.execute("""
             INSERT INTO analytics_events (server_id, event_type, event_data, user_id, timestamp)
             VALUES (?, ?, ?, ?, ?)
@@ -5176,16 +5214,16 @@ def generate_analytics_report(server_id):
         
         conn.commit()
         
-        print(f"âœ… Phase 6: Rapport gÃ©nÃ©rÃ© avec succÃ¨s")
+        print(f"✅ Phase 6: Rapport généré avec succès")
         return jsonify({
             "success": True,
-            "message": "Rapport gÃ©nÃ©rÃ© avec succÃ¨s",
+            "message": "Rapport généré avec succès",
             "report": report_content,
-            "download_url": None  # TODO: ImplÃ©menter gÃ©nÃ©ration fichier
+            "download_url": None  # TODO: Implémenter génération fichier
         })
         
     except Exception as e:
-        print("âŒ Erreur lors de la gÃ©nÃ©ration de rapport:", str(e))
+        print("❌ Erreur lors de la génération de rapport:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/analytics/config/<server_id>', methods=['POST'])
@@ -5194,7 +5232,7 @@ def save_analytics_config(server_id):
     """Sauvegarde la configuration analytics"""
     data = request.get_json()
     
-    print(f"ðŸ“Š Phase 6: Sauvegarde config analytics pour serveur {server_id}")
+    print(f"📊 Phase 6: Sauvegarde config analytics pour serveur {server_id}")
     
     try:
         cursor = get_db_connection().cursor()
@@ -5221,22 +5259,22 @@ def save_analytics_config(server_id):
         cursor.execute("""
             INSERT INTO analytics_events (server_id, event_type, event_data, timestamp)
             VALUES (?, ?, ?, ?)
-        """, (server_id, "config_update", "Configuration analytics mise Ã  jour", 
+        """, (server_id, "config_update", "Configuration analytics mise à jour", 
               datetime.now().isoformat()))
         
         conn.commit()
         
-        print("âœ… Phase 6: Configuration analytics sauvegardÃ©e")
+        print("✅ Phase 6: Configuration analytics sauvegardée")
         return jsonify({
             "success": True,
-            "message": "Configuration analytics mise Ã  jour"
+            "message": "Configuration analytics mise à jour"
         })
     except Exception as e:
-        print("âŒ Erreur lors de la sauvegarde config analytics:", str(e))
+        print("❌ Erreur lors de la sauvegarde config analytics:", str(e))
         return jsonify({"success": False, "error": str(e)}), 500
 
 # ========================================
-# ðŸ”§ ROUTES API SUPPLÃ‰MENTAIRES NÃ‰CESSAIRES
+# 🔧 ROUTES API SUPPLÉMENTAIRES NÉCESSAIRES
 # ========================================
 
 @app.route('/api/modules/list')
@@ -5256,7 +5294,7 @@ def modules_list():
 @app.route('/api/dashboard/summary')
 @cross_origin()
 def dashboard_summary():
-    """RÃ©sumÃ© pour le dashboard principal"""
+    """Résumé pour le dashboard principal"""
     return jsonify({
         'summary': {
             'total_phases': 6,
@@ -5273,7 +5311,7 @@ def health_check():
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
 
 # ========================================
-# ðŸš€ KEEP-ALIVE SERVICE (pour Ã©viter l'hibernation Render)
+# 🚀 KEEP-ALIVE SERVICE (pour éviter l'hibernation Render)
 # ========================================
 
 def keep_alive():
@@ -5282,12 +5320,12 @@ def keep_alive():
         import requests
         url = "https://arsenal-v4-webpanel.onrender.com/health"
         response = requests.get(url)
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] âœ… Keep-alive ping: {response.status_code}")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✅ Keep-alive ping: {response.status_code}")
     except Exception as e:
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] âŒ Keep-alive error: {e}")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ❌ Keep-alive error: {e}")
 
 def start_keep_alive():
-    """DÃ©marrer le service keep-alive"""
+    """Démarrer le service keep-alive"""
     def ping_loop():
         while True:
             time.sleep(600)  # Ping toutes les 10 minutes
@@ -5295,17 +5333,17 @@ def start_keep_alive():
     
     thread = threading.Thread(target=ping_loop, daemon=True)
     thread.start()
-    print("ðŸš€ Keep-alive service started (ping every 10 minutes)")
-    print(f"ðŸŽ¯ Keep-alive configurÃ© pour: https://arsenal-v4-webpanel.onrender.com")
+    print("🚀 Keep-alive service started (ping every 10 minutes)")
+    print(f"🎯 Keep-alive configuré pour: https://arsenal-v4-webpanel.onrender.com")
 
-# DÃ©marrer le keep-alive automatiquement
+# Démarrer le keep-alive automatiquement
 start_keep_alive()
 
-# ==================== HEADERS DE SÃ‰CURITÃ‰ ====================
+# ==================== HEADERS DE SÉCURITÉ ====================
 
 @app.after_request
 def security_headers(response):
-    """Ajouter les headers de sÃ©curitÃ©"""
+    """Ajouter les headers de sécurité"""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
@@ -5314,29 +5352,29 @@ def security_headers(response):
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
-# ==================== DÃ‰MARRAGE ====================
+# ==================== DÉMARRAGE ====================
 
 if __name__ == '__main__':
-    safe_print("âœ… Configuration OAuth Discord chargÃ©e")
-    safe_print("ðŸŽ° SystÃ¨me de casino initialisÃ©") 
+    safe_print("✅ Configuration OAuth Discord chargée")
+    safe_print("🎰 Système de casino initialisé") 
     if DEBUG_MODE:
-        safe_print(f"ðŸ”‘ CLIENT_ID chargÃ©: {DISCORD_CLIENT_ID}")
-        safe_print(f"ðŸ” CLIENT_SECRET chargÃ©: {'DÃ©fini' if DISCORD_CLIENT_SECRET else 'Non dÃ©fini'}")
-    print(f"ðŸ“ REDIRECT_URI chargÃ©: {DISCORD_REDIRECT_URI}")
-    print("âœ… Modules importÃ©s avec succÃ¨s")
+        safe_print(f"🔑 CLIENT_ID chargé: {DISCORD_CLIENT_ID}")
+        safe_print(f"🔐 CLIENT_SECRET chargé: {'Défini' if DISCORD_CLIENT_SECRET else 'Non défini'}")
+    print(f"📍 REDIRECT_URI chargé: {DISCORD_REDIRECT_URI}")
+    print("✅ Modules importés avec succès")
     
 # ==================== ROUTES D'AUTHENTIFICATION MANQUANTES ====================
 
 @app.route('/auth/discord')
 def auth_discord_redirect():
     """Route de redirection vers Discord OAuth - manquante en production"""
-    print("ðŸ” Route /auth/discord appelÃ©e - redirection vers Discord OAuth")
+    print("🔐 Route /auth/discord appelée - redirection vers Discord OAuth")
     
     if not DISCORD_CLIENT_SECRET:
-        print("âŒ ERREUR: DISCORD_CLIENT_SECRET n'est pas configurÃ©!")
+        print("❌ ERREUR: DISCORD_CLIENT_SECRET n'est pas configuré!")
         return jsonify({
             'error': 'Discord OAuth not configured',
-            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas dÃ©finie dans l\'environnement.',
+            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas définie dans l\'environnement.',
             'solution': 'Configurez DISCORD_CLIENT_SECRET dans les variables d\'environnement.'
         }), 500
     
@@ -5353,33 +5391,99 @@ def auth_discord_redirect():
     
     discord_url = f"https://discord.com/api/oauth2/authorize?{urllib.parse.urlencode(params)}"
     
-    print(f"ðŸŒ Redirection vers Discord OAuth: {discord_url}")
+    print(f"🌐 Redirection vers Discord OAuth: {discord_url}")
     return redirect(discord_url)
 
 @app.route('/auth/login')
 def auth_login_redirect():
-    """Route de redirection pour compatibilitÃ© - redirige vers /auth/discord"""
+    """Route de redirection pour compatibilité - redirige vers /auth/discord"""
     return redirect('/auth/discord')
 
 @app.route('/auth/logout')
 def auth_logout():
-    """Route de dÃ©connexion"""
+    """Route de déconnexion"""
     session_token = request.cookies.get('arsenal_session')
     
     if session_token:
-        # Supprimer la session de la base de donnÃ©es
+        # Supprimer la session de la base de données
         try:
             conn = sqlite3.connect('arsenal_v4.db')
             cursor = conn.cursor()
             cursor.execute('DELETE FROM panel_sessions WHERE session_token = ?', (session_token,))
             conn.commit()
             conn.close()
-            print(f"ðŸ” Session supprimÃ©e: {session_token}")
+            print(f"🔐 Session supprimée: {session_token}")
         except Exception as e:
-            print(f"âŒ Erreur suppression session: {e}")
+            print(f"❌ Erreur suppression session: {e}")
     
-    # CrÃ©er la rÃ©ponse de redirection et supprimer le cookie
-    response = redirect('/?message=DÃ©connexion rÃ©ussie')
+    # Créer la réponse de redirection et supprimer le cookie
+    response = redirect('/?message=Déconnexion réussie')
     response.set_cookie('arsenal_session', '', expires=0)
     return response
 
+@app.route('/api/auth/user')
+def api_auth_user():
+    """API pour vérifier l'authentification utilisateur - requise par le frontend"""
+    session_token = request.cookies.get('arsenal_session')
+    
+    if not session_token:
+        return jsonify({
+            'authenticated': False,
+            'error': 'No session token'
+        }), 401
+    
+    try:
+        conn = sqlite3.connect('arsenal_v4.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT discord_data, permission_level FROM panel_sessions WHERE session_token = ?', (session_token,))
+        session_result = cursor.fetchone()
+        conn.close()
+        
+        if not session_result:
+            return jsonify({
+                'authenticated': False,
+                'error': 'Invalid session'
+            }), 401
+        
+        discord_data = json.loads(session_result[0])
+        permission_level = session_result[1]
+        
+        return jsonify({
+            'authenticated': True,
+            'user': {
+                'id': discord_data.get('user_id'),
+                'username': discord_data.get('username'),
+                'avatar': discord_data.get('avatar'),
+                'discriminator': discord_data.get('discriminator'),
+                'permission_level': permission_level,
+                'guilds_count': discord_data.get('guilds_count', 0)
+            }
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur API auth/user: {e}")
+        return jsonify({
+            'authenticated': False,
+            'error': 'Internal server error'
+        }), 500
+
+    print("✅ Flask app créée et configurée")
+    
+    # Démarrer le thread de mise à jour en arrière-plan
+    stats_thread = threading.Thread(target=broadcast_stats_update, daemon=True)
+    stats_thread.start()
+    
+    print("🚀 Arsenal V4 Backend démarré!")
+    print("📊 WebPanel: http://localhost:5000")
+    print("🔧 API Test: http://localhost:5000/api/test")
+    print("📚 API Info: http://localhost:5000/api/info")
+    print("📈 Stats: http://localhost:5000/api/stats")
+    
+    # Démarrer le serveur avec SocketIO
+    socketio.run(
+        app, 
+        debug=True, 
+        host='0.0.0.0', 
+        port=5000,
+        allow_unsafe_werkzeug=True
+    )
