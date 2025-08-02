@@ -1,0 +1,45 @@
+# 🔧 VARIABLES D'ENVIRONNEMENT REQUISES POUR ARSENAL WEBPANEL
+# Copier cette liste dans votre configuration Render
+
+# ========================
+# 🎯 DISCORD OAUTH (OBLIGATOIRE)
+# ========================
+DISCORD_CLIENT_ID=votre_client_id_discord
+DISCORD_CLIENT_SECRET=votre_secret_client_discord
+DISCORD_REDIRECT_URI=https://arsenal-webpanel.onrender.com/auth/callback
+DISCORD_BOT_TOKEN=votre_token_bot_discord
+
+# ========================
+# 🔐 SÉCURITÉ (OBLIGATOIRE) 
+# ========================
+SECRET_KEY=votre_cle_secrete_flask_tres_longue_et_aleatoire
+CREATOR_ID=votre_discord_user_id
+ADMIN_IDS=id1,id2,id3
+
+# ========================
+# 🎮 CONFIGURATION BOT (OBLIGATOIRE)
+# ========================
+BOT_SERVERS=server_id1,server_id2,server_id3
+
+# ========================
+# ⚙️ CONFIGURATION OPTIONNELLE
+# ========================
+DEBUG=False
+ALLOWED_ORIGINS=https://arsenal-webpanel.onrender.com
+BYPASS_ALLOWED_IPS=127.0.0.1,your_ip
+BYPASS_SECRET_TOKEN=token_secret_pour_bypass
+
+# ========================
+# 📝 NOTES IMPORTANTES
+# ========================
+# 1. Remplacez TOUTES les valeurs "votre_xxx" par vos vraies valeurs
+# 2. DISCORD_REDIRECT_URI doit pointer vers votre URL Render
+# 3. CREATOR_ID = votre ID Discord (clic droit sur votre profil > Copier l'ID)
+# 4. BOT_SERVERS = liste des IDs de serveurs séparés par des virgules
+# 5. SECRET_KEY = générez une clé aléatoire de 32+ caractères
+
+# ========================
+# 🚨 VÉRIFICATION RAPIDE
+# ========================
+# Après avoir configuré, testez avec: https://votre-app.onrender.com/debug/env
+# Cette route affiche le statut de vos variables (à supprimer après test)
