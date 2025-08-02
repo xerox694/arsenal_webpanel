@@ -472,72 +472,8 @@ def restart_bot():
         flash(message, 'error')
     return redirect(url_for('dashboard'))
 
-@app.route('/api/user/servers')
-def api_user_servers():
-    """API pour récupérer les serveurs de l'utilisateur"""
-    if 'user_info' not in session:
-        return jsonify({'error': 'Non authentifié'}), 401
-    
-    user_info = session['user_info']
-    return jsonify({
-        'servers': user_info.get('guilds', []),
-        'count': user_info.get('guilds_count', 0)
-    })
-
-@app.route('/api/server/<server_id>')
-def api_server_info(server_id):
-    """API pour récupérer les informations d'un serveur spécifique"""
-    if 'user_info' not in session:
-        return jsonify({'error': 'Non authentifié'}), 401
-    
-    user_info = session['user_info']
-    user_servers = user_info.get('guilds', [])
-    
-    # Vérifier que l'utilisateur a accès à ce serveur
-    server = None
-    for guild in user_servers:
-        if str(guild['id']) == str(server_id):
-            server = guild
-            break
-    
-    if not server:
-        return jsonify({'error': 'Serveur non accessible'}), 403
-    
-    return jsonify(server)
-
-# Routes de gestion des serveurs
-@app.route('/server/<server_id>')
-def server_dashboard(server_id):
-    """Dashboard spécifique à un serveur"""
-    if 'user_info' not in session:
-        return redirect(url_for('login'))
-    
-    user_info = session['user_info']
-    user_servers = user_info.get('guilds', [])
-    
-    # Vérifier l'accès au serveur
-    server = None
-    for guild in user_servers:
-        if str(guild['id']) == str(server_id):
-            server = guild
-            break
-    
-    if not server:
-        flash('Vous n\'avez pas accès à ce serveur', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Récupérer les stats du serveur
-    server_stats = {
-        'id': server['id'],
-        'name': server['name'],
-        'icon': server.get('icon'),
-        'permissions': server.get('permissions'),
-        'can_manage': server.get('can_manage', False)
-    }
-    
-    return render_template('server_dashboard.html', 
-                         server=server_stats, 
-                         user=user_info)
+@app.route('/modules')
+def modules():
     """Gestion des modules"""
     modules_list = [
         {
