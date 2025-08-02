@@ -1134,30 +1134,46 @@ def serve_login_page():
 def serve_dashboard_interface():
     """Servir l'interface du dashboard pour les utilisateurs connectés"""
     try:
-        # Chercher l'interface dans le dossier frontend
+        # Chercher l'interface dans le dossier frontend - chemins mis à jour pour production
         frontend_paths = [
+            # Chemins relatifs depuis le backend
+            os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html'),
+            os.path.join(os.path.dirname(__file__), 'frontend', 'index.html'),
+            # Chemins absolus pour le développement
+            os.path.join('Arsenal_V4', 'webpanel', 'frontend', 'index.html'),
+            'Arsenal_V4/webpanel/frontend/index.html',
+            # Chemins legacy
             os.path.join('frontend', 'index.html'),
             os.path.join('..', 'frontend', 'index.html'),
             os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'index.html'),
             'advanced_interface.html',
             os.path.join('..', 'advanced_interface.html'),
-            '/opt/render/project/src/frontend/index.html'  # Chemin Render
+            # Chemin Render avec structure correcte
+            '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
         ]
+        
+        print(f"🔍 Recherche interface frontend dans {len(frontend_paths)} emplacements...")
         
         for path in frontend_paths:
             try:
+                print(f"   🔎 Tentative: {path}")
                 if os.path.isfile(path):
                     print(f"✅ Interface trouvée: {path}")
                     with open(path, 'r', encoding='utf-8') as f:
                         content = f.read()
                     # Injecter les variables d'environnement
                     content = content.replace('{{DISCORD_CLIENT_ID}}', DISCORD_CLIENT_ID or '')
+                    print(f"📄 Interface chargée: {len(content)} caractères")
                     return content
+                else:
+                    print(f"   ❌ Fichier non trouvé: {path}")
             except Exception as e:
                 print(f"❌ Erreur lecture {path}: {e}")
                 continue
         
-        # Interface de fallback
+        print("⚠️ Aucune interface frontend trouvée, utilisation du fallback")
+        
+        # Interface de fallback avec redirection vers login
         return '''
         <!DOCTYPE html>
         <html lang="fr">
@@ -5347,6 +5363,64 @@ if __name__ == '__main__':
     print(f"📍 REDIRECT_URI chargé: {DISCORD_REDIRECT_URI}")
     print("✅ Modules importés avec succès")
     
+# ==================== ROUTES D'AUTHENTIFICATION MANQUANTES ====================
+
+@app.route('/auth/discord')
+def auth_discord_redirect():
+    """Route de redirection vers Discord OAuth - manquante en production"""
+    print("🔐 Route /auth/discord appelée - redirection vers Discord OAuth")
+    
+    if not DISCORD_CLIENT_SECRET:
+        print("❌ ERREUR: DISCORD_CLIENT_SECRET n'est pas configuré!")
+        return jsonify({
+            'error': 'Discord OAuth not configured',
+            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas définie dans l\'environnement.',
+            'solution': 'Configurez DISCORD_CLIENT_SECRET dans les variables d\'environnement.'
+        }), 500
+    
+    state = secrets.token_urlsafe(32)
+    session['oauth_state'] = state
+    
+    params = {
+        'client_id': DISCORD_CLIENT_ID,
+        'redirect_uri': DISCORD_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'identify guilds',
+        'state': state
+    }
+    
+    discord_url = f"https://discord.com/api/oauth2/authorize?{urllib.parse.urlencode(params)}"
+    
+    print(f"🌐 Redirection vers Discord OAuth: {discord_url}")
+    return redirect(discord_url)
+
+@app.route('/auth/login')
+def auth_login_redirect():
+    """Route de redirection pour compatibilité - redirige vers /auth/discord"""
+    return redirect('/auth/discord')
+
+@app.route('/auth/logout')
+def auth_logout():
+    """Route de déconnexion"""
+    session_token = request.cookies.get('arsenal_session')
+    
+    if session_token:
+        # Supprimer la session de la base de données
+        try:
+            conn = sqlite3.connect('arsenal_v4.db')
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM panel_sessions WHERE session_token = ?', (session_token,))
+            conn.commit()
+            conn.close()
+            print(f"🔐 Session supprimée: {session_token}")
+        except Exception as e:
+            print(f"❌ Erreur suppression session: {e}")
+    
+    # Créer la réponse de redirection et supprimer le cookie
+    response = redirect('/?message=Déconnexion réussie')
+    response.set_cookie('arsenal_session', '', expires=0)
+    return response
+
     print("✅ Flask app créée et configurée")
     
     # Démarrer le thread de mise à jour en arrière-plan
