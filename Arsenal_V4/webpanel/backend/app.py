@@ -1151,12 +1151,12 @@ def serve_dashboard_interface():
             # Chemins absolus pour le dÃ©veloppement
             os.path.join('Arsenal_V4', 'webpanel', 'frontend', 'index.html'),
             'Arsenal_V4/webpanel/frontend/index.html',
-            # Chemins legacy
+            # Chemins legacy - SUPPRESSION des advanced_interface.html
             os.path.join('frontend', 'index.html'),
             os.path.join('..', 'frontend', 'index.html'),
             os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'index.html'),
-            'advanced_interface.html',
-            os.path.join('..', 'advanced_interface.html'),
+            # SUPPRIMÉ: 'advanced_interface.html' - causait confusion avec index.html
+            # SUPPRIMÉ: os.path.join('..', 'advanced_interface.html') - causait confusion
             # Chemin Render avec structure correcte
             '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
         ]
