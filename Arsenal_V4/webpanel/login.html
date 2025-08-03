@@ -342,14 +342,12 @@
         // Check bot status on load
         async function checkBotStatus() {
             try {
-                const response = await fetch(`${API_BASE}/`);
-                const data = await response.json();
-                
-                if (data.status === 'online') {
+                const response = await fetch(`${API_BASE}/api/test`);
+                if (response.ok) {
+                    const data = await response.json();
                     document.getElementById('botStatus').textContent = 'Bot Online';
                 } else {
-                    document.getElementById('botStatus').textContent = 'Bot Offline';
-                    document.querySelector('.status-dot').style.background = '#ff4444';
+                    throw new Error('API not available');
                 }
             } catch (error) {
                 document.getElementById('botStatus').textContent = 'Bot Offline';
@@ -368,28 +366,28 @@
         // Check if user has access to the panel
         async function checkUserAccess(userData) {
             try {
-                const response = await fetch(`${API_BASE}/api/auth/check_access`, {
-                    method: 'POST',
+                // Utiliser la route qui existe vraiment
+                const response = await fetch(`${API_BASE}/api/auth/user`, {
+                    method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
+                    }
                 });
 
                 const result = await response.json();
 
-                if (result.access) {
-                    // Store session token
-                    localStorage.setItem('arsenal_session', result.session_token);
+                if (result.authenticated) {
+                    // Store session info
                     localStorage.setItem('arsenal_user', JSON.stringify(result.user));
                     
                     // Redirect to dashboard
                     showMessage('Connexion réussie ! Redirection...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'advanced_interface.html';
+                        window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showMessage(result.message || 'Accès refusé. Vous devez être sur un serveur avec Arsenal.', 'error');
+                    showMessage(result.error || 'Accès refusé. Vous devez être connecté via Discord.', 'error');
                 }
             } catch (error) {
                 console.error('Error checking access:', error);
@@ -453,30 +451,28 @@
 
         // Check if user is already logged in
         function checkExistingSession() {
-            const sessionToken = localStorage.getItem('arsenal_session');
-            if (sessionToken) {
-                // Validate existing session
-                fetch(`${API_BASE}/api/auth/validate_session`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ session_token: sessionToken })
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.valid) {
-                        // Session is valid, redirect to dashboard
-                        window.location.href = 'advanced_interface.html';
-                    }
-                })
-                .catch(error => {
-                    console.error('Session validation error:', error);
-                    // Clear invalid session
-                    localStorage.removeItem('arsenal_session');
-                    localStorage.removeItem('arsenal_user');
-                });
-            }
+            // Utiliser la route qui existe vraiment pour vérifier l'état de connexion
+            fetch(`${API_BASE}/api/auth/user`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.authenticated && result.user) {
+                    // User is authenticated, redirect to dashboard
+                    localStorage.setItem('arsenal_user', JSON.stringify(result.user));
+                    window.location.href = '/dashboard';
+                }
+            })
+            .catch(error => {
+                console.error('Session validation error:', error);
+                // Clear any invalid session data
+                localStorage.removeItem('arsenal_session');
+                localStorage.removeItem('arsenal_user');
+            });
         }
 
         // Initialize

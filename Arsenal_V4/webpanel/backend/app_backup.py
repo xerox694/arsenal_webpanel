@@ -1377,6 +1377,18 @@ def login_redirect():
 @app.route('/auth/login')
 def discord_login():
     """Rediriger vers Discord OAuth"""
+    
+    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
+    freeze_token = None
+    if FREEZE_SYSTEM_AVAILABLE:
+        try:
+            freeze_token = create_login_freeze(request)
+            session['freeze_token'] = freeze_token
+            session['login_start'] = datetime.now().isoformat()
+            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
+        except Exception as e:
+            print(f"⚠️ Erreur création freeze: {e}")
+    
     # ðŸ”“ MODE BYPASS TEMPORAIRE pour contourner le rate limiting Discord
     # SÃ‰CURITÃ‰: Plusieurs vÃ©rifications pour limiter l'accÃ¨s au bypass
     if request.args.get('bypass') == 'true':
@@ -1477,6 +1489,10 @@ def discord_callback():
     print(f"   REDIRECT_URI: {DISCORD_REDIRECT_URI}")
     
     try:
+        # 🧊 RÉCUPÉRATION DU FREEZE TOKEN
+        freeze_token = session.get('freeze_token')
+        print(f"🧊 CALLBACK - Freeze token: {freeze_token}")
+        
         token_response = requests.post('https://discord.com/api/oauth2/token', data=token_data, timeout=10)
         print(f"ðŸ“¥ RÃ©ponse Discord: {token_response.status_code}")
         print(f"ðŸ“„ Contenu rÃ©ponse: {token_response.text}")
@@ -5323,6 +5339,276 @@ def security_headers(response):
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
+# ==================== ROUTES D'AUTHENTIFICATION CRITIQUES ====================
+# 🚨 CES ROUTES DOIVENT ÊTRE DÉFINIES AVANT if __name__ == '__main__' POUR FONCTIONNER EN PRODUCTION
+
+@app.route('/auth/discord')
+def auth_discord_redirect():
+    """Route de redirection vers Discord OAuth - CORRIGÉE POUR PRODUCTION"""
+    print("🔐 Route /auth/discord appelée - redirection vers Discord OAuth")
+    
+    if not DISCORD_CLIENT_SECRET:
+        print("❌ ERREUR: DISCORD_CLIENT_SECRET n'est pas configuré!")
+        return jsonify({
+            'error': 'Discord OAuth not configured',
+            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas définie dans l\'environnement.',
+            'solution': 'Configurez DISCORD_CLIENT_SECRET dans les variables d\'environnement.'
+        }), 500
+    
+    state = secrets.token_urlsafe(32)
+    session['oauth_state'] = state
+    
+    params = {
+        'client_id': DISCORD_CLIENT_ID,
+        'redirect_uri': DISCORD_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'identify guilds',
+        'state': state
+    }
+    
+    discord_url = f"https://discord.com/api/oauth2/authorize?{urllib.parse.urlencode(params)}"
+    
+    print(f"🌐 Redirection vers Discord OAuth: {discord_url}")
+    return redirect(discord_url)
+
+@app.route('/auth/login')
+def auth_login_redirect():
+    """Route de redirection pour compatibilité - redirige vers /auth/discord"""
+    
+    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
+    freeze_token = None
+    if FREEZE_SYSTEM_AVAILABLE:
+        try:
+            freeze_token = create_login_freeze(request)
+            session['freeze_token'] = freeze_token
+            session['login_start'] = datetime.now().isoformat()
+            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
+        except Exception as e:
+            print(f"⚠️ Erreur création freeze: {e}")
+    
+    return redirect('/auth/discord')
+
+@app.route('/auth/logout')
+def auth_logout():
+    """Route de déconnexion"""
+    session_token = request.cookies.get('arsenal_session')
+    
+    if session_token:
+        # Supprimer la session de la base de données
+        try:
+            conn = sqlite3.connect('arsenal_v4.db')
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM panel_sessions WHERE session_token = ?', (session_token,))
+            conn.commit()
+            conn.close()
+            print(f"🔓 Session supprimée: {session_token}")
+        except Exception as e:
+            print(f"❌ Erreur suppression session: {e}")
+    
+    # Créer la réponse de redirection et supprimer le cookie
+    response = redirect('/?message=Déconnexion réussie')
+    response.set_cookie('arsenal_session', '', expires=0)
+    return response
+
+@app.route('/debug/env')
+def debug_env():
+    """Route de diagnostic des variables d'environnement"""
+    try:
+        required_vars = [
+            'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_REDIRECT_URI',
+            'DISCORD_BOT_TOKEN', 'SECRET_KEY', 'CREATOR_ID', 'ADMIN_IDS', 'BOT_SERVERS'
+        ]
+        
+        env_status = {}
+        for var in required_vars:
+            value = os.getenv(var)
+            if value:
+                # Masquer les valeurs sensibles
+                if any(sensitive in var.lower() for sensitive in ['secret', 'token', 'key']):
+                    env_status[var] = f"***{value[-4:]}" if len(value) > 4 else "***"
+                else:
+                    env_status[var] = value[:20] + "..." if len(value) > 20 else value
+            else:
+                env_status[var] = "MANQUANT"
+        
+        return jsonify({
+            'status': 'success',
+            'variables': env_status,
+            'routes_actives': len([rule.rule for rule in app.url_map.iter_rules()]),
+            'freeze_system': FREEZE_SYSTEM_AVAILABLE
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# ==================== ROUTES NSS (NOT SECURE SESSION) ====================
+# 🚨 SYSTÈME DE DÉVELOPPEMENT SANS AUTH - DÉPLACÉ AVANT if __name__ == '__main__'
+
+@app.route('/NSS')
+def NSS_index():
+    """NSS Page d'accueil - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Index - Mode développement sans sécurité")
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 NSS - Not Secure Session</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+            }
+            .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 600px;
+            }
+            h1 { margin-bottom: 20px; color: #ff9800; }
+            .warning {
+                background: rgba(255, 152, 0, 0.2);
+                border: 2px solid #ff9800;
+                border-radius: 10px;
+                padding: 15px;
+                margin: 20px 0;
+            }
+            .btn {
+                display: inline-block;
+                background: linear-gradient(45deg, #4caf50, #45a049);
+                color: white;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 25px;
+                margin: 10px;
+                font-size: 16px;
+                transition: transform 0.3s ease;
+            }
+            .btn:hover { transform: scale(1.05); }
+            .btn.secondary {
+                background: linear-gradient(45deg, #2196f3, #1976d2);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚨 NSS - Not Secure Session</h1>
+            <p>Mode développement sans authentification Discord</p>
+            
+            <div class="warning">
+                <strong>⚠️ ATTENTION :</strong><br>
+                Cette version NSS est uniquement pour le développement.<br>
+                Aucune sécurité - Utilisateur fictif avec permissions owner.
+            </div>
+            
+            <div>
+                <a href="/NSS_dashboard" class="btn">🏠 Accéder au Dashboard NSS</a>
+                <a href="/NSS_test" class="btn secondary">🧪 Page de Test des APIs</a>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+                <p><strong>Routes disponibles :</strong></p>
+                <p>/NSS_dashboard - Interface principale</p>
+                <p>/NSS_test - Page de test complète</p>
+                <p>/NSS_api/* - Toutes les APIs sans auth</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.route('/NSS_dashboard')
+def NSS_dashboard():
+    """NSS Dashboard principal - SANS authentification (développement uniquement)"""
+    print("🚨 NSS Dashboard accédé - Mode développement sans sécurité")
+    
+    return '''<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>🚨 NSS Dashboard - Arsenal V4</title><style>* { margin: 0; padding: 0; box-sizing: border-box; }body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);min-height: 100vh;color: #333;}.container { max-width: 1400px; margin: 0 auto; padding: 20px; }.header {background: rgba(255, 255, 255, 0.1);backdrop-filter: blur(10px);border-radius: 15px;padding: 20px;margin-bottom: 30px;text-align: center;color: white;}.warning {background: rgba(255, 152, 0, 0.2);border: 2px solid #ff9800;border-radius: 10px;padding: 15px;margin-bottom: 20px;color: #fff;text-align: center;}.dashboard-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));gap: 20px;margin-bottom: 30px;}.card {background: rgba(255, 255, 255, 0.1);backdrop-filter: blur(10px);border-radius: 15px;padding: 20px;color: white;transition: transform 0.3s ease;}.card:hover { transform: translateY(-5px); }.card h3 { margin-bottom: 15px; color: #fff; }.stat-number { font-size: 2em; font-weight: bold; color: #4fc3f7; }.btn { background: linear-gradient(45deg, #4caf50, #45a049);color: white; border: none; padding: 12px 24px;border-radius: 25px; cursor: pointer; margin: 5px;text-decoration: none; display: inline-block;}.btn:hover { transform: scale(1.05); }</style></head><body><div class="container"><div class="header"><h1>🚨 NSS Dashboard - Arsenal V4</h1><p>Not Secure Session - Mode Développement</p><p>👑 Connecté en tant que: NSS_Dev_User (Owner)</p></div><div class="warning"><strong>⚠️ MODE DÉVELOPPEMENT :</strong> NSS sans sécurité ! Données de test uniquement.</div><div class="dashboard-grid"><div class="card"><h3>📊 Statistiques</h3><div class="stat-number">73</div><div>Serveurs Discord</div><div class="stat-number">12,847</div><div>Utilisateurs</div></div><div class="card"><h3>🤖 Bot Status</h3><div class="stat-number" style="color: #4caf50;">🟢 ONLINE</div><div>Arsenal Bot</div><div class="stat-number">45ms</div><div>Latence</div></div><div class="card"><h3>🔧 Actions</h3><a href="/NSS_api/user/info" class="btn">Mon Profil</a><a href="/NSS_api/stats" class="btn">Stats</a><a href="/NSS_api/bot/status" class="btn">Bot</a></div></div></div></body></html>'''
+
+@app.route('/NSS_api/auth/user')
+def NSS_api_auth_user():
+    """NSS API pour vérifier le statut d'authentification - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Auth User - Mode développement sans sécurité")
+    return jsonify({
+        'authenticated': True,
+        'user': {
+            'discord_id': '399264495087034378',
+            'access_level': 'owner'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/info')
+def NSS_api_user_info():
+    """NSS API informations utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Info - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'user': {
+            'id': '399264495087034378',
+            'username': 'NSS_Dev_User',
+            'discriminator': '0000',
+            'avatar': None,
+            'access_level': 'owner',
+            'permissions': {
+                'can_manage_servers': True,
+                'can_manage_users': True,
+                'can_view_stats': True,
+                'can_manage_bot': True,
+                'is_owner': True
+            }
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats')
+def NSS_api_stats():
+    """NSS API statistiques - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'stats': {
+            'total_servers': 73,
+            'total_users': 12847,
+            'total_commands': 156892,
+            'bot_uptime': '99.8%',
+            'api_calls_today': 2847,
+            'active_sessions': 12
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/bot/status')
+def NSS_api_bot_status():
+    """NSS API statut du bot - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Bot Status - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'bot': {
+            'online': True,
+            'latency': random.randint(20, 100),
+            'servers': 73,
+            'users': 12847,
+            'uptime': '12j 8h 34m',
+            'version': '4.2.7'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_test')
+def NSS_test():
+    """Page de test NSS complète"""
+    print("🚨 NSS Test Page - Mode développement")
+    return '''<!DOCTYPE html><html><head><title>🚨 NSS Test Page</title><style>body{font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; padding: 20px;}.container{max-width: 1200px; margin: 0 auto;}.card{background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin: 20px 0;}.btn{background: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px;}.result{background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin: 10px 0; white-space: pre-wrap;}</style></head><body><div class="container"><h1>🚨 NSS Test Page - Arsenal V4</h1><div class="card"><h3>Test des APIs NSS</h3><button class="btn" onclick="testAPI('/NSS_api/auth/user')">Test Auth</button><button class="btn" onclick="testAPI('/NSS_api/user/info')">Test User Info</button><button class="btn" onclick="testAPI('/NSS_api/stats')">Test Stats</button><button class="btn" onclick="testAPI('/NSS_api/bot/status')">Test Bot Status</button><div id="result" class="result">Cliquez sur un bouton pour tester une API...</div></div></div><script>async function testAPI(url) {const resultDiv = document.getElementById('result');resultDiv.textContent = `Testing ${url}...`;try {const response = await fetch(url);const data = await response.json();resultDiv.textContent = `✅ ${url}\n${JSON.stringify(data, null, 2)}`;} catch (error) {resultDiv.textContent = `❌ ${url}\nError: ${error.message}`;} }</script></body></html>'''
+
 # ==================== DÃ‰MARRAGE ====================
 
 if __name__ == '__main__':
@@ -5368,6 +5654,18 @@ def auth_discord_redirect():
 @app.route('/auth/login')
 def auth_login_redirect():
     """Route de redirection pour compatibilitÃ© - redirige vers /auth/discord"""
+    
+    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
+    freeze_token = None
+    if FREEZE_SYSTEM_AVAILABLE:
+        try:
+            freeze_token = create_login_freeze(request)
+            session['freeze_token'] = freeze_token
+            session['login_start'] = datetime.now().isoformat()
+            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
+        except Exception as e:
+            print(f"⚠️ Erreur création freeze: {e}")
+    
     return redirect('/auth/discord')
 
 @app.route('/auth/logout')
@@ -5391,4 +5689,613 @@ def auth_logout():
     response = redirect('/?message=DÃ©connexion rÃ©ussie')
     response.set_cookie('arsenal_session', '', expires=0)
     return response
+
+# ⚠️ ROUTE DE DIAGNOSTIC TEMPORAIRE - À SUPPRIMER EN PRODUCTION
+@app.route('/debug/env')
+def debug_env():
+    """Route de diagnostic des variables d'environnement"""
+    try:
+        required_vars = [
+            'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_REDIRECT_URI',
+            'DISCORD_BOT_TOKEN', 'SECRET_KEY', 'CREATOR_ID', 'ADMIN_IDS', 'BOT_SERVERS'
+        ]
+        
+        env_status = {}
+        for var in required_vars:
+            value = os.getenv(var)
+            if value:
+                # Masquer les valeurs sensibles
+                if any(sensitive in var.lower() for sensitive in ['secret', 'token', 'key']):
+                    env_status[var] = f"***{value[-4:]}" if len(value) > 4 else "***"
+                else:
+                    env_status[var] = value[:20] + "..." if len(value) > 20 else value
+            else:
+                env_status[var] = "MANQUANT"
+        
+        return jsonify({
+            'status': 'success',
+            'variables': env_status,
+            'routes_actives': len([rule.rule for rule in app.url_map.iter_rules()]),
+            'freeze_system': FREEZE_SYSTEM_AVAILABLE
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+# ==================== ROUTES NSS (Not Secure Session) ====================
+# 🚨 VERSION DÉVELOPPEMENT SANS AUTHENTIFICATION - NE PAS UTILISER EN PRODUCTION
+# Ces routes permettent de tester le dashboard sans passer par Discord OAuth
+
+# Route racine NSS pour accès facile
+@app.route('/NSS')
+def NSS_index():
+    """NSS Page d'accueil - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Index - Mode développement sans sécurité")
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 NSS - Not Secure Session</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+            }
+            .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 600px;
+            }
+            h1 { margin-bottom: 20px; color: #ff9800; }
+            .warning {
+                background: rgba(255, 152, 0, 0.2);
+                border: 2px solid #ff9800;
+                border-radius: 10px;
+                padding: 15px;
+                margin: 20px 0;
+            }
+            .btn {
+                display: inline-block;
+                background: linear-gradient(45deg, #4caf50, #45a049);
+                color: white;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 25px;
+                margin: 10px;
+                font-size: 16px;
+                transition: transform 0.3s ease;
+            }
+            .btn:hover { transform: scale(1.05); }
+            .btn.secondary {
+                background: linear-gradient(45deg, #2196f3, #1976d2);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚨 NSS - Not Secure Session</h1>
+            <p>Mode développement sans authentification Discord</p>
+            
+            <div class="warning">
+                <strong>⚠️ ATTENTION :</strong><br>
+                Cette version NSS est uniquement pour le développement.<br>
+                Aucune sécurité - Utilisateur fictif avec permissions owner.
+            </div>
+            
+            <div>
+                <a href="/NSS_dashboard" class="btn">🏠 Accéder au Dashboard NSS</a>
+                <a href="/NSS_test" class="btn secondary">🧪 Page de Test des APIs</a>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+                <p><strong>Routes disponibles :</strong></p>
+                <p>/NSS_dashboard - Interface principale</p>
+                <p>/NSS_test - Page de test complète</p>
+                <p>/NSS_api/* - Toutes les APIs sans auth</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.route('/NSS_dashboard')
+def NSS_dashboard():
+    """NSS Dashboard principal - SANS authentification (développement uniquement)"""
+    print("🚨 NSS Dashboard accédé - Mode développement sans sécurité")
+    
+    # Au lieu d'utiliser serve_dashboard_interface(), on crée une interface NSS simple
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 NSS Dashboard - Arsenal V4</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #333;
+            }
+            .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+            .header {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 30px;
+                text-align: center;
+                color: white;
+            }
+            .warning {
+                background: rgba(255, 152, 0, 0.2);
+                border: 2px solid #ff9800;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+                color: #fff;
+                text-align: center;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .card {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 20px;
+                color: white;
+                transition: transform 0.3s ease;
+            }
+            .card:hover { transform: translateY(-5px); }
+            .card h3 { margin-bottom: 15px; color: #fff; }
+            .stat-number { font-size: 2em; font-weight: bold; color: #4fc3f7; }
+            .stat-label { font-size: 0.9em; opacity: 0.8; }
+            .btn { 
+                background: linear-gradient(45deg, #4caf50, #45a049);
+                color: white; border: none; padding: 12px 24px;
+                border-radius: 25px; cursor: pointer; margin: 5px;
+                text-decoration: none; display: inline-block;
+            }
+            .btn:hover { transform: scale(1.05); }
+            .servers-list { max-height: 200px; overflow-y: auto; }
+            .server-item { 
+                background: rgba(255,255,255,0.1); 
+                margin: 5px 0; padding: 10px; 
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🚨 NSS Dashboard - Arsenal V4</h1>
+                <p>Not Secure Session - Mode Développement Sans Authentification</p>
+                <p>👑 Connecté en tant que: NSS_Dev_User (Owner Level)</p>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ MODE DÉVELOPPEMENT :</strong> Cette version NSS n'a AUCUNE sécurité !<br>
+                Utilisateur fictif avec permissions owner. Données de test uniquement.
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📊 Statistiques Générales</h3>
+                    <div class="stat-number">73</div>
+                    <div class="stat-label">Serveurs Discord</div>
+                    <div class="stat-number">12,847</div>
+                    <div class="stat-label">Utilisateurs Totaux</div>
+                    <div class="stat-number">156,892</div>
+                    <div class="stat-label">Commandes Exécutées</div>
+                </div>
+                
+                <div class="card">
+                    <h3>🤖 Statut du Bot</h3>
+                    <div class="stat-number" style="color: #4caf50;">🟢 ONLINE</div>
+                    <div class="stat-label">Arsenal Bot Status</div>
+                    <div class="stat-number">45ms</div>
+                    <div class="stat-label">Latence</div>
+                    <div class="stat-number">99.8%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                
+                <div class="card">
+                    <h3>📈 Performance</h3>
+                    <div class="stat-number">67%</div>
+                    <div class="stat-label">Utilisation Mémoire</div>
+                    <div class="stat-number">23%</div>
+                    <div class="stat-label">Utilisation CPU</div>
+                    <div class="stat-number">1,284</div>
+                    <div class="stat-label">Commandes Aujourd'hui</div>
+                </div>
+                
+                <div class="card">
+                    <h3>🖥️ Mes Serveurs</h3>
+                    <div class="servers-list">
+                        <div class="server-item">
+                            <strong>NSS Dev Server 1</strong><br>
+                            <small>Members: 234 | Owner: ✅</small>
+                        </div>
+                        <div class="server-item">
+                            <strong>NSS Dev Server 2</strong><br>
+                            <small>Members: 567 | Admin: ✅</small>
+                        </div>
+                        <div class="server-item">
+                            <strong>NSS Dev Server 3</strong><br>
+                            <small>Members: 123 | Moderator: ✅</small>
+                        </div>
+                    </div>
+                    <a href="/NSS_api/servers/list" class="btn">Voir tous les serveurs</a>
+                </div>
+                
+                <div class="card">
+                    <h3>🔧 Actions Rapides</h3>
+                    <a href="/NSS_api/user/info" class="btn">Mon Profil</a>
+                    <a href="/NSS_api/stats" class="btn">Statistiques</a>
+                    <a href="/NSS_api/bot/status" class="btn">Statut Bot</a>
+                    <a href="/NSS_test" class="btn">Page de Test</a>
+                </div>
+                
+                <div class="card">
+                    <h3>📋 APIs Disponibles</h3>
+                    <div style="font-family: monospace; font-size: 0.8em;">
+                        <div>✅ /NSS_api/auth/user</div>
+                        <div>✅ /NSS_api/user/info</div>
+                        <div>✅ /NSS_api/stats</div>
+                        <div>✅ /NSS_api/bot/status</div>
+                        <div>✅ /NSS_api/servers/list</div>
+                        <div style="margin-top: 10px;">
+                            <a href="/NSS_test" class="btn">Tester toutes les APIs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🔄 Données Temps Réel</h3>
+                <div id="realtime-stats">Chargement des données en temps réel...</div>
+                <script>
+                    // Simulation données temps réel NSS
+                    function updateRealTimeStats() {
+                        const statsDiv = document.getElementById('realtime-stats');
+                        const cpu = Math.floor(Math.random() * 50) + 10;
+                        const memory = Math.floor(Math.random() * 30) + 60;
+                        const activeUsers = Math.floor(Math.random() * 400) + 100;
+                        
+                        statsDiv.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                                <div>
+                                    <div class="stat-number">${cpu}%</div>
+                                    <div class="stat-label">CPU</div>
+                                </div>
+                                <div>
+                                    <div class="stat-number">${memory}%</div>
+                                    <div class="stat-label">RAM</div>
+                                </div>
+                                <div>
+                                    <div class="stat-number">${activeUsers}</div>
+                                    <div class="stat-label">Utilisateurs Actifs</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Mettre à jour toutes les 3 secondes
+                    updateRealTimeStats();
+                    setInterval(updateRealTimeStats, 3000);
+                </script>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.route('/NSS_api/auth/user')
+def NSS_api_auth_user():
+    """NSS API pour vérifier le statut d'authentification - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Auth User - Mode développement sans sécurité")
+    return jsonify({
+        'authenticated': True,
+        'user': {
+            'discord_id': '399264495087034378',  # ID développeur
+            'access_level': 'owner'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/info')
+def NSS_api_user_info():
+    """NSS API informations utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Info - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'user': {
+            'id': '399264495087034378',
+            'username': 'NSS_Dev_User',
+            'discriminator': '0000',
+            'avatar': None,
+            'access_level': 'owner',
+            'permissions': {
+                'can_manage_servers': True,
+                'can_manage_users': True,
+                'can_view_stats': True,
+                'can_manage_bot': True,
+                'is_owner': True
+            }
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/profile')
+def NSS_api_user_profile():
+    """NSS API profil utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Profile - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'profile': {
+            'discord_id': '399264495087034378',
+            'username': 'NSS_Dev_User',
+            'discriminator': '0000',
+            'avatar_url': None,
+            'created_at': datetime.now().isoformat(),
+            'last_login': datetime.now().isoformat(),
+            'access_level': 'owner',
+            'total_commands': 999,
+            'favorite_server': 'NSS Development Server'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/user/permissions')
+def NSS_api_user_permissions():
+    """NSS API permissions utilisateur - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS User Permissions - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'permissions': {
+            'level': 'owner',
+            'can_manage_servers': True,
+            'can_manage_users': True,
+            'can_view_stats': True,
+            'can_manage_bot': True,
+            'can_access_admin_panel': True,
+            'is_owner': True,
+            'managed_servers': ['1095821508219977838', '1318962036244570133']
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats')
+def NSS_api_stats():
+    """NSS API statistiques - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'stats': {
+            'total_servers': 73,
+            'total_users': 12847,
+            'total_commands': 156892,
+            'bot_uptime': '99.8%',
+            'api_calls_today': 2847,
+            'active_sessions': 12
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/dashboard')
+def NSS_api_stats_dashboard():
+    """NSS API statistiques dashboard - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats Dashboard - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'dashboard_stats': {
+            'servers': 73,
+            'members': 12847,
+            'commands_today': 1284,
+            'uptime': 99.8,
+            'response_time': 45,
+            'memory_usage': 67.3
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/general')
+def NSS_api_stats_general():
+    """NSS API statistiques générales - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats General - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'general_stats': {
+            'total_commands': 156892,
+            'commands_today': 1284,
+            'most_used_command': 'hunt',
+            'servers_growth': '+12%',
+            'users_growth': '+8%',
+            'commands_growth': '+15%'
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/stats/real')
+def NSS_api_stats_real():
+    """NSS API statistiques temps réel - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Stats Real - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'real_stats': {
+            'cpu': random.randint(10, 80),
+            'memory': random.randint(60, 85),
+            'active_users': random.randint(100, 500),
+            'commands_per_minute': random.randint(5, 25),
+            'api_response_time': random.randint(20, 100)
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/bot/status')
+def NSS_api_bot_status():
+    """NSS API statut du bot - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Bot Status - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'bot': {
+            'online': True,
+            'latency': random.randint(20, 100),
+            'servers': 73,
+            'users': 12847,
+            'uptime': '12j 8h 34m',
+            'version': '4.2.7',
+            'last_restart': (datetime.now() - timedelta(days=12)).isoformat()
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/bot/performance')
+def NSS_api_bot_performance():
+    """NSS API performance du bot - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Bot Performance - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'performance': {
+            'cpu_usage': random.randint(10, 60),
+            'memory_usage': random.randint(200, 800),
+            'memory_total': 1024,
+            'threads': random.randint(8, 24),
+            'network_in': random.randint(100, 1000),
+            'network_out': random.randint(50, 500),
+            'commands_queue': random.randint(0, 5),
+            'avg_response_time': random.randint(20, 150)
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/servers/list')
+def NSS_api_servers_list():
+    """NSS API liste des serveurs - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Servers List - Mode développement sans sécurité")
+    servers = []
+    for i in range(1, 6):  # 5 serveurs d'exemple
+        servers.append({
+            'id': f'109582150821997783{i}',
+            'name': f'NSS Server {i}',
+            'icon': None,
+            'members': random.randint(50, 500),
+            'online': random.randint(10, 100),
+            'owner': i == 1,
+            'permissions': ['administrator'] if i <= 2 else ['manage_guild'],
+            'bot_joined': (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat()
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'servers': servers,
+        'total': len(servers),
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/servers/<server_id>/config')
+def NSS_api_server_config(server_id):
+    """NSS API configuration serveur - MODE DÉVELOPPEMENT"""
+    print(f"🚨 NSS Server Config {server_id} - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'config': {
+            'server_id': server_id,
+            'prefix': '!',
+            'welcome_enabled': True,
+            'welcome_channel': '1095821508219977999',
+            'moderation_enabled': True,
+            'auto_role': '1095821508219977888',
+            'economy_enabled': True,
+            'hunt_enabled': True,
+            'music_enabled': False
+        },
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/users/list')
+def NSS_api_users_list():
+    """NSS API liste des utilisateurs - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Users List - Mode développement sans sécurité")
+    users = []
+    for i in range(1, 11):  # 10 utilisateurs d'exemple
+        users.append({
+            'id': f'39926449508703437{i}',
+            'username': f'NSS_User_{i}',
+            'discriminator': f'000{i}',
+            'avatar': None,
+            'joined': (datetime.now() - timedelta(days=random.randint(1, 100))).isoformat(),
+            'commands_used': random.randint(10, 1000),
+            'level': random.randint(1, 50),
+            'balance': random.randint(100, 10000)
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'users': users,
+        'total': len(users),
+        'nss_mode': True
+    })
+
+@app.route('/NSS_api/activity/feed')
+def NSS_api_activity_feed():
+    """NSS API flux d'activité - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS Activity Feed - Mode développement sans sécurité")
+    activities = []
+    activity_types = ['command', 'join', 'leave', 'level_up', 'achievement']
+    
+    for i in range(10):
+        activity_type = random.choice(activity_types)
+        activities.append({
+            'id': f'activity_{i}',
+            'type': activity_type,
+            'user': f'NSS_User_{random.randint(1, 20)}',
+            'description': f'Action {activity_type} #{i}',
+            'timestamp': (datetime.now() - timedelta(minutes=random.randint(1, 120))).isoformat(),
+            'server': f'NSS Server {random.randint(1, 5)}'
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'activities': activities,
+        'nss_mode': True
+    })
+
+# Route NSS pour servir les fichiers statiques du dashboard
+@app.route('/NSS_static/<path:filename>')
+def NSS_serve_static(filename):
+    """NSS Servir les fichiers statiques - MODE DÉVELOPPEMENT"""
+    print(f"🚨 NSS Static {filename} - Mode développement sans sécurité")
+    return send_from_directory('../frontend/build/static', filename)
+
+# Route NSS pour le test API
+@app.route('/NSS_api/test')
+def NSS_api_test():
+    """NSS Route de test API - MODE DÉVELOPPEMENT"""
+    print("🚨 NSS API Test - Mode développement sans sécurité")
+    return jsonify({
+        'status': 'success',
+        'message': 'NSS API fonctionnelle - Mode développement',
+        'timestamp': datetime.now().isoformat(),
+        'nss_mode': True,
+        'version': '4.2.7'
+    })
 
