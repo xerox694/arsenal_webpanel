@@ -3217,6 +3217,25 @@ def performance_general():
 
 # ==================== ROUTES DE TEST ====================
 
+@app.route('/api/version')
+def version_info():
+    """Debug: Version info for Render diagnosis"""
+    import datetime
+    route_list = []
+    for rule in app.url_map.iter_rules():
+        route_list.append(str(rule))
+    
+    has_auth_user = '/api/auth/user' in route_list
+    
+    return jsonify({
+        'version': '4.3.4-FORCE-CACHE-CLEAR',
+        'build_time': datetime.datetime.now().isoformat(),
+        'total_routes': len(route_list),
+        'has_auth_user_route': has_auth_user,
+        'critical_routes': [r for r in route_list if 'auth' in r],
+        'debug': 'RENDER_VERSION_CHECK'
+    })
+
 @app.route('/api/test')
 def test_api():
     """Test de l'API"""
