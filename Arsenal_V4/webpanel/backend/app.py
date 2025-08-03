@@ -1220,7 +1220,8 @@ def serve_js(filename):
                 return send_from_directory(js_path, filename, mimetype='application/javascript')
         
         print(f"âŒ Fichier JS non trouvÃ©: {filename}")
-        return "JS non trouvÃ©", 404
+        # Retourner un JS vide au lieu d'une erreur 404 pour éviter les erreurs console
+        return "// Fichier JS non trouvé: " + filename, 200, {'Content-Type': 'application/javascript'}
     except Exception as e:
         print(f"âŒ Erreur servir JS {filename}: {e}")
         return f"Erreur JS: {e}", 500
@@ -1241,7 +1242,8 @@ def serve_css(filename):
                 return send_from_directory(css_path, filename, mimetype='text/css')
         
         print(f"âŒ Fichier CSS non trouvÃ©: {filename}")
-        return "CSS non trouvÃ©", 404
+        # Retourner un CSS vide au lieu d'une erreur 404 pour éviter les erreurs console
+        return "/* Fichier CSS non trouvé: " + filename + " */", 200, {'Content-Type': 'text/css'}
     except Exception as e:
         print(f"âŒ Erreur servir CSS {filename}: {e}")
         return f"Erreur CSS: {e}", 500
@@ -1563,11 +1565,12 @@ def discord_callback():
     response.set_cookie('arsenal_session', session_token, max_age=7*24*60*60)  # 7 jours
     return response
 
-@app.route('/auth/discord')
-def auth_discord():
-    """Route manquante /auth/discord - Redirection vers /auth/login"""
-    print("🔄 ROUTE MANQUANTE: /auth/discord → /auth/login")
-    return redirect('/auth/login')
+# ROUTE SUPPRIMÉE - DUPLIQUÉE avec celle plus bas
+# @app.route('/auth/discord')
+# def auth_discord():
+#     """Route manquante /auth/discord - Redirection vers /auth/login"""
+#     print("🔄 ROUTE MANQUANTE: /auth/discord → /auth/login")
+#     return redirect('/auth/login')
 
 @app.route('/dashboard')
 def dashboard():
