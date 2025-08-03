@@ -1613,6 +1613,11 @@ def dashboard():
     # CORRECTION CRITIQUE: Forcer index.html avec authentification
     print("🚀 DASHBOARD FIX: Recherche index.html avec authentification...")
     index_paths = [
+        # TEMPORAIRE: Test avec version sans auth EN PREMIER
+        os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index_no_auth.html'),
+        'Arsenal_V4/webpanel/frontend/index_no_auth.html',
+        '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index_no_auth.html',
+        # Versions normales en fallback
         os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html'),
         'Arsenal_V4/webpanel/frontend/index.html',
         '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
@@ -1623,8 +1628,12 @@ def dashboard():
             if os.path.isfile(path):
                 with open(path, 'r', encoding='utf-8') as f:
                     content = f.read()
-                # VALIDATION: Doit contenir l'authentification
-                if 'checkAuthentication' in content and 'api/auth/user' in content:
+                # Si c'est la version no_auth, servir directement
+                if 'index_no_auth.html' in path:
+                    print(f"🔓 SERVING NO-AUTH VERSION: {len(content)} chars SANS authentification")
+                    return content
+                # VALIDATION normale pour les autres: Doit contenir l'authentification
+                elif 'checkAuthentication' in content and 'api/auth/user' in content:
                     print(f"✅ INDEX.HTML FORCE: {len(content)} chars avec auth")
                     return content
                 else:
@@ -1632,7 +1641,7 @@ def dashboard():
         except Exception as e:
             print(f"❌ Erreur: {e}")
     
-    return "ERREUR: Aucun index.html avec authentification", 500
+    return "ERREUR: Aucun index.html trouvé", 500
 
 @app.route('/api/auth/user')
 def api_auth_user():

@@ -1,0 +1,124 @@
+# ==================== ARSENAL V4 GITIGNORE ====================
+# Exclusion des dossiers système et personnels qui n'ont rien à voir avec le projet
+
+# ==================== DOSSIERS SYSTÈME WINDOWS ====================
+$RECYCLE.BIN/
+System Volume Information/
+Windows Kits/
+Program Files/
+install_unity/
+SteamLibrary/
+
+# ==================== ENVIRONNEMENTS PYTHON ====================
+.venv/
+venv-1/
+Python-3.10.18/
+
+# ==================== PROJETS PERSONNELS ====================
+Athena/
+dev_jeu/
+Games/
+
+# ==================== LOGS ET DONNÉES ====================
+logs/
+*.log
+*.db-journal
+
+# ==================== ENVIRONNEMENTS VIRTUELS ====================
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# ==================== FICHIERS PYTHON ====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ==================== CONFIGURATION SENSIBLE ====================
+.env
+.env.local
+.env.production
+.env.development
+*.env
+config.json
+secrets.json
+
+# ==================== BASES DE DONNÉES ====================
+*.db
+*.sqlite
+*.sqlite3
+arsenal_v4.db
+hunt_royal_auth.db
+hunt_royal_profiles.db
+hunt_royal.db
+suggestions.db
+test_*.db
+
+# ==================== FICHIERS TEMPORAIRES ====================
+*.tmp
+*.temp
+*~
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*.swo
+
+# ==================== ÉDITEURS ET IDE ====================
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ==================== NODE MODULES (si présents) ====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==================== FICHIERS DE CACHE ====================
+*.cache
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==================== FICHIERS DE SAUVEGARDE ====================
+*.backup
+backup_*/
+backups/
+
+# ==================== AUTRES DOSSIERS À EXCLURE ====================
+static/uploads/
+media/
+uploads/
+temp/
+tmp/
+
+# ==================== FICHIERS JSON DE CACHE ====================
+hunt_royal_cache.json
+*.cache.json
+
+# ==================== GARDER SEULEMENT LE PROJET ARSENAL ====================
+# Tout ce qui est nécessaire au webpanel est déjà inclus dans Arsenal_bot/Arsenal_V4/
+# Les autres dossiers à la racine ne servent pas au projet
