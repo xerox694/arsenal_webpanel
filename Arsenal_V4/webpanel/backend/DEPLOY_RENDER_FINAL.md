@@ -22,14 +22,13 @@
    - `Client ID`
    - `Client Secret`
 4. Dans **OAuth2 > Redirects**, ajoutez :
-   - `https://VOTRE-APP.onrender.com/auth/callback`
+   - `https://arsenal-webpanel.onrender.com/auth/callback`
 
-### 2. 🚀 Créer le Service Render
+### 2. 🚀 Service Render Existant
 
-1. Connectez-vous sur https://render.com
-2. Cliquez sur **"New +"** > **"Web Service"**
-3. Connectez votre repository GitHub
-4. Configuration du service :
+✅ **Votre service est déjà créé** : https://arsenal-webpanel.onrender.com
+
+Configuration actuelle du service :
 
 ```
 Name: arsenal-webpanel
@@ -49,7 +48,7 @@ Dans l'onglet **Environment** de votre service Render, ajoutez :
 ```bash
 DISCORD_CLIENT_ID=VOTRE_CLIENT_ID_DISCORD
 DISCORD_CLIENT_SECRET=VOTRE_CLIENT_SECRET_DISCORD
-DISCORD_REDIRECT_URI=https://VOTRE-APP.onrender.com/auth/callback
+DISCORD_REDIRECT_URI=https://arsenal-webpanel.onrender.com/auth/callback
 DISCORD_BOT_TOKEN=VOTRE_TOKEN_BOT_DISCORD
 ```
 
@@ -76,9 +75,9 @@ BOT_SERVERS=ID_SERVEUR1,ID_SERVEUR2
 Une fois déployé, testez ces URLs :
 
 ```
-✅ https://VOTRE-APP.onrender.com/
-✅ https://VOTRE-APP.onrender.com/api/health
-✅ https://VOTRE-APP.onrender.com/auth/discord
+✅ https://arsenal-webpanel.onrender.com/
+✅ https://arsenal-webpanel.onrender.com/api/health
+✅ https://arsenal-webpanel.onrender.com/auth/discord
 ```
 
 ---
@@ -116,7 +115,8 @@ Une fois déployé, testez ces URLs :
 **Solution** : Vérifiez les variables d'environnement Discord
 
 ### Problème : Erreur d'authentification
-**Solution** : Vérifiez que `DISCORD_REDIRECT_URI` correspond exactement à l'URL Render
+**Solution** : Vérifiez que `DISCORD_REDIRECT_URI` correspond exactement à :
+`https://arsenal-webpanel.onrender.com/auth/callback`
 
 ### Problème : Bot non détecté
 **Solution** : Ajoutez `DISCORD_BOT_TOKEN` et `BOT_SERVERS`
