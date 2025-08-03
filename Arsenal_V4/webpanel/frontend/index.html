@@ -733,6 +733,49 @@
             font-size: 1.1em;
         }
 
+        /* Style spécial pour les liens de navigation */
+        .menu-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-link::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--hover-color), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .menu-link:hover::before {
+            left: 100%;
+        }
+
+        .menu-link:hover {
+            background: var(--hover-color);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+            text-decoration: none;
+        }
+
+        .menu-link i {
+            width: 20px;
+            margin-right: 15px;
+            font-size: 1.1em;
+        }
+
         /* Main Content */
         .main-content {
             margin-top: 70px;
@@ -2143,10 +2186,10 @@
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Vue d'ensemble</span>
                 </div>
-                <div class="menu-item" onclick="showPage('analytics', this)">
+                <a href="/analytics" class="menu-item menu-link">
                     <i class="fas fa-chart-line"></i>
                     <span>Analytiques</span>
-                </div>
+                </a>
                 <div class="menu-item" onclick="showPage('realtime', this)">
                     <i class="fas fa-bolt"></i>
                     <span>Temps Réel</span>
@@ -2177,10 +2220,10 @@
                     <i class="fas fa-terminal"></i>
                     <span>Commandes</span>
                 </div>
-                <div class="menu-item" onclick="showPage('moderation', this)">
+                <a href="/moderation" class="menu-item menu-link">
                     <i class="fas fa-shield-alt"></i>
                     <span>Modération</span>
-                </div>
+                </a>
                 <div class="menu-item" onclick="showPage('automod', this)">
                     <i class="fas fa-robot"></i>
                     <span>Auto-Mod</span>
@@ -2193,14 +2236,14 @@
 
             <div class="menu-section">
                 <div class="menu-title">Fonctionnalités</div>
-                <div class="menu-item" onclick="showPage('music', this)">
+                <a href="/music" class="menu-item menu-link">
                     <i class="fas fa-music"></i>
                     <span>Musique</span>
-                </div>
-                <div class="menu-item" onclick="showPage('economy', this)">
+                </a>
+                <a href="/economy" class="menu-item menu-link">
                     <i class="fas fa-coins"></i>
                     <span>Économie</span>
-                </div>
+                </a>
                 <div class="menu-item" onclick="showPage('games', this)">
                     <i class="fas fa-gamepad"></i>
                     <span>Mini-Jeux</span>
@@ -2209,10 +2252,10 @@
                     <i class="fas fa-dice"></i>
                     <span>🎰 Casino</span>
                 </div>
-                <div class="menu-item" onclick="showPage('calculator', this)">
+                <a href="/calculator" class="menu-item menu-link">
                     <i class="fas fa-calculator"></i>
                     <span>🔢 SuperCalculator</span>
-                </div>
+                </a>
                 <div class="menu-item" onclick="showPage('backup', this)">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <span>💾 Backup</span>
@@ -2245,14 +2288,14 @@
 
             <div class="menu-section">
                 <div class="menu-title">Configuration</div>
-                <div class="menu-item" onclick="showPage('settings', this)">
+                <a href="/settings" class="menu-item menu-link">
                     <i class="fas fa-cog"></i>
                     <span>Paramètres</span>
-                </div>
-                <div class="menu-item" onclick="showPage('logs', this)">
+                </a>
+                <a href="/logs" class="menu-item menu-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Logs</span>
-                </div>
+                </a>
                 <div class="menu-item" onclick="showPage('database', this)">
                     <i class="fas fa-database"></i>
                     <span>Base de Données</span>

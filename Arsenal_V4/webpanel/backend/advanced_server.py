@@ -1049,6 +1049,104 @@ try:
             print(f"❌ Erreur calculator: {e}")
             return jsonify({"error": "Erreur calculator"}), 500
 
+    # ==================== NOUVELLES ROUTES POUR CHAQUE SECTION ====================
+    
+    @app.route('/analytics')
+    def analytics_page():
+        """Page Analytics séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            analytics_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'analytics.html')
+            if os.path.exists(analytics_path):
+                return send_from_directory(os.path.dirname(analytics_path), 'analytics.html')
+            else:
+                return redirect('/dashboard#analytics')
+        except Exception as e:
+            print(f"❌ Erreur analytics: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/music')
+    def music_page():
+        """Page Music Player séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            music_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'music.html')
+            if os.path.exists(music_path):
+                return send_from_directory(os.path.dirname(music_path), 'music.html')
+            else:
+                return redirect('/dashboard#music')
+        except Exception as e:
+            print(f"❌ Erreur music: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/moderation')
+    def moderation_page():
+        """Page Modération séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            moderation_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'moderation.html')
+            if os.path.exists(moderation_path):
+                return send_from_directory(os.path.dirname(moderation_path), 'moderation.html')
+            else:
+                return redirect('/dashboard#moderation')
+        except Exception as e:
+            print(f"❌ Erreur moderation: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/economy')
+    def economy_page():
+        """Page Économie séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            economy_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'economy.html')
+            if os.path.exists(economy_path):
+                return send_from_directory(os.path.dirname(economy_path), 'economy.html')
+            else:
+                return redirect('/dashboard#economy')
+        except Exception as e:
+            print(f"❌ Erreur economy: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/settings')
+    def settings_page():
+        """Page Paramètres séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            settings_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'settings.html')
+            if os.path.exists(settings_path):
+                return send_from_directory(os.path.dirname(settings_path), 'settings.html')
+            else:
+                return redirect('/dashboard#settings')
+        except Exception as e:
+            print(f"❌ Erreur settings: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/logs')
+    def logs_page():
+        """Page Logs séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            logs_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'logs.html')
+            if os.path.exists(logs_path):
+                return send_from_directory(os.path.dirname(logs_path), 'logs.html')
+            else:
+                return redirect('/dashboard#logs')
+        except Exception as e:
+            print(f"❌ Erreur logs: {e}")
+            return redirect('/dashboard')
+
     # ==================== ROUTES API HUNT ROYAL ====================
     
     @app.route('/api/hunt-royal/validate-token', methods=['POST'])

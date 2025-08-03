@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Économie - Arsenal V4 WebPanel</title>
+    <title>Paramètres - Arsenal V4 WebPanel</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <style>
@@ -26,8 +26,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
+            color: var(--text-primary); min-height: 100vh;
         }
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 70px;
@@ -60,16 +59,16 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text; text-shadow: 0 0 30px var(--primary-color);
         }
-        .eco-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .settings-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px; margin-bottom: 30px;
         }
-        .eco-card {
+        .settings-card {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
             border: 1px solid var(--border-color); border-radius: 15px; padding: 25px;
-            transition: all 0.3s ease; position: relative; overflow: hidden;
+            transition: all 0.3s ease;
         }
-        .eco-card:hover {
+        .settings-card:hover {
             transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
             border-color: var(--primary-color);
         }
@@ -83,46 +82,67 @@
             margin-right: 15px; font-size: 1.2em;
         }
         .card-title { font-size: 1.2em; color: var(--primary-color); margin-bottom: 5px; }
-        .eco-input {
-            width: 100%; padding: 12px; background: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 8px;
-            color: var(--text-primary); margin-bottom: 15px;
+        .setting-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid var(--border-color);
         }
-        .eco-btn {
-            width: 100%; padding: 12px; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; transition: all 0.3s ease;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
+        .setting-item:last-child { border-bottom: none; }
+        .toggle {
+            position: relative; width: 50px; height: 25px;
+            background: var(--bg-primary); border-radius: 15px; cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .eco-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+        .toggle.active { background: var(--primary-color); }
+        .toggle::before {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 19px; height: 19px; background: white; border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .toggle.active::before { transform: translateX(25px); }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="logo"><i class="fas fa-coins"></i>&nbsp;&nbsp;Économie Panel</div>
+        <div class="logo"><i class="fas fa-cog"></i>&nbsp;&nbsp;Paramètres Panel</div>
         <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i>Retour au Dashboard</a>
     </header>
     <main class="main-content">
-        <h1 class="page-title">💰 Système d'Économie</h1>
-        <div class="eco-grid">
-            <div class="eco-card">
+        <h1 class="page-title">⚙️ Paramètres du Bot</h1>
+        <div class="settings-grid">
+            <div class="settings-card">
                 <div class="card-header">
-                    <div class="card-icon"><i class="fas fa-coins"></i></div>
-                    <div><div class="card-title">Gestion des Crédits</div></div>
+                    <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div><div class="card-title">Sécurité</div></div>
                 </div>
-                <input type="text" class="eco-input" placeholder="ID utilisateur">
-                <input type="number" class="eco-input" placeholder="Montant">
-                <button class="eco-btn">Ajouter des Crédits</button>
+                <div class="setting-item">
+                    <span>Mode développeur</span>
+                    <div class="toggle" onclick="toggleSetting(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Logs détaillés</span>
+                    <div class="toggle active" onclick="toggleSetting(this)"></div>
+                </div>
             </div>
-            <div class="eco-card">
+            <div class="settings-card">
                 <div class="card-header">
-                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                    <div><div class="card-title">Statistiques Économie</div></div>
+                    <div class="card-icon"><i class="fas fa-bell"></i></div>
+                    <div><div class="card-title">Notifications</div></div>
                 </div>
-                <p style="color: var(--text-secondary);">Total crédits en circulation: <span style="color: var(--primary-color);">1,234,567</span></p>
-                <p style="color: var(--text-secondary);">Utilisateurs actifs: <span style="color: var(--primary-color);">842</span></p>
+                <div class="setting-item">
+                    <span>Alertes de modération</span>
+                    <div class="toggle active" onclick="toggleSetting(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <span>Notifications d'erreur</span>
+                    <div class="toggle active" onclick="toggleSetting(this)"></div>
+                </div>
             </div>
         </div>
     </main>
+    <script>
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
