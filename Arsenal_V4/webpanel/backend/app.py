@@ -5722,8 +5722,10 @@ def NSS_test():
 # ==================== DÃ‰MARRAGE ====================
 
 if __name__ == '__main__':
-    safe_print("âœ… Configuration OAuth Discord chargÃ©e")
-    safe_print("ðŸŽ° SystÃ¨me de casino initialisÃ©") 
+    print("🔥 ARSENAL V4.3.3 - FORCE REDEPLOY - ROUTE /api/auth/user ACTIVE")
+    print("🔥 TIMESTAMP BUILD:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print("✅ Configuration OAuth Discord chargée")
+    print("🎰 Système de casino initialisé") 
     if DEBUG_MODE:
         safe_print(f"ðŸ”‘ CLIENT_ID chargÃ©: {DISCORD_CLIENT_ID}")
         safe_print(f"ðŸ” CLIENT_SECRET chargÃ©: {'DÃ©fini' if DISCORD_CLIENT_SECRET else 'Non dÃ©fini'}")
