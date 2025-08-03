@@ -28,7 +28,7 @@ class ArsenalDatabase:
         tables = {
             'users': """
                 CREATE TABLE IF NOT EXISTS users (
-                    id TEXT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY,
                     username TEXT NOT NULL,
                     discriminator TEXT,
                     avatar TEXT,
@@ -42,9 +42,9 @@ class ArsenalDatabase:
             
             'servers': """
                 CREATE TABLE IF NOT EXISTS servers (
-                    id TEXT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,
-                    owner_id TEXT,
+                    owner_id INTEGER,
                     member_count INTEGER DEFAULT 0,
                     bot_joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     is_active INTEGER DEFAULT 1,
@@ -54,8 +54,8 @@ class ArsenalDatabase:
             
             'user_servers': """
                 CREATE TABLE IF NOT EXISTS user_servers (
-                    user_id TEXT,
-                    server_id TEXT,
+                    user_id INTEGER,
+                    server_id INTEGER,
                     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     is_member INTEGER DEFAULT 1,
                     PRIMARY KEY (user_id, server_id),
@@ -128,7 +128,7 @@ class ArsenalDatabase:
             'panel_sessions': """
                 CREATE TABLE IF NOT EXISTS panel_sessions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT,
+                    user_id INTEGER,
                     session_token TEXT UNIQUE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
