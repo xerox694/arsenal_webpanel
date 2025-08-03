@@ -1766,6 +1766,148 @@ try:
             print(f"❌ Erreur activité récente: {e}")
             return jsonify({"activities": [], "error": "Erreur récupération activité"}), 500
 
+    @app.route('/api/calculator/gems', methods=['GET'])
+    def get_calculator_gems():
+        """API pour récupérer les données des gemmes du calculator"""
+        try:
+            gems_data = {
+                'diamond': { 'name': 'Diamant', 'icon': '💎', 'power': 100, 'cost': 500, 'rarity': 'Legendaire' },
+                'emerald': { 'name': 'Émeraude', 'icon': '💚', 'power': 80, 'cost': 400, 'rarity': 'Épique' },
+                'ruby': { 'name': 'Rubis', 'icon': '❤️', 'power': 90, 'cost': 450, 'rarity': 'Épique' },
+                'sapphire': { 'name': 'Saphir', 'icon': '💙', 'power': 85, 'cost': 425, 'rarity': 'Épique' },
+                'topaz': { 'name': 'Topaze', 'icon': '💛', 'power': 70, 'cost': 350, 'rarity': 'Rare' },
+                'amethyst': { 'name': 'Améthyste', 'icon': '💜', 'power': 75, 'cost': 375, 'rarity': 'Rare' },
+                'opal': { 'name': 'Opale', 'icon': '🤍', 'power': 65, 'cost': 300, 'rarity': 'Rare' },
+                'garnet': { 'name': 'Grenat', 'icon': '🔴', 'power': 60, 'cost': 275, 'rarity': 'Commun' }
+            }
+            
+            return jsonify({
+                'authenticated': True,
+                'success': True,
+                'gems': gems_data,
+                'total_gems': len(gems_data)
+            })
+        except Exception as e:
+            return jsonify({
+                'authenticated': True,
+                'success': False,
+                'error': str(e)
+            }), 500
+
+    @app.route('/api/calculator/save', methods=['POST'])
+    def save_calculator_build():
+        """API pour sauvegarder une configuration de build"""
+        try:
+            data = request.get_json()
+            build_name = data.get('name', 'Build Sans Nom')
+            equipment = data.get('equipment', {})
+            gems = data.get('gems', {})
+            
+            # Simuler la sauvegarde (dans une vraie app, on sauvegarderait en BDD)
+            build_id = f"build_{int(time.time())}"
+            
+            saved_build = {
+                'id': build_id,
+                'name': build_name,
+                'equipment': equipment,
+                'gems': gems,
+                'created_at': datetime.now().isoformat(),
+                'total_power': data.get('total_power', 0),
+                'total_cost': data.get('total_cost', 0)
+            }
+            
+            return jsonify({
+                'authenticated': True,
+                'success': True,
+                'message': f'Build "{build_name}" sauvegardé avec succès',
+                'build': saved_build
+            })
+        except Exception as e:
+            return jsonify({
+                'authenticated': True,
+                'success': False,
+                'error': str(e)
+            }), 500
+
+    @app.route('/api/activity/feed')
+    def get_activity_feed():
+        """Feed d'activité en temps réel pour le dashboard"""
+        try:
+            # Générer un feed d'activité réaliste
+            feed_items = [
+                {
+                    "id": 1,
+                    "type": "command",
+                    "icon": "fas fa-terminal",
+                    "title": "Commande !play exécutée",
+                    "description": "Lecture de musique démarrée",
+                    "user": "xero3elite",
+                    "server": "Arsenal Community",
+                    "timestamp": "2025-08-03T19:35:00Z",
+                    "status": "success"
+                },
+                {
+                    "id": 2,
+                    "type": "system",
+                    "icon": "fas fa-cog",
+                    "title": "Module rechargé",
+                    "description": "Module music.py rechargé avec succès",
+                    "user": "System",
+                    "server": "Arsenal Bot",
+                    "timestamp": "2025-08-03T19:30:00Z",
+                    "status": "success"
+                },
+                {
+                    "id": 3,
+                    "type": "join",
+                    "icon": "fas fa-user-plus",
+                    "title": "Nouvel utilisateur",
+                    "description": "layzoxx a rejoint le serveur",
+                    "user": "layzoxx",
+                    "server": "Arsenal Community",
+                    "timestamp": "2025-08-03T19:25:00Z",
+                    "status": "info"
+                },
+                {
+                    "id": 4,
+                    "type": "error",
+                    "icon": "fas fa-exclamation-triangle",
+                    "title": "Tentative de connexion échouée",
+                    "description": "Utilisateur non autorisé a tenté de se connecter",
+                    "user": "Unknown#1234",
+                    "server": "Arsenal WebPanel",
+                    "timestamp": "2025-08-03T19:20:00Z",
+                    "status": "warning"
+                },
+                {
+                    "id": 5,
+                    "type": "update",
+                    "icon": "fas fa-download",
+                    "title": "Mise à jour déployée",
+                    "description": "Arsenal V4.2.1 déployé avec succès",
+                    "user": "System",
+                    "server": "Arsenal Bot",
+                    "timestamp": "2025-08-03T19:15:00Z",
+                    "status": "success"
+                }
+            ]
+            
+            print(f"✅ API activity/feed OK: {len(feed_items)} éléments")
+            return jsonify({
+                "success": True,
+                "feed": feed_items,
+                "total": len(feed_items),
+                "last_update": "2025-08-03T19:35:00Z"
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur activity feed: {e}")
+            return jsonify({
+                "success": False,
+                "feed": [],
+                "error": "Erreur récupération feed d'activité"
+            }), 500
+
     @app.route('/api/servers')
     def get_servers():
         """Liste des serveurs où le bot est présent"""

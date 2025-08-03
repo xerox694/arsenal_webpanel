@@ -1220,6 +1220,307 @@
             color: #888;
             margin-top: 5px;
         }
+        /* ==================== CALCULATOR STYLES ==================== */
+        .calculator-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .calculator-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .calc-tab {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calc-tab:hover {
+            background: var(--hover-color);
+            border-color: var(--primary-color);
+        }
+
+        .calc-tab.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 255, 247, 0.3);
+        }
+
+        .calc-content {
+            display: none;
+        }
+
+        .calc-content.active {
+            display: block;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .calc-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 247, 0.1);
+        }
+
+        .calc-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .calc-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .gems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .gem-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gem-item:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .gem-item.selected {
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, rgba(0, 255, 247, 0.2), rgba(0, 136, 255, 0.2));
+            box-shadow: 0 0 15px rgba(0, 255, 247, 0.3);
+        }
+
+        .gem-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .gem-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .gem-power {
+            color: var(--primary-color);
+            font-size: 12px;
+        }
+
+        .equipment-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .equipment-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .equipment-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .level-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .level-button {
+            background: var(--primary-color);
+            border: none;
+            color: var(--bg-dark);
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .level-button:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .level-display {
+            background: rgba(0, 255, 247, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--primary-color);
+            min-width: 90px;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .slots-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .slot {
+            width: 35px;
+            height: 35px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .slot:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
+        }
+
+        .slot.filled {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-color: var(--primary-color);
+            color: var(--bg-dark);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(0, 255, 247, 0.1), rgba(0, 136, 255, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.2);
+        }
+
+        .result-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .coming-soon i {
+            font-size: 64px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .coming-soon h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .coming-soon p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .equipment-config {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-tabs {
+                flex-direction: column;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1426,6 +1727,10 @@
                 <div class="menu-item" onclick="openCasino()">
                     <i class="fas fa-dice"></i>
                     <span>🎰 Casino</span>
+                </div>
+                <div class="menu-item" onclick="showPage('calculator', this)">
+                    <i class="fas fa-calculator"></i>
+                    <span>🔢 SuperCalculator</span>
                 </div>
                 <div class="menu-item" onclick="showPage('backup', this)">
                     <i class="fas fa-cloud-upload-alt"></i>
@@ -5126,6 +5431,7 @@
                 'commands': createCommandsPage(),
                 'moderation': createModerationPage(),
                 'music': createMusicPage(),
+                'calculator': createCalculatorPage(),
                 'settings': createSettingsPage(),
                 'performance': createPerformancePage()
             };
@@ -5152,6 +5458,10 @@
                     break;
                 case 'users':
                     await loadUsersData();
+                    break;
+                case 'calculator':
+                    // Initialize calculator after page load
+                    setTimeout(initCalculator, 100);
                     break;
                 default:
                     console.log('📄 Page sans données spécifiques:', pageId);
@@ -5301,6 +5611,118 @@
                     <div id="serversList">
                         <div style="text-align: center; color: #888; padding: 20px;">
                             <i class="fas fa-spinner fa-spin"></i> Chargement des serveurs...
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createCalculatorPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">🔢 SuperCalculator Hunt Royal</h1>
+                        <div class="breadcrumb">Fonctionnalités > SuperCalculator</div>
+                    </div>
+                </div>
+                <div class="calculator-container">
+                    <div class="calculator-tabs">
+                        <button class="calc-tab active" onclick="switchCalculatorTab('gems', this)">
+                            <i class="fas fa-gem"></i> Calculateur de Gemmes
+                        </button>
+                        <button class="calc-tab" onclick="switchCalculatorTab('upgrades', this)">
+                            <i class="fas fa-arrow-up"></i> Améliorations
+                        </button>
+                        <button class="calc-tab" onclick="switchCalculatorTab('economy', this)">
+                            <i class="fas fa-coins"></i> Économie
+                        </button>
+                    </div>
+                    
+                    <div id="gems-calculator" class="calc-content active">
+                        <div class="calculator-grid">
+                            <div class="calc-section">
+                                <h3><i class="fas fa-gem"></i> Sélection de Gemme</h3>
+                                <div class="gems-grid" id="gemsGrid">
+                                    <!-- Gemmes chargées dynamiquement -->
+                                </div>
+                            </div>
+                            
+                            <div class="calc-section">
+                                <h3><i class="fas fa-sword"></i> Configuration Équipement</h3>
+                                <div class="equipment-config">
+                                    <div class="equipment-item">
+                                        <div class="equipment-header">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>Casque</span>
+                                        </div>
+                                        <div class="level-controls">
+                                            <button class="level-button" onclick="adjustLevel('helmet', -1)">-</button>
+                                            <div class="level-display" id="helmet-level">Niveau 1</div>
+                                            <button class="level-button" onclick="adjustLevel('helmet', 1)">+</button>
+                                        </div>
+                                        <div class="slots-container" id="helmet-slots">
+                                            <!-- Slots générés dynamiquement -->
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="equipment-item">
+                                        <div class="equipment-header">
+                                            <i class="fas fa-tshirt"></i>
+                                            <span>Plastron</span>
+                                        </div>
+                                        <div class="level-controls">
+                                            <button class="level-button" onclick="adjustLevel('chestplate', -1)">-</button>
+                                            <div class="level-display" id="chestplate-level">Niveau 1</div>
+                                            <button class="level-button" onclick="adjustLevel('chestplate', 1)">+</button>
+                                        </div>
+                                        <div class="slots-container" id="chestplate-slots">
+                                            <!-- Slots générés dynamiquement -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="calc-section full-width">
+                                <h3><i class="fas fa-chart-line"></i> Résultats de Calcul</h3>
+                                <div class="results-grid">
+                                    <div class="result-card">
+                                        <div class="result-icon">💎</div>
+                                        <div class="result-value" id="total-gems">0</div>
+                                        <div class="result-label">Gemmes Totales</div>
+                                    </div>
+                                    <div class="result-card">
+                                        <div class="result-icon">⚡</div>
+                                        <div class="result-value" id="total-power">0</div>
+                                        <div class="result-label">Puissance Totale</div>
+                                    </div>
+                                    <div class="result-card">
+                                        <div class="result-icon">💰</div>
+                                        <div class="result-value" id="total-cost">0</div>
+                                        <div class="result-label">Coût Total</div>
+                                    </div>
+                                    <div class="result-card">
+                                        <div class="result-icon">📊</div>
+                                        <div class="result-value" id="efficiency-ratio">0%</div>
+                                        <div class="result-label">Efficacité</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="upgrades-calculator" class="calc-content">
+                        <div class="coming-soon">
+                            <i class="fas fa-wrench"></i>
+                            <h3>Calculateur d'Améliorations</h3>
+                            <p>En cours de développement...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="economy-calculator" class="calc-content">
+                        <div class="coming-soon">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>Calculateur d'Économie</h3>
+                            <p>En cours de développement...</p>
                         </div>
                     </div>
                 </div>
@@ -7445,6 +7867,198 @@
 
         // Vérifier l'auth au chargement de la page
         document.addEventListener('DOMContentLoaded', checkAuthOnLoad);
+        // ==================== CALCULATOR FUNCTIONS ====================
+        
+        // Données des gemmes Hunt Royal
+        const huntRoyalGems = {
+            'diamond': { name: 'Diamant', icon: '💎', power: 100, cost: 500 },
+            'emerald': { name: 'Émeraude', icon: '💚', power: 80, cost: 400 },
+            'ruby': { name: 'Rubis', icon: '❤️', power: 90, cost: 450 },
+            'sapphire': { name: 'Saphir', icon: '💙', power: 85, cost: 425 },
+            'topaz': { name: 'Topaze', icon: '💛', power: 70, cost: 350 },
+            'amethyst': { name: 'Améthyste', icon: '💜', power: 75, cost: 375 },
+            'opal': { name: 'Opale', icon: '🤍', power: 65, cost: 300 },
+            'garnet': { name: 'Grenat', icon: '🔴', power: 60, cost: 275 }
+        };
+
+        // État du calculator
+        let calculatorState = {
+            selectedGem: null,
+            equipment: {
+                helmet: { level: 1, slots: [] },
+                chestplate: { level: 1, slots: [] }
+            }
+        };
+
+        // Initialiser le calculator
+        function initCalculator() {
+            console.log('🔢 Initialisation du SuperCalculator');
+            loadGemsGrid();
+            updateEquipmentSlots();
+            calculateResults();
+        }
+
+        // Changer d'onglet dans le calculator
+        function switchCalculatorTab(tabId, element) {
+            // Désactiver tous les onglets
+            document.querySelectorAll('.calc-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Cacher tout le contenu
+            document.querySelectorAll('.calc-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activer l'onglet sélectionné
+            element.classList.add('active');
+            document.getElementById(tabId + '-calculator').classList.add('active');
+        }
+
+        // Charger la grille des gemmes
+        function loadGemsGrid() {
+            const gemsGrid = document.getElementById('gemsGrid');
+            if (!gemsGrid) return;
+            
+            gemsGrid.innerHTML = '';
+            
+            Object.entries(huntRoyalGems).forEach(([key, gem]) => {
+                const gemElement = document.createElement('div');
+                gemElement.className = 'gem-item';
+                gemElement.dataset.gemKey = key;
+                gemElement.onclick = () => selectGem(key, gemElement);
+                
+                gemElement.innerHTML = `
+                    <div class="gem-icon">${gem.icon}</div>
+                    <div class="gem-name">${gem.name}</div>
+                    <div class="gem-power">⚡ ${gem.power}</div>
+                `;
+                
+                gemsGrid.appendChild(gemElement);
+            });
+        }
+
+        // Sélectionner une gemme
+        function selectGem(gemKey, element) {
+            // Désélectionner toutes les gemmes
+            document.querySelectorAll('.gem-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Sélectionner la gemme cliquée
+            element.classList.add('selected');
+            calculatorState.selectedGem = gemKey;
+            
+            showToast(`💎 ${huntRoyalGems[gemKey].name} sélectionnée`, 'info');
+            calculateResults();
+        }
+
+        // Ajuster le niveau d'équipement
+        function adjustLevel(equipmentType, change) {
+            const equipment = calculatorState.equipment[equipmentType];
+            const newLevel = Math.max(1, Math.min(50, equipment.level + change));
+            
+            if (newLevel !== equipment.level) {
+                equipment.level = newLevel;
+                document.getElementById(equipmentType + '-level').textContent = `Niveau ${newLevel}`;
+                updateEquipmentSlots();
+                calculateResults();
+            }
+        }
+
+        // Mettre à jour les slots d'équipement
+        function updateEquipmentSlots() {
+            Object.entries(calculatorState.equipment).forEach(([type, equipment]) => {
+                const slotsContainer = document.getElementById(type + '-slots');
+                if (!slotsContainer) return;
+                
+                // Calculer le nombre de slots basé sur le niveau
+                const maxSlots = Math.min(6, Math.floor(equipment.level / 5) + 1);
+                
+                slotsContainer.innerHTML = '';
+                equipment.slots = equipment.slots.slice(0, maxSlots);
+                
+                for (let i = 0; i < maxSlots; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
+                    slot.dataset.slotIndex = i;
+                    slot.onclick = () => toggleSlot(type, i, slot);
+                    
+                    if (equipment.slots[i]) {
+                        slot.classList.add('filled');
+                        slot.innerHTML = huntRoyalGems[equipment.slots[i]]?.icon || '💎';
+                    } else {
+                        slot.innerHTML = '+';
+                    }
+                    
+                    slotsContainer.appendChild(slot);
+                }
+            });
+        }
+
+        // Basculer un slot (ajouter/retirer gemme)
+        function toggleSlot(equipmentType, slotIndex, slotElement) {
+            const equipment = calculatorState.equipment[equipmentType];
+            
+            if (equipment.slots[slotIndex]) {
+                // Retirer la gemme
+                equipment.slots[slotIndex] = null;
+                slotElement.classList.remove('filled');
+                slotElement.innerHTML = '+';
+            } else if (calculatorState.selectedGem) {
+                // Ajouter la gemme sélectionnée
+                equipment.slots[slotIndex] = calculatorState.selectedGem;
+                slotElement.classList.add('filled');
+                slotElement.innerHTML = huntRoyalGems[calculatorState.selectedGem].icon;
+            } else {
+                showToast('⚠️ Veuillez d\'abord sélectionner une gemme', 'warning');
+                return;
+            }
+            
+            calculateResults();
+        }
+
+        // Calculer les résultats
+        function calculateResults() {
+            let totalGems = 0;
+            let totalPower = 0;
+            let totalCost = 0;
+            
+            Object.values(calculatorState.equipment).forEach(equipment => {
+                equipment.slots.forEach(gemKey => {
+                    if (gemKey && huntRoyalGems[gemKey]) {
+                        totalGems++;
+                        totalPower += huntRoyalGems[gemKey].power;
+                        totalCost += huntRoyalGems[gemKey].cost;
+                    }
+                });
+            });
+            
+            // Bonus de niveau pour l'équipement
+            const levelBonus = Object.values(calculatorState.equipment).reduce((total, eq) => {
+                return total + (eq.level * 5);
+            }, 0);
+            
+            totalPower += levelBonus;
+            
+            // Calculer l'efficacité
+            const efficiency = totalCost > 0 ? Math.round((totalPower / totalCost) * 100) : 0;
+            
+            // Mettre à jour l'affichage
+            updateResultDisplay('total-gems', totalGems.toLocaleString());
+            updateResultDisplay('total-power', totalPower.toLocaleString());
+            updateResultDisplay('total-cost', totalCost.toLocaleString() + ' 💰');
+            updateResultDisplay('efficiency-ratio', efficiency + '%');
+        }
+
+        // Mettre à jour l'affichage d'un résultat
+        function updateResultDisplay(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value;
+            }
+        }
+
     </script>
 </body>
 </html>
