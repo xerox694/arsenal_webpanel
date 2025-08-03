@@ -1315,6 +1315,7 @@ try:
         
         return results
     
+    @app.route('/api/auth/user')
     @app.route('/api/user/info')
     def get_user_info():
         """Récupérer les infos de l'utilisateur connecté"""
