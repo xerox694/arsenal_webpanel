@@ -2043,6 +2043,41 @@ try:
             print(f"❌ Erreur ajout données test: {e}")
             return jsonify({"error": "Erreur ajout données"}), 500
 
+    # ==================== ENDPOINT SANTÉ POUR RENDER ====================
+    
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        """Endpoint de santé pour le monitoring Render"""
+        try:
+            # Vérifier la base de données
+            conn = sqlite3.connect(DATABASE_PATH)
+            cursor = conn.cursor()
+            cursor.execute('SELECT 1')
+            cursor.fetchone()
+            conn.close()
+            
+            health_status = {
+                "status": "healthy",
+                "timestamp": time.time(),
+                "database": "connected",
+                "discord_oauth": "configured" if oauth.CLIENT_ID and oauth.CLIENT_SECRET else "not_configured",
+                "version": "Arsenal_V4.2.1",
+                "uptime": "operational"
+            }
+            
+            return jsonify(health_status), 200
+            
+        except Exception as e:
+            error_status = {
+                "status": "unhealthy",
+                "timestamp": time.time(),
+                "error": str(e),
+                "database": "error",
+                "version": "Arsenal_V4.2.1"
+            }
+            
+            return jsonify(error_status), 500
+
     # ==================== LANCEMENT SERVEUR ====================
 
     if __name__ == '__main__':

@@ -1252,15 +1252,29 @@ def serve_css(filename):
     except Exception as e:
         print(f"❌ Erreur servir CSS {filename}: {e}")
         return f"Erreur CSS: {e}", 500
-        
-        # Lister le contenu du répertoire parent pour debug
-        parent_dir = os.path.dirname(script_dir)
-        if os.path.exists(parent_dir):
-            files = os.listdir(parent_dir)
-            print(f"🔍 Contenu du répertoire parent ({parent_dir}): {files}")
-        
-        # Si aucun fichier trouvé, retourner une page complète et fonctionnelle
-        print("❌ Aucun fichier HTML trouvé, utilisation de la page de fallback")
+
+# ==================== INTERFACE FALLBACK ====================
+
+def get_fallback_interface():
+    """Interface de fallback si aucun fichier HTML trouvé"""
+    print("⚠️ Utilisation de l'interface de fallback")
+    return '''
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Arsenal V4 WebPanel</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; 
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
         return '''
         <!DOCTYPE html>
         <html lang="fr">
