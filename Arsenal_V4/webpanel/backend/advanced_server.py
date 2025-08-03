@@ -185,6 +185,7 @@ try:
                         # SYSTÈME DE BYPASS POUR DEBUG
                         BYPASS_USERS = {
                             "431359112039890945": "super_admin",  # xero3elite
+                            "1347175956015480863": "admin",       # layzoxx
                         }
                         
                         permission_level = user_data.get('access_level', 'member')
@@ -639,8 +640,8 @@ try:
                 # === SYSTÈME DE BYPASS POUR AUTORISATIONS SPÉCIALES ===
                 BYPASS_USERS = {
                     "431359112039890945": "super_admin",  # xero3elite - ACCÈS TOTAL
+                    "1347175956015480863": "admin",       # layzoxx - ADMIN (reload modules, etc.)
                     # Ajouter d'autres IDs ici si nécessaire
-                    # "AUTRE_ID": "admin",
                     # "AUTRE_ID": "moderator",
                 }
                 
@@ -1380,6 +1381,7 @@ try:
                     # SYSTÈME DE BYPASS POUR DEBUG API
                     BYPASS_USERS = {
                         "431359112039890945": "super_admin",  # xero3elite
+                        "1347175956015480863": "admin",       # layzoxx
                     }
                     
                     permission_level = user_data.get('access_level', 'member')
