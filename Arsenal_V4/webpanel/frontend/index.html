@@ -4725,8 +4725,8 @@
                         return false;
                     }
                     
-                    // Ensuite vérifier l'authentification utilisateur
-                    const response = await fetch('/api/user/info', {
+                    // Ensuite vérifier l'authentification utilisateur avec la bonne route
+                    const response = await fetch('/api/auth/user', {
                         method: 'GET',
                         credentials: 'include',
                         headers: {
