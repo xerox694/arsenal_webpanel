@@ -1610,7 +1610,29 @@ def dashboard():
         return redirect('/?error=Erreur de session, veuillez vous reconnecter')
     
     # Servir l'interface dashboard depuis le frontend
-    return serve_dashboard_interface()
+    # CORRECTION CRITIQUE: Forcer index.html avec authentification
+    print("🚀 DASHBOARD FIX: Recherche index.html avec authentification...")
+    index_paths = [
+        os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html'),
+        'Arsenal_V4/webpanel/frontend/index.html',
+        '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
+    ]
+    
+    for path in index_paths:
+        try:
+            if os.path.isfile(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                # VALIDATION: Doit contenir l'authentification
+                if 'checkAuthentication' in content and 'api/auth/user' in content:
+                    print(f"✅ INDEX.HTML FORCE: {len(content)} chars avec auth")
+                    return content
+                else:
+                    print(f"⚠️ REJETÉ: {path} sans authentification")
+        except Exception as e:
+            print(f"❌ Erreur: {e}")
+    
+    return "ERREUR: Aucun index.html avec authentification", 500
 
 @app.route('/api/auth/user')
 def api_auth_user():
