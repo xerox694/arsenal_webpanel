@@ -1417,6 +1417,8 @@ try:
         print(f"✅ API user/info: Retour des données pour {session['user_info'].get('username', 'Inconnu')}")
         return jsonify({
             "success": True,
+            "authenticated": True,  # Le frontend attend cette propriété
+            "username": session['user_info'].get('username', 'Inconnu'),
             "user": session['user_info']
         })
     
