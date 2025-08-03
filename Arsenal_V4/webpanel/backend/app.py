@@ -1579,6 +1579,12 @@ def discord_callback():
     response.set_cookie('arsenal_session', session_token, max_age=7*24*60*60)  # 7 jours
     return response
 
+@app.route('/auth/discord')
+def auth_discord():
+    """Route manquante /auth/discord - Redirection vers /auth/login"""
+    print("🔄 ROUTE MANQUANTE: /auth/discord → /auth/login")
+    return redirect('/auth/login')
+
 @app.route('/dashboard')
 def dashboard():
     """Dashboard principal - nÃ©cessite une authentification"""
