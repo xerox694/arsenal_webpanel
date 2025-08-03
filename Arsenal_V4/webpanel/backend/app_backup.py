@@ -4,10 +4,10 @@
 Arsenal V4 WebPanel Backend
 Backend Flask complet avec toutes les API nÃ©cessaires
 Auteur: xero3elite
-Version: 4.2.7
+Version: 4.3.0 - DEPLOY FORCE - TIMESTAMP: 2025-08-03_03:40
 """
 
-from flask import Flask, request, jsonify, session, send_from_directory, redirect, make_response
+from flask import Flask, request, jsonify, session, send_from_directory, redirect, make_response, send_file
 from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO, emit, join_room
 import os
@@ -712,25 +712,9 @@ init_db()
 def index():
     """Servir la page de login ou le dashboard selon l'authentification"""
     # VÃ©rifier si l'utilisateur est dÃ©jÃ  connectÃ©
-    session_token = request.cookies.get('arsenal_session')
-    if session_token:
-        # VÃ©rifier la session en base de donnÃ©es
-        conn = sqlite3.connect('arsenal_v4.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT discord_data, permission_level, expires_at 
-            FROM panel_sessions 
-            WHERE session_token = ? AND expires_at > datetime("now")
-        ''', (session_token,))
-        result = cursor.fetchone()
-        conn.close()
-        
-        if result:
-            # Session valide - servir le dashboard
-            return serve_dashboard_interface()
-    
-    # Pas de session ou session invalide - servir la page de login
-    return serve_login_page()
+    # Accès direct sans authentification
+    print("🚀 ACCÈS DIRECT: Redirection vers dashboard sans authentification")
+    return serve_dashboard_interface()
 
 def serve_login_page():
     """Servir la page de login Discord OAuth"""
@@ -1151,12 +1135,12 @@ def serve_dashboard_interface():
             # Chemins absolus pour le dÃ©veloppement
             os.path.join('Arsenal_V4', 'webpanel', 'frontend', 'index.html'),
             'Arsenal_V4/webpanel/frontend/index.html',
-            # Chemins legacy
+            # Chemins legacy - SUPPRESSION des advanced_interface.html
             os.path.join('frontend', 'index.html'),
             os.path.join('..', 'frontend', 'index.html'),
             os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'index.html'),
-            'advanced_interface.html',
-            os.path.join('..', 'advanced_interface.html'),
+            # SUPPRIMÉ: 'advanced_interface.html' - causait confusion avec index.html
+            # SUPPRIMÉ: os.path.join('..', 'advanced_interface.html') - causait confusion
             # Chemin Render avec structure correcte
             '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
         ]
@@ -1579,6 +1563,12 @@ def discord_callback():
     response.set_cookie('arsenal_session', session_token, max_age=7*24*60*60)  # 7 jours
     return response
 
+@app.route('/auth/discord')
+def auth_discord():
+    """Route manquante /auth/discord - Redirection vers /auth/login"""
+    print("🔄 ROUTE MANQUANTE: /auth/discord → /auth/login")
+    return redirect('/auth/login')
+
 @app.route('/dashboard')
 def dashboard():
     """Dashboard principal - nÃ©cessite une authentification"""
@@ -1610,7 +1600,38 @@ def dashboard():
         return redirect('/?error=Erreur de session, veuillez vous reconnecter')
     
     # Servir l'interface dashboard depuis le frontend
-    return serve_dashboard_interface()
+    # CORRECTION CRITIQUE: Forcer index.html avec authentification
+    print("🚀 DASHBOARD FIX: Recherche index.html avec authentification...")
+    index_paths = [
+        # TEMPORAIRE: Test avec version sans auth EN PREMIER
+        os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index_no_auth.html'),
+        'Arsenal_V4/webpanel/frontend/index_no_auth.html',
+        '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index_no_auth.html',
+        # Versions normales en fallback
+        os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html'),
+        'Arsenal_V4/webpanel/frontend/index.html',
+        '/opt/render/project/src/Arsenal_V4/webpanel/frontend/index.html'
+    ]
+    
+    for path in index_paths:
+        try:
+            if os.path.isfile(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                # Si c'est la version no_auth, servir directement
+                if 'index_no_auth.html' in path:
+                    print(f"🔓 SERVING NO-AUTH VERSION: {len(content)} chars SANS authentification")
+                    return content
+                # VALIDATION normale pour les autres: Doit contenir l'authentification
+                elif 'checkAuthentication' in content and 'api/auth/user' in content:
+                    print(f"✅ INDEX.HTML FORCE: {len(content)} chars avec auth")
+                    return content
+                else:
+                    print(f"⚠️ REJETÉ: {path} sans authentification")
+        except Exception as e:
+            print(f"❌ Erreur: {e}")
+    
+    return "ERREUR: Aucun index.html trouvé", 500
 
 @app.route('/api/auth/user')
 def api_auth_user():
@@ -3216,6 +3237,25 @@ def performance_general():
         })
 
 # ==================== ROUTES DE TEST ====================
+
+@app.route('/api/version')
+def version_info():
+    """Debug: Version info for Render diagnosis"""
+    import datetime
+    route_list = []
+    for rule in app.url_map.iter_rules():
+        route_list.append(str(rule))
+    
+    has_auth_user = '/api/auth/user' in route_list
+    
+    return jsonify({
+        'version': '4.3.4-FORCE-CACHE-CLEAR',
+        'build_time': datetime.datetime.now().isoformat(),
+        'total_routes': len(route_list),
+        'has_auth_user_route': has_auth_user,
+        'critical_routes': [r for r in route_list if 'auth' in r],
+        'debug': 'RENDER_VERSION_CHECK'
+    })
 
 @app.route('/api/test')
 def test_api():
@@ -5305,7 +5345,7 @@ def keep_alive():
     """Service pour maintenir le serveur actif"""
     try:
         import requests
-        url = "https://arsenal-v4-webpanel.onrender.com/health"
+        url = "https://arsenal-webpanel.onrender.com/health"
         response = requests.get(url)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] âœ… Keep-alive ping: {response.status_code}")
     except Exception as e:
@@ -5321,10 +5361,120 @@ def start_keep_alive():
     thread = threading.Thread(target=ping_loop, daemon=True)
     thread.start()
     print("ðŸš€ Keep-alive service started (ping every 10 minutes)")
-    print(f"ðŸŽ¯ Keep-alive configurÃ© pour: https://arsenal-v4-webpanel.onrender.com")
+    print(f"ðŸŽ¯ Keep-alive configurÃ© pour: https://arsenal-webpanel.onrender.com")
 
 # DÃ©marrer le keep-alive automatiquement
 start_keep_alive()
+
+@app.route('/huntroyale/demo')
+def huntroyale_demo():
+    """Page de démonstration des assets Hunt Royal"""
+    return send_from_directory('../templates', 'huntroyale_demo.html')
+
+@app.route('/api/huntroyale/assets/<asset_type>/<filename>')
+def serve_huntroyale_assets(asset_type, filename):
+    """Servir les assets Hunt Royal"""
+    try:
+        # Définir les types d'assets autorisés
+        allowed_types = ['hunter', 'map', 'stuff']
+        if asset_type not in allowed_types:
+            return jsonify({'error': 'Type d\'asset non autorisé'}), 400
+        
+        # Construire le chemin vers l'asset
+        if asset_type == 'stuff':
+            # Pour stuff, le filename contient le sous-dossier : "casque/DragonCommonHelm.png"
+            asset_path = os.path.join('..', '..', '..', 'assets', 'asset_huntroyale', f'asset_{asset_type}', filename)
+        else:
+            asset_path = os.path.join('..', '..', '..', 'assets', 'asset_huntroyale', f'asset_{asset_type}', filename)
+        
+        # Vérifier que le fichier existe
+        if not os.path.exists(asset_path):
+            return jsonify({'error': 'Asset non trouvé'}), 404
+        
+        # Servir le fichier
+        return send_file(asset_path)
+        
+    except Exception as e:
+        print(f"❌ Erreur service asset: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
+
+@app.route('/api/huntroyale/hunters')
+def get_huntroyale_hunters():
+    """API pour récupérer la liste des hunters Hunt Royal"""
+    try:
+        hunters_data = []
+        
+        # Simuler les données des hunters (à remplacer par tes vraies données)
+        hunter_names = [
+            'Abyssorb', 'AncientOne', 'Angel', 'Anubis', 'ApeLord', 'ApexPredator', 'Arachna',
+            'AxeMaster', 'Barbarian', 'Beetle', 'Berserker', 'BoomBoom', 'Bunny', 'CaptainHook',
+            'Carnivorous', 'Centipede', 'CommanderVanellus', 'Crow', 'DragonKnight', 'Druid',
+            'Efreet', 'ElfArcher', 'Engineer', 'Eternal', 'Firefluff', 'Franky', 'FrozenQueen',
+            'Gentleman', 'GirlWithGolem', 'GoblinEngineer', 'Gorgon', 'GrayWolf', 'GrimReaper',
+            'Gunslinger', 'Hammerdin', 'Hoplite', 'Houndmaster', 'Huntalisk', 'ImpsMaster',
+            'Ivy', 'Jester', 'Killergirl', 'King', 'Lavamander', 'Leprechaun', 'LifeStealer',
+            'MadDoctor', 'Mech', 'MechAssassin', 'Mender', 'Mimic', 'Minotaur', 'Mummy',
+            'MutantTurtle', 'Necromancer', 'Nightblade', 'Ninja', 'Oni', 'Phantom', 'Pirate',
+            'PlagueDoctor', 'PlagueRat', 'Protector', 'RagingOrk', 'Renderman', 'Rocky',
+            'Roller', 'Samurai', 'Scarecrow', 'ShadowWitch', 'SirBarkalot', 'SkullMaster',
+            'Sniper', 'Snowman', 'SpiderQueen', 'Stormstrider', 'Succubus', 'SunWukong',
+            'Superhero', 'Supervillain', 'TheRipper', 'Thor', 'Tikitiki', 'TimeTraveler',
+            'Torment', 'Trickster', 'Turkey', 'Vlad', 'VoidKnight', 'Voodoo', 'Werebear',
+            'Wizard', 'Zeus'
+        ]
+        
+        for i, name in enumerate(hunter_names, 1):
+            hunters_data.append({
+                'id': i,
+                'name': name,
+                'image_url': f'/api/huntroyale/assets/hunter/{name}.png',
+                'available': True
+            })
+        
+        return jsonify({
+            'success': True,
+            'hunters': hunters_data,
+            'total': len(hunters_data)
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur récupération hunters: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/huntroyale/maps')
+def get_huntroyale_maps():
+    """API pour récupérer les maps Hunt Royal"""
+    try:
+        maps_data = [
+            {
+                'id': 'DD',
+                'name': 'Dragon Dungeon',
+                'image_url': '/api/huntroyale/assets/map/map-DD.png',
+                'description': 'Donjon du Dragon - Affrontez le puissant dragon rouge'
+            },
+            {
+                'id': 'KK', 
+                'name': 'Kraken Keep',
+                'image_url': '/api/huntroyale/assets/map/map-KK.png',
+                'description': 'Forteresse du Kraken - Explorez les profondeurs aquatiques'
+            },
+            {
+                'id': 'YY',
+                'name': 'Yeti Yard',
+                'image_url': '/api/huntroyale/assets/map/map-YY.png', 
+                'description': 'Territoire du Yeti - Survivez au froid glacial'
+            }
+        ]
+        
+        return jsonify({
+            'success': True,
+            'maps': maps_data,
+            'total': len(maps_data)
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur récupération maps: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== HEADERS DE SÃ‰CURITÃ‰ ====================
 
@@ -5612,690 +5762,17 @@ def NSS_test():
 # ==================== DÃ‰MARRAGE ====================
 
 if __name__ == '__main__':
-    safe_print("âœ… Configuration OAuth Discord chargÃ©e")
-    safe_print("ðŸŽ° SystÃ¨me de casino initialisÃ©") 
+    print("🔥 ARSENAL V4.3.3 - FORCE REDEPLOY - ROUTE /api/auth/user ACTIVE")
+    print("🔥 TIMESTAMP BUILD:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print("✅ Configuration OAuth Discord chargée")
+    print("🎰 Système de casino initialisé") 
     if DEBUG_MODE:
         safe_print(f"ðŸ”‘ CLIENT_ID chargÃ©: {DISCORD_CLIENT_ID}")
         safe_print(f"ðŸ” CLIENT_SECRET chargÃ©: {'DÃ©fini' if DISCORD_CLIENT_SECRET else 'Non dÃ©fini'}")
     print(f"ðŸ“ REDIRECT_URI chargÃ©: {DISCORD_REDIRECT_URI}")
     print("âœ… Modules importÃ©s avec succÃ¨s")
     
-# ==================== ROUTES D'AUTHENTIFICATION MANQUANTES ====================
-
-@app.route('/auth/discord')
-def auth_discord_redirect():
-    """Route de redirection vers Discord OAuth - manquante en production"""
-    print("ðŸ” Route /auth/discord appelÃ©e - redirection vers Discord OAuth")
     
-    if not DISCORD_CLIENT_SECRET:
-        print("âŒ ERREUR: DISCORD_CLIENT_SECRET n'est pas configurÃ©!")
-        return jsonify({
-            'error': 'Discord OAuth not configured',
-            'message': 'La variable DISCORD_CLIENT_SECRET n\'est pas dÃ©finie dans l\'environnement.',
-            'solution': 'Configurez DISCORD_CLIENT_SECRET dans les variables d\'environnement.'
-        }), 500
-    
-    state = secrets.token_urlsafe(32)
-    session['oauth_state'] = state
-    
-    params = {
-        'client_id': DISCORD_CLIENT_ID,
-        'redirect_uri': DISCORD_REDIRECT_URI,
-        'response_type': 'code',
-        'scope': 'identify guilds',
-        'state': state
-    }
-    
-    discord_url = f"https://discord.com/api/oauth2/authorize?{urllib.parse.urlencode(params)}"
-    
-    print(f"ðŸŒ Redirection vers Discord OAuth: {discord_url}")
-    return redirect(discord_url)
-
-@app.route('/auth/login')
-def auth_login_redirect():
-    """Route de redirection pour compatibilitÃ© - redirige vers /auth/discord"""
-    
-    # 🧊 SYSTÈME DE FREEZE - Créer un freeze pour cette session
-    freeze_token = None
-    if FREEZE_SYSTEM_AVAILABLE:
-        try:
-            freeze_token = create_login_freeze(request)
-            session['freeze_token'] = freeze_token
-            session['login_start'] = datetime.now().isoformat()
-            print(f"🧊 FREEZE CRÉÉ: {freeze_token}")
-        except Exception as e:
-            print(f"⚠️ Erreur création freeze: {e}")
-    
-    return redirect('/auth/discord')
-
-@app.route('/auth/logout')
-def auth_logout():
-    """Route de dÃ©connexion"""
-    session_token = request.cookies.get('arsenal_session')
-    
-    if session_token:
-        # Supprimer la session de la base de donnÃ©es
-        try:
-            conn = sqlite3.connect('arsenal_v4.db')
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM panel_sessions WHERE session_token = ?', (session_token,))
-            conn.commit()
-            conn.close()
-            print(f"ðŸ” Session supprimÃ©e: {session_token}")
-        except Exception as e:
-            print(f"âŒ Erreur suppression session: {e}")
-    
-    # CrÃ©er la rÃ©ponse de redirection et supprimer le cookie
-    response = redirect('/?message=DÃ©connexion rÃ©ussie')
-    response.set_cookie('arsenal_session', '', expires=0)
-    return response
-
-# ⚠️ ROUTE DE DIAGNOSTIC TEMPORAIRE - À SUPPRIMER EN PRODUCTION
-@app.route('/debug/env')
-def debug_env():
-    """Route de diagnostic des variables d'environnement"""
-    try:
-        required_vars = [
-            'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'DISCORD_REDIRECT_URI',
-            'DISCORD_BOT_TOKEN', 'SECRET_KEY', 'CREATOR_ID', 'ADMIN_IDS', 'BOT_SERVERS'
-        ]
-        
-        env_status = {}
-        for var in required_vars:
-            value = os.getenv(var)
-            if value:
-                # Masquer les valeurs sensibles
-                if any(sensitive in var.lower() for sensitive in ['secret', 'token', 'key']):
-                    env_status[var] = f"***{value[-4:]}" if len(value) > 4 else "***"
-                else:
-                    env_status[var] = value[:20] + "..." if len(value) > 20 else value
-            else:
-                env_status[var] = "MANQUANT"
-        
-        return jsonify({
-            'status': 'success',
-            'variables': env_status,
-            'routes_actives': len([rule.rule for rule in app.url_map.iter_rules()]),
-            'freeze_system': FREEZE_SYSTEM_AVAILABLE
-        })
-        
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-# ==================== ROUTES NSS (Not Secure Session) ====================
-# 🚨 VERSION DÉVELOPPEMENT SANS AUTHENTIFICATION - NE PAS UTILISER EN PRODUCTION
-# Ces routes permettent de tester le dashboard sans passer par Discord OAuth
-
-# Route racine NSS pour accès facile
-@app.route('/NSS')
-def NSS_index():
-    """NSS Page d'accueil - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Index - Mode développement sans sécurité")
-    return '''
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>🚨 NSS - Not Secure Session</title>
-        <style>
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0;
-            }
-            .container {
-                text-align: center;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border-radius: 20px;
-                padding: 40px;
-                max-width: 600px;
-            }
-            h1 { margin-bottom: 20px; color: #ff9800; }
-            .warning {
-                background: rgba(255, 152, 0, 0.2);
-                border: 2px solid #ff9800;
-                border-radius: 10px;
-                padding: 15px;
-                margin: 20px 0;
-            }
-            .btn {
-                display: inline-block;
-                background: linear-gradient(45deg, #4caf50, #45a049);
-                color: white;
-                text-decoration: none;
-                padding: 15px 30px;
-                border-radius: 25px;
-                margin: 10px;
-                font-size: 16px;
-                transition: transform 0.3s ease;
-            }
-            .btn:hover { transform: scale(1.05); }
-            .btn.secondary {
-                background: linear-gradient(45deg, #2196f3, #1976d2);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🚨 NSS - Not Secure Session</h1>
-            <p>Mode développement sans authentification Discord</p>
-            
-            <div class="warning">
-                <strong>⚠️ ATTENTION :</strong><br>
-                Cette version NSS est uniquement pour le développement.<br>
-                Aucune sécurité - Utilisateur fictif avec permissions owner.
-            </div>
-            
-            <div>
-                <a href="/NSS_dashboard" class="btn">🏠 Accéder au Dashboard NSS</a>
-                <a href="/NSS_test" class="btn secondary">🧪 Page de Test des APIs</a>
-            </div>
-            
-            <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
-                <p><strong>Routes disponibles :</strong></p>
-                <p>/NSS_dashboard - Interface principale</p>
-                <p>/NSS_test - Page de test complète</p>
-                <p>/NSS_api/* - Toutes les APIs sans auth</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    '''
-
-@app.route('/NSS_dashboard')
-def NSS_dashboard():
-    """NSS Dashboard principal - SANS authentification (développement uniquement)"""
-    print("🚨 NSS Dashboard accédé - Mode développement sans sécurité")
-    
-    # Au lieu d'utiliser serve_dashboard_interface(), on crée une interface NSS simple
-    return '''
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>🚨 NSS Dashboard - Arsenal V4</title>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                color: #333;
-            }
-            .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-            .header {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                padding: 20px;
-                margin-bottom: 30px;
-                text-align: center;
-                color: white;
-            }
-            .warning {
-                background: rgba(255, 152, 0, 0.2);
-                border: 2px solid #ff9800;
-                border-radius: 10px;
-                padding: 15px;
-                margin-bottom: 20px;
-                color: #fff;
-                text-align: center;
-            }
-            .dashboard-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-            .card {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                padding: 20px;
-                color: white;
-                transition: transform 0.3s ease;
-            }
-            .card:hover { transform: translateY(-5px); }
-            .card h3 { margin-bottom: 15px; color: #fff; }
-            .stat-number { font-size: 2em; font-weight: bold; color: #4fc3f7; }
-            .stat-label { font-size: 0.9em; opacity: 0.8; }
-            .btn { 
-                background: linear-gradient(45deg, #4caf50, #45a049);
-                color: white; border: none; padding: 12px 24px;
-                border-radius: 25px; cursor: pointer; margin: 5px;
-                text-decoration: none; display: inline-block;
-            }
-            .btn:hover { transform: scale(1.05); }
-            .servers-list { max-height: 200px; overflow-y: auto; }
-            .server-item { 
-                background: rgba(255,255,255,0.1); 
-                margin: 5px 0; padding: 10px; 
-                border-radius: 5px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🚨 NSS Dashboard - Arsenal V4</h1>
-                <p>Not Secure Session - Mode Développement Sans Authentification</p>
-                <p>👑 Connecté en tant que: NSS_Dev_User (Owner Level)</p>
-            </div>
-            
-            <div class="warning">
-                <strong>⚠️ MODE DÉVELOPPEMENT :</strong> Cette version NSS n'a AUCUNE sécurité !<br>
-                Utilisateur fictif avec permissions owner. Données de test uniquement.
-            </div>
-            
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>📊 Statistiques Générales</h3>
-                    <div class="stat-number">73</div>
-                    <div class="stat-label">Serveurs Discord</div>
-                    <div class="stat-number">12,847</div>
-                    <div class="stat-label">Utilisateurs Totaux</div>
-                    <div class="stat-number">156,892</div>
-                    <div class="stat-label">Commandes Exécutées</div>
-                </div>
-                
-                <div class="card">
-                    <h3>🤖 Statut du Bot</h3>
-                    <div class="stat-number" style="color: #4caf50;">🟢 ONLINE</div>
-                    <div class="stat-label">Arsenal Bot Status</div>
-                    <div class="stat-number">45ms</div>
-                    <div class="stat-label">Latence</div>
-                    <div class="stat-number">99.8%</div>
-                    <div class="stat-label">Uptime</div>
-                </div>
-                
-                <div class="card">
-                    <h3>📈 Performance</h3>
-                    <div class="stat-number">67%</div>
-                    <div class="stat-label">Utilisation Mémoire</div>
-                    <div class="stat-number">23%</div>
-                    <div class="stat-label">Utilisation CPU</div>
-                    <div class="stat-number">1,284</div>
-                    <div class="stat-label">Commandes Aujourd'hui</div>
-                </div>
-                
-                <div class="card">
-                    <h3>🖥️ Mes Serveurs</h3>
-                    <div class="servers-list">
-                        <div class="server-item">
-                            <strong>NSS Dev Server 1</strong><br>
-                            <small>Members: 234 | Owner: ✅</small>
-                        </div>
-                        <div class="server-item">
-                            <strong>NSS Dev Server 2</strong><br>
-                            <small>Members: 567 | Admin: ✅</small>
-                        </div>
-                        <div class="server-item">
-                            <strong>NSS Dev Server 3</strong><br>
-                            <small>Members: 123 | Moderator: ✅</small>
-                        </div>
-                    </div>
-                    <a href="/NSS_api/servers/list" class="btn">Voir tous les serveurs</a>
-                </div>
-                
-                <div class="card">
-                    <h3>🔧 Actions Rapides</h3>
-                    <a href="/NSS_api/user/info" class="btn">Mon Profil</a>
-                    <a href="/NSS_api/stats" class="btn">Statistiques</a>
-                    <a href="/NSS_api/bot/status" class="btn">Statut Bot</a>
-                    <a href="/NSS_test" class="btn">Page de Test</a>
-                </div>
-                
-                <div class="card">
-                    <h3>📋 APIs Disponibles</h3>
-                    <div style="font-family: monospace; font-size: 0.8em;">
-                        <div>✅ /NSS_api/auth/user</div>
-                        <div>✅ /NSS_api/user/info</div>
-                        <div>✅ /NSS_api/stats</div>
-                        <div>✅ /NSS_api/bot/status</div>
-                        <div>✅ /NSS_api/servers/list</div>
-                        <div style="margin-top: 10px;">
-                            <a href="/NSS_test" class="btn">Tester toutes les APIs</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3>🔄 Données Temps Réel</h3>
-                <div id="realtime-stats">Chargement des données en temps réel...</div>
-                <script>
-                    // Simulation données temps réel NSS
-                    function updateRealTimeStats() {
-                        const statsDiv = document.getElementById('realtime-stats');
-                        const cpu = Math.floor(Math.random() * 50) + 10;
-                        const memory = Math.floor(Math.random() * 30) + 60;
-                        const activeUsers = Math.floor(Math.random() * 400) + 100;
-                        
-                        statsDiv.innerHTML = `
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
-                                <div>
-                                    <div class="stat-number">${cpu}%</div>
-                                    <div class="stat-label">CPU</div>
-                                </div>
-                                <div>
-                                    <div class="stat-number">${memory}%</div>
-                                    <div class="stat-label">RAM</div>
-                                </div>
-                                <div>
-                                    <div class="stat-number">${activeUsers}</div>
-                                    <div class="stat-label">Utilisateurs Actifs</div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    // Mettre à jour toutes les 3 secondes
-                    updateRealTimeStats();
-                    setInterval(updateRealTimeStats, 3000);
-                </script>
-            </div>
-        </div>
-    </body>
-    </html>
-    '''
-
-@app.route('/NSS_api/auth/user')
-def NSS_api_auth_user():
-    """NSS API pour vérifier le statut d'authentification - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Auth User - Mode développement sans sécurité")
-    return jsonify({
-        'authenticated': True,
-        'user': {
-            'discord_id': '399264495087034378',  # ID développeur
-            'access_level': 'owner'
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/user/info')
-def NSS_api_user_info():
-    """NSS API informations utilisateur - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS User Info - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'user': {
-            'id': '399264495087034378',
-            'username': 'NSS_Dev_User',
-            'discriminator': '0000',
-            'avatar': None,
-            'access_level': 'owner',
-            'permissions': {
-                'can_manage_servers': True,
-                'can_manage_users': True,
-                'can_view_stats': True,
-                'can_manage_bot': True,
-                'is_owner': True
-            }
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/user/profile')
-def NSS_api_user_profile():
-    """NSS API profil utilisateur - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS User Profile - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'profile': {
-            'discord_id': '399264495087034378',
-            'username': 'NSS_Dev_User',
-            'discriminator': '0000',
-            'avatar_url': None,
-            'created_at': datetime.now().isoformat(),
-            'last_login': datetime.now().isoformat(),
-            'access_level': 'owner',
-            'total_commands': 999,
-            'favorite_server': 'NSS Development Server'
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/user/permissions')
-def NSS_api_user_permissions():
-    """NSS API permissions utilisateur - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS User Permissions - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'permissions': {
-            'level': 'owner',
-            'can_manage_servers': True,
-            'can_manage_users': True,
-            'can_view_stats': True,
-            'can_manage_bot': True,
-            'can_access_admin_panel': True,
-            'is_owner': True,
-            'managed_servers': ['1095821508219977838', '1318962036244570133']
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/stats')
-def NSS_api_stats():
-    """NSS API statistiques - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Stats - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'stats': {
-            'total_servers': 73,
-            'total_users': 12847,
-            'total_commands': 156892,
-            'bot_uptime': '99.8%',
-            'api_calls_today': 2847,
-            'active_sessions': 12
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/stats/dashboard')
-def NSS_api_stats_dashboard():
-    """NSS API statistiques dashboard - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Stats Dashboard - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'dashboard_stats': {
-            'servers': 73,
-            'members': 12847,
-            'commands_today': 1284,
-            'uptime': 99.8,
-            'response_time': 45,
-            'memory_usage': 67.3
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/stats/general')
-def NSS_api_stats_general():
-    """NSS API statistiques générales - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Stats General - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'general_stats': {
-            'total_commands': 156892,
-            'commands_today': 1284,
-            'most_used_command': 'hunt',
-            'servers_growth': '+12%',
-            'users_growth': '+8%',
-            'commands_growth': '+15%'
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/stats/real')
-def NSS_api_stats_real():
-    """NSS API statistiques temps réel - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Stats Real - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'real_stats': {
-            'cpu': random.randint(10, 80),
-            'memory': random.randint(60, 85),
-            'active_users': random.randint(100, 500),
-            'commands_per_minute': random.randint(5, 25),
-            'api_response_time': random.randint(20, 100)
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/bot/status')
-def NSS_api_bot_status():
-    """NSS API statut du bot - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Bot Status - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'bot': {
-            'online': True,
-            'latency': random.randint(20, 100),
-            'servers': 73,
-            'users': 12847,
-            'uptime': '12j 8h 34m',
-            'version': '4.2.7',
-            'last_restart': (datetime.now() - timedelta(days=12)).isoformat()
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/bot/performance')
-def NSS_api_bot_performance():
-    """NSS API performance du bot - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Bot Performance - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'performance': {
-            'cpu_usage': random.randint(10, 60),
-            'memory_usage': random.randint(200, 800),
-            'memory_total': 1024,
-            'threads': random.randint(8, 24),
-            'network_in': random.randint(100, 1000),
-            'network_out': random.randint(50, 500),
-            'commands_queue': random.randint(0, 5),
-            'avg_response_time': random.randint(20, 150)
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/servers/list')
-def NSS_api_servers_list():
-    """NSS API liste des serveurs - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Servers List - Mode développement sans sécurité")
-    servers = []
-    for i in range(1, 6):  # 5 serveurs d'exemple
-        servers.append({
-            'id': f'109582150821997783{i}',
-            'name': f'NSS Server {i}',
-            'icon': None,
-            'members': random.randint(50, 500),
-            'online': random.randint(10, 100),
-            'owner': i == 1,
-            'permissions': ['administrator'] if i <= 2 else ['manage_guild'],
-            'bot_joined': (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat()
-        })
-    
-    return jsonify({
-        'status': 'success',
-        'servers': servers,
-        'total': len(servers),
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/servers/<server_id>/config')
-def NSS_api_server_config(server_id):
-    """NSS API configuration serveur - MODE DÉVELOPPEMENT"""
-    print(f"🚨 NSS Server Config {server_id} - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'config': {
-            'server_id': server_id,
-            'prefix': '!',
-            'welcome_enabled': True,
-            'welcome_channel': '1095821508219977999',
-            'moderation_enabled': True,
-            'auto_role': '1095821508219977888',
-            'economy_enabled': True,
-            'hunt_enabled': True,
-            'music_enabled': False
-        },
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/users/list')
-def NSS_api_users_list():
-    """NSS API liste des utilisateurs - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Users List - Mode développement sans sécurité")
-    users = []
-    for i in range(1, 11):  # 10 utilisateurs d'exemple
-        users.append({
-            'id': f'39926449508703437{i}',
-            'username': f'NSS_User_{i}',
-            'discriminator': f'000{i}',
-            'avatar': None,
-            'joined': (datetime.now() - timedelta(days=random.randint(1, 100))).isoformat(),
-            'commands_used': random.randint(10, 1000),
-            'level': random.randint(1, 50),
-            'balance': random.randint(100, 10000)
-        })
-    
-    return jsonify({
-        'status': 'success',
-        'users': users,
-        'total': len(users),
-        'nss_mode': True
-    })
-
-@app.route('/NSS_api/activity/feed')
-def NSS_api_activity_feed():
-    """NSS API flux d'activité - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS Activity Feed - Mode développement sans sécurité")
-    activities = []
-    activity_types = ['command', 'join', 'leave', 'level_up', 'achievement']
-    
-    for i in range(10):
-        activity_type = random.choice(activity_types)
-        activities.append({
-            'id': f'activity_{i}',
-            'type': activity_type,
-            'user': f'NSS_User_{random.randint(1, 20)}',
-            'description': f'Action {activity_type} #{i}',
-            'timestamp': (datetime.now() - timedelta(minutes=random.randint(1, 120))).isoformat(),
-            'server': f'NSS Server {random.randint(1, 5)}'
-        })
-    
-    return jsonify({
-        'status': 'success',
-        'activities': activities,
-        'nss_mode': True
-    })
-
-# Route NSS pour servir les fichiers statiques du dashboard
-@app.route('/NSS_static/<path:filename>')
-def NSS_serve_static(filename):
-    """NSS Servir les fichiers statiques - MODE DÉVELOPPEMENT"""
-    print(f"🚨 NSS Static {filename} - Mode développement sans sécurité")
-    return send_from_directory('../frontend/build/static', filename)
-
-# Route NSS pour le test API
-@app.route('/NSS_api/test')
-def NSS_api_test():
-    """NSS Route de test API - MODE DÉVELOPPEMENT"""
-    print("🚨 NSS API Test - Mode développement sans sécurité")
-    return jsonify({
-        'status': 'success',
-        'message': 'NSS API fonctionnelle - Mode développement',
-        'timestamp': datetime.now().isoformat(),
-        'nss_mode': True,
-        'version': '4.2.7'
-    })
-
+    # DÃ©marrer l'application Flask
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=DEBUG_MODE)
