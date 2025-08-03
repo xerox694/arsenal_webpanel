@@ -4,7 +4,7 @@
 Arsenal V4 WebPanel Backend
 Backend Flask complet avec toutes les API nÃ©cessaires
 Auteur: xero3elite
-Version: 4.2.8 - Routes Hunt Royal + NSS intégrées
+Version: 4.2.9 - FORCE RESTART - Routes complètes OK
 """
 
 from flask import Flask, request, jsonify, session, send_from_directory, redirect, make_response, send_file
