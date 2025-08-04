@@ -87,6 +87,16 @@ def dashboard():
     """Dashboard principal intégré"""
     return render_template('dashboard.html')
 
+@app.route('/frontend/<path:filename>')
+def serve_frontend_files(filename):
+    """Servir les fichiers HTML du frontend"""
+    try:
+        frontend_path = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend')
+        return send_from_directory(frontend_path, filename)
+    except Exception as e:
+        print(f"❌ Erreur lors du service du fichier {filename}: {e}")
+        return jsonify({'error': f'Fichier non trouvé: {filename}'}), 404
+
 # ==================== API ROUTES ====================
 
 @app.route('/api/bot/status')

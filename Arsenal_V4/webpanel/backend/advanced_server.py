@@ -245,6 +245,49 @@ try:
         except Exception as e:
             print(f"❌ Erreur fichier statique: {e}")
             return jsonify({"error": "Fichier non trouvé"}), 404
+
+    @app.route('/api/pages/<page_name>')
+    def load_page_content(page_name):
+        """Charger le contenu d'une page HTML spécifique"""
+        try:
+            # Vérifier que le nom de la page est sécurisé
+            allowed_pages = [
+                'dashboard', 'analytics', 'realtime', 'servers', 'users', 'commands',
+                'automod', 'security', 'games', 'backup', 'bridges', 'hub',
+                'botinfo', 'help', 'performance', 'database'
+            ]
+            
+            if page_name not in allowed_pages:
+                return jsonify({"error": "Page non autorisée"}), 403
+            
+            # Construire le chemin vers le fichier HTML
+            page_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', f'{page_name}.html')
+            
+            if os.path.exists(page_path):
+                with open(page_path, 'r', encoding='utf-8') as f:
+                    full_content = f.read()
+                
+                # Extraire seulement le contenu du body si c'est un fichier HTML complet
+                import re
+                body_match = re.search(r'<body[^>]*>(.*?)</body>', full_content, re.DOTALL | re.IGNORECASE)
+                if body_match:
+                    content = body_match.group(1).strip()
+                else:
+                    # Si pas de balise body, prendre tout le contenu
+                    content = full_content
+                
+                # Nettoyer le contenu des scripts et styles externes si nécessaire
+                # Garder seulement le contenu principal
+                cleaned_content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+                cleaned_content = re.sub(r'<style[^>]*>.*?</style>', '', cleaned_content, flags=re.DOTALL | re.IGNORECASE)
+                
+                return jsonify({"content": cleaned_content, "page": page_name})
+            else:
+                return jsonify({"error": "Page non trouvée"}), 404
+                
+        except Exception as e:
+            print(f"❌ Erreur chargement page {page_name}: {e}")
+            return jsonify({"error": f"Erreur serveur: {str(e)}"}), 500
     
     @app.route('/debug')
     def debug_info():

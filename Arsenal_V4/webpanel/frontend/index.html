@@ -5893,59 +5893,91 @@
             }
         });
 
-        // Show Page
+        // Show Page - Version améliorée avec chargement dynamique
         async function showPage(pageId, menuElement) {
-            // Hide all pages
-            document.querySelectorAll('.content-page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Show selected page or create default content
-            let targetPage = document.getElementById(pageId);
-            if (!targetPage) {
-                // Create page if it doesn't exist
-                targetPage = createPage(pageId);
-            }
-            targetPage.classList.add('active');
-            
-            // Update active menu item
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Find and activate the clicked menu item
-            if (menuElement) {
-                menuElement.classList.add('active');
-            } else {
-                // Fallback: find menu item by onclick attribute
-                const menuItems = document.querySelectorAll('.menu-item');
-                menuItems.forEach(item => {
-                    const onclick = item.getAttribute('onclick');
-                    if (onclick && onclick.includes(pageId)) {
-                        item.classList.add('active');
-                    }
+            try {
+                // Hide all pages
+                document.querySelectorAll('.content-page').forEach(page => {
+                    page.classList.remove('active');
                 });
+                
+                // Show selected page or create default content
+                let targetPage = document.getElementById(pageId);
+                if (!targetPage) {
+                    // Create page container if it doesn't exist
+                    targetPage = document.createElement('div');
+                    targetPage.className = 'content-page';
+                    targetPage.id = pageId;
+                    document.getElementById('mainContent').appendChild(targetPage);
+                }
+                
+                // Afficher la page immédiatement avec un loader
+                targetPage.classList.add('active');
+                targetPage.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #00ff88;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2em; margin-bottom: 20px;"></i>
+                        <div style="font-size: 1.2em;">Chargement de ${pageId}...</div>
+                    </div>
+                `;
+                
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Find and activate the clicked menu item
+                if (menuElement) {
+                    menuElement.classList.add('active');
+                } else {
+                    // Fallback: find menu item by onclick attribute
+                    const menuItems = document.querySelectorAll('.menu-item');
+                    menuItems.forEach(item => {
+                        const onclick = item.getAttribute('onclick');
+                        if (onclick && onclick.includes(pageId)) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768 && sidebarOpen) {
+                    closeSidebar();
+                }
+                
+                // Essayer de charger le contenu depuis un fichier HTML externe
+                try {
+                    const response = await fetch(`/api/pages/${pageId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        targetPage.innerHTML = data.content;
+                        console.log(`✅ Page ${pageId} chargée depuis fichier HTML`);
+                        showToast(`📄 ${pageId} chargé avec succès`, 'success');
+                    } else {
+                        throw new Error('Fichier HTML non trouvé');
+                    }
+                } catch (error) {
+                    // Fallback vers la création de page dynamique
+                    console.log(`⚠️ Fichier HTML non trouvé pour ${pageId}, utilisation du contenu par défaut`);
+                    targetPage.innerHTML = createPage(pageId).innerHTML;
+                }
+                
+                // Load page-specific data
+                await loadPageData(pageId);
+                
+                console.log('📄 Page affichée:', pageId);
+            } catch (error) {
+                console.error('❌ Erreur affichage page:', error);
+                showToast('❌ Erreur chargement page', 'error');
             }
-            
-            // Close sidebar on mobile
-            if (window.innerWidth <= 768 && sidebarOpen) {
-                closeSidebar();
-            }
-            
-            // Load page-specific data
-            await loadPageData(pageId);
-            
-            console.log('📄 Page affichée:', pageId);
         }
 
-        // Create missing pages dynamically
+        // Create missing pages dynamically (utilisé comme fallback)
         function createPage(pageId) {
-            const mainContent = document.getElementById('mainContent');
             const newPage = document.createElement('div');
             newPage.className = 'content-page';
             newPage.id = pageId;
             
-            // Page content based on ID
+            // Page content based on ID - Fallback content
             const pageContents = {
                 'dashboard': createDashboardPage(),
                 'analytics': createAnalyticsPage(),
@@ -5957,11 +5989,19 @@
                 'music': createMusicPage(),
                 'calculator': createCalculatorPage(),
                 'settings': createSettingsPage(),
-                'performance': createPerformancePage()
+                'performance': createPerformancePage(),
+                'automod': createAutomodPage(),
+                'security': createSecurityPage(),
+                'games': createGamesPage(),
+                'backup': createBackupPage(),
+                'bridges': createBridgesPage(),
+                'hub': createHubPage(),
+                'botinfo': createBotinfoPage(),
+                'help': createHelpPage(),
+                'database': createDatabasePage()
             };
             
             newPage.innerHTML = pageContents[pageId] || createDefaultPage(pageId);
-            mainContent.appendChild(newPage);
             return newPage;
         }
 
@@ -6248,6 +6288,206 @@
                             <h3>Calculateur d'Économie</h3>
                             <p>En cours de développement...</p>
                         </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== FONCTIONS DE CRÉATION DES PAGES MANQUANTES ====================
+        
+        function createAutomodPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Auto-Modération</h1>
+                        <div class="breadcrumb">Arsenal > Auto-Modération</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-robot card-icon"></i>
+                            Configuration Auto-Mod
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Configuration de la modération automatique...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createSecurityPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Sécurité</h1>
+                        <div class="breadcrumb">Arsenal > Sécurité</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-lock card-icon"></i>
+                            Paramètres de Sécurité
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Configuration des paramètres de sécurité...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createGamesPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Mini-Jeux</h1>
+                        <div class="breadcrumb">Arsenal > Mini-Jeux</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-gamepad card-icon"></i>
+                            Gestion des Mini-Jeux
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Configuration des mini-jeux du bot...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBackupPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">💾 Backup</h1>
+                        <div class="breadcrumb">Arsenal > Backup</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-cloud-upload-alt card-icon"></i>
+                            Gestion des Sauvegardes
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Sauvegarde et restauration des données...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBridgesPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">🌉 Ponts Inter-Serveur</h1>
+                        <div class="breadcrumb">Arsenal > Ponts</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-bridge card-icon"></i>
+                            Configuration des Ponts
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Configuration des ponts de communication inter-serveurs...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createHubPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">🌐 Hub Config</h1>
+                        <div class="breadcrumb">Arsenal > Hub</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-network-wired card-icon"></i>
+                            Configuration du Hub
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Configuration du hub central...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBotinfoPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">ℹ️ Info Bot</h1>
+                        <div class="breadcrumb">Arsenal > Informations</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-info-circle card-icon"></i>
+                            Informations du Bot
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Informations détaillées sur le bot Arsenal...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createHelpPage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">📖 Help Commandes</h1>
+                        <div class="breadcrumb">Arsenal > Aide</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-question-circle card-icon"></i>
+                            Aide et Documentation
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Documentation et aide pour les commandes...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createDatabasePage() {
+            return `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Base de Données</h1>
+                        <div class="breadcrumb">Arsenal > Database</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-database card-icon"></i>
+                            Gestion de la Base de Données
+                        </div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <p>Gestion et maintenance de la base de données...</p>
                     </div>
                 </div>
             `;
