@@ -1154,72 +1154,6 @@ try:
 
     # ==================== ROUTES SUPPLÉMENTAIRES ====================
     
-    # servers_page, users_page and commands_page moved below to avoid duplicates
-
-    @app.route('/automod')
-    def automod_page():
-        """Page AutoMod séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            automod_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'automod.html')
-            if os.path.exists(automod_path):
-                return send_from_directory(os.path.dirname(automod_path), 'automod.html')
-            else:
-                return redirect('/dashboard#automod')
-        except Exception as e:
-            print(f"❌ Erreur automod: {e}")
-            return redirect('/dashboard')
-
-    @app.route('/security')
-    def security_page():
-        """Page Sécurité séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            security_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'security.html')
-            if os.path.exists(security_path):
-                return send_from_directory(os.path.dirname(security_path), 'security.html')
-            else:
-                return redirect('/dashboard#security')
-        except Exception as e:
-            print(f"❌ Erreur security: {e}")
-            return redirect('/dashboard')
-
-    @app.route('/games')
-    def games_page():
-        """Page Jeux séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            games_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'games.html')
-            if os.path.exists(games_path):
-                return send_from_directory(os.path.dirname(games_path), 'games.html')
-            else:
-                return redirect('/dashboard#games')
-        except Exception as e:
-            print(f"❌ Erreur games: {e}")
-            return redirect('/dashboard')
-
-    @app.route('/realtime')
-    def realtime_page():
-        """Page Temps Réel"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            realtime_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'realtime.html')
-            if os.path.exists(realtime_path):
-                return send_from_directory(os.path.dirname(realtime_path), 'realtime.html')
-            else:
-                return redirect('/dashboard#realtime')
-        except Exception as e:
-            print(f"❌ Erreur realtime: {e}")
-            return redirect('/dashboard')
-
     @app.route('/servers')
     def servers_page():
         """Page Serveurs"""
@@ -1270,7 +1204,7 @@ try:
 
     @app.route('/automod')
     def automod_page():
-        """Page Auto-Mod"""
+        """Page AutoMod"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1302,7 +1236,7 @@ try:
 
     @app.route('/games')
     def games_page():
-        """Page Mini-Jeux"""
+        """Page Jeux"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1318,7 +1252,7 @@ try:
 
     @app.route('/backup')
     def backup_page():
-        """Page Backup"""
+        """Page Sauvegardes"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1414,7 +1348,7 @@ try:
 
     @app.route('/database')
     def database_page():
-        """Page Base de Données"""
+        """Page Database"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1428,9 +1362,9 @@ try:
             print(f"❌ Erreur database: {e}")
             return redirect('/dashboard')
 
-    @app.route('/api-page')
+    @app.route('/api-docs')
     def api_page():
-        """Page API"""
+        """Page API Documentation"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1442,6 +1376,22 @@ try:
                 return redirect('/dashboard#api')
         except Exception as e:
             print(f"❌ Erreur api: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/realtime')
+    def realtime_page():
+        """Page Temps Réel"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            realtime_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'realtime.html')
+            if os.path.exists(realtime_path):
+                return send_from_directory(os.path.dirname(realtime_path), 'realtime.html')
+            else:
+                return redirect('/dashboard#realtime')
+        except Exception as e:
+            print(f"❌ Erreur realtime: {e}")
             return redirect('/dashboard')
 
     # ==================== ROUTES API HUNT ROYAL ====================
