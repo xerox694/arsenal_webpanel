@@ -142,11 +142,6 @@ try:
         """Page d'accueil - Redirection vers login"""
         return redirect('/login')
     
-    @app.route('/health')
-    def health_check():
-        """Health check pour Render"""
-        return {"status": "healthy", "version": "4.0.0"}, 200
-    
     @app.route('/login')
     def login_page():
         """Page de connexion Discord"""
@@ -1249,6 +1244,74 @@ try:
         except Exception as e:
             print(f"❌ Erreur games: {e}")
             return redirect('/dashboard')
+
+    # ==================== ARSENAL V4 ULTIMATE - PAGES SPÉCIALISÉES ====================
+    
+    @app.route('/games-ultimate')
+    def games_ultimate_page():
+        """Page Gaming Center Ultimate"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            games_ultimate_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'games-ultimate.html')
+            if os.path.exists(games_ultimate_path):
+                return send_from_directory(os.path.dirname(games_ultimate_path), 'games-ultimate.html')
+            else:
+                return redirect('/dashboard#games')
+        except Exception as e:
+            print(f"❌ Erreur games-ultimate: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/ai-center')
+    def ai_center_page():
+        """Page AI Center Ultimate"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            ai_center_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'ai-center.html')
+            if os.path.exists(ai_center_path):
+                return send_from_directory(os.path.dirname(ai_center_path), 'ai-center.html')
+            else:
+                return redirect('/dashboard#ai-chat')
+        except Exception as e:
+            print(f"❌ Erreur ai-center: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/music-center')
+    def music_center_page():
+        """Page Music Center Ultimate"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            music_center_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'music-center.html')
+            if os.path.exists(music_center_path):
+                return send_from_directory(os.path.dirname(music_center_path), 'music-center.html')
+            else:
+                return redirect('/dashboard#music')
+        except Exception as e:
+            print(f"❌ Erreur music-center: {e}")
+            return redirect('/dashboard')
+
+    @app.route('/economy-center')
+    def economy_center_page():
+        """Page Economy Center Ultimate"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            economy_center_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'economy-center.html')
+            if os.path.exists(economy_center_path):
+                return send_from_directory(os.path.dirname(economy_center_path), 'economy-center.html')
+            else:
+                return redirect('/dashboard#economy')
+        except Exception as e:
+            print(f"❌ Erreur economy-center: {e}")
+            return redirect('/dashboard')
+
+    # ==================== FIN PAGES SPÉCIALISÉES ====================
 
     @app.route('/backup')
     def backup_page():

@@ -36,8 +36,8 @@
                 </button>
                 
                 <!-- GAMING & FUN -->
-                <button class="tab-button" onclick="window.arsenalAPI.showTab('games')">
-                    <i class="fas fa-gamepad"></i> Mini-Jeux
+                <button class="tab-button" onclick="window.location.href='/games-ultimate'">
+                    <i class="fas fa-gamepad"></i> Gaming Center 🎮
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('fun')">
                     <i class="fas fa-laugh"></i> Fun & Mèmes
@@ -58,8 +58,8 @@
                 </button>
                 
                 <!-- ENTERTAINMENT -->
-                <button class="tab-button" onclick="window.arsenalAPI.showTab('music')">
-                    <i class="fas fa-music"></i> Musique
+                <button class="tab-button" onclick="window.location.href='/music-center'">
+                    <i class="fas fa-music"></i> Music Center 🎵
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('media')">
                     <i class="fas fa-play-circle"></i> Média
@@ -104,8 +104,8 @@
                 </button>
                 
                 <!-- AI & ASSISTANT -->
-                <button class="tab-button" onclick="window.arsenalAPI.showTab('ai-chat')">
-                    <i class="fas fa-brain"></i> IA Chat
+                <button class="tab-button" onclick="window.location.href='/ai-center'">
+                    <i class="fas fa-brain"></i> AI Center 🤖
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('assistant')">
                     <i class="fas fa-robot"></i> Assistant
@@ -115,8 +115,8 @@
                 </button>
                 
                 <!-- ECONOMY -->
-                <button class="tab-button" onclick="window.arsenalAPI.showTab('economy')">
-                    <i class="fas fa-coins"></i> Économie
+                <button class="tab-button" onclick="window.location.href='/economy-center'">
+                    <i class="fas fa-coins"></i> Economy Center 💰
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('shop')">
                     <i class="fas fa-shopping-cart"></i> Boutique
@@ -363,21 +363,27 @@
         
         // Gestion des raccourcis clavier Arsenal V4
         document.addEventListener('keydown', (e) => {
-            // Ctrl + Shift + A = Ouvrir Arsenal AI
+            // Ctrl + Shift + A = Ouvrir Arsenal AI Center
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                window.arsenalAPI.showTab('ai-chat');
+                window.location.href = '/ai-center';
                 e.preventDefault();
             }
             
-            // Ctrl + Shift + M = Ouvrir Musique
+            // Ctrl + Shift + M = Ouvrir Music Center
             if (e.ctrlKey && e.shiftKey && e.key === 'M') {
-                window.arsenalAPI.showTab('music');
+                window.location.href = '/music-center';
                 e.preventDefault();
             }
             
-            // Ctrl + Shift + G = Ouvrir Games
+            // Ctrl + Shift + G = Ouvrir Gaming Center
             if (e.ctrlKey && e.shiftKey && e.key === 'G') {
-                window.arsenalAPI.showTab('games');
+                window.location.href = '/games-ultimate';
+                e.preventDefault();
+            }
+            
+            // Ctrl + Shift + E = Ouvrir Economy Center
+            if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+                window.location.href = '/economy-center';
                 e.preventDefault();
             }
             
