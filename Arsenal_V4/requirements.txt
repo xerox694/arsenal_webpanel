@@ -1,0 +1,47 @@
+# Arsenal V4 Bot - Requirements
+# =============================
+
+# Discord.py with voice support
+discord.py[voice]==2.3.2
+
+# Database
+sqlite3
+
+# Web scraping and HTTP requests
+aiohttp==3.8.6
+requests==2.31.0
+
+# Image processing for profile cards
+Pillow==10.0.1
+
+# Data visualization for statistics
+matplotlib==3.8.1
+seaborn==0.13.0
+
+# System monitoring
+psutil==5.9.6
+
+# YouTube audio downloading
+youtube-dl==2021.12.17
+yt-dlp==2023.9.24
+
+# Audio processing
+PyNaCl==1.5.0
+
+# Async utilities
+asyncio
+
+# Date and time utilities
+python-dateutil==2.8.2
+
+# JSON handling
+ujson==5.8.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Colorama for terminal colors
+colorama==0.4.6
+
+# Rich for beautiful terminal output
+rich==13.6.0
