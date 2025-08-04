@@ -32,10 +32,15 @@ youtube-dl==2021.12.17
 yt-dlp==2023.7.6
 
 # AI Ultimate (optionnel)
-openai==0.28.1
+# AI Ultimate
+openai>=1.30.0
+google-generativeai>=0.8.0
 
-# Gaming Ultimate  
-pygame==2.5.2
+# Gaming Ultimate (alternatives légères pour Render)
+# pygame==2.5.2  # Désactivé pour Render (problème SDL)
+# Alternative légère pour les jeux simples :
+# pillow pour génération d'images de jeux
+Pillow>=10.3.0
 
 # Security
 cryptography==41.0.7

@@ -87,10 +87,17 @@ class ArsenalConfig:
     # AI Ultimate  
     AI_CONFIG = {
         'openai_api_key': os.getenv('OPENAI_API_KEY'),
-        'model': 'gpt-3.5-turbo',
+        'gemini_api_key': os.getenv('GEMINI_API_KEY'),
+        'default_provider': 'gemini' if os.getenv('GEMINI_API_KEY') else 'openai',
+        'openai_model': 'gpt-3.5-turbo',
+        'gemini_model': 'gemini-pro',
         'max_tokens': 2000,
         'temperature': 0.7,
-        'enabled': bool(os.getenv('OPENAI_API_KEY'))
+        'enabled': bool(os.getenv('OPENAI_API_KEY') or os.getenv('GEMINI_API_KEY')),
+        'providers_available': {
+            'openai': bool(os.getenv('OPENAI_API_KEY')),
+            'gemini': bool(os.getenv('GEMINI_API_KEY'))
+        }
     }
     
     # Music Ultimate

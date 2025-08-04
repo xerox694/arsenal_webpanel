@@ -51,6 +51,7 @@ DISCORD_REDIRECT_URI=https://votre-app.onrender.com/auth/callback
 
 # AI ULTIMATE (Optionnel)
 OPENAI_API_KEY=votre_cle_openai
+GEMINI_API_KEY=votre_cle_gemini
 
 # SÉCURITÉ
 SECRET_KEY=votre_cle_secrete
@@ -131,10 +132,13 @@ Le WebPanel est accessible à : `https://votre-app.onrender.com/dashboard`
 - **Classements** et statistiques temps réel
 
 #### 🧠 AI Ultimate
-- **Chat GPT-4** intégré dans Discord et WebPanel
+- **Chat GPT-4 + Gemini** intégré dans Discord et WebPanel
+- **Multi-providers** : OpenAI ET Google Gemini au choix
 - **Génération de contenu** : textes, images, code
 - **Analyse de données** et prédictions
 - **AI Playground** interactif dans le WebPanel
+- **Traduction automatique** multilingue
+- **Switch providers** : `!ai --provider gemini` ou `!ai --provider openai`
 
 #### 🎵 Music Ultimate
 - **Streaming YouTube/Spotify** haute qualité
@@ -203,10 +207,13 @@ Le WebPanel est accessible à : `https://votre-app.onrender.com/dashboard`
 
 ### 🧠 AI Ultimate
 ```
-!ai <question>          - Poser une question à l'IA
-!generate <prompt>      - Générer du contenu
-!analyze <données>      - Analyser des données
-!translate <texte>      - Traduire un texte
+!ai <question>                    - Poser une question à l'IA (provider par défaut)
+!ai --provider openai <question>  - Utiliser OpenAI spécifiquement
+!ai --provider gemini <question>  - Utiliser Google Gemini spécifiquement
+!generate <prompt>                - Générer du contenu
+!translate <texte>                - Traduire un texte
+!code <description>               - Générer du code
+!ai status                        - Voir les providers disponibles
 ```
 
 ### ⚙️ Administration
@@ -405,7 +412,9 @@ Gaming Ultimate :
 
 AI Ultimate :
 - OPENAI_API_KEY configuré ?
-- Quota API OpenAI suffisant ?
+- GEMINI_API_KEY configuré ?
+- Quota API suffisant ?
+- Provider par défaut fonctionnel ?
 
 Music Ultimate :
 - Bot connecté au canal vocal ?

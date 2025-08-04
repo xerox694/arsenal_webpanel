@@ -9,6 +9,7 @@ Service unique qui lance:
 - 🌐 WebPanel avec toutes les fonctionnalités
 - 📊 Tableau de bord intégré
 - 🎮 Modules Gaming, AI, Music, Economy dans la sidebar
+- 🧠 AI Ultimate avec OpenAI + Gemini
 
 Author: Arsenal V4 Team
 Version: 4.2.1 ULTIMATE
@@ -43,6 +44,26 @@ app.secret_key = os.getenv('SECRET_KEY', 'arsenal_v4_ultimate_key')
 app.config['DEBUG'] = True
 CORS(app, origins='*')
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode='threading')
+
+# Initialiser AI Ultimate
+try:
+    from core.ai_ultimate import ai_ultimate
+    print("🧠 AI Ultimate chargé avec succès")
+    AI_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ AI Ultimate non disponible: {e}")
+    ai_ultimate = None
+    AI_AVAILABLE = False
+
+# Initialiser Gaming Ultimate (sans pygame)
+try:
+    from core.gaming_ultimate import gaming_ultimate
+    print("🎮 Gaming Ultimate chargé avec succès (Mode Render)")
+    GAMING_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Gaming Ultimate non disponible: {e}")
+    gaming_ultimate = None
+    GAMING_AVAILABLE = False
 
 # Variables globales
 bot_process = None
@@ -102,6 +123,254 @@ def stop_bot_api():
 def real_time_stats_api():
     """API - Statistiques temps réel"""
     return jsonify(real_time_stats)
+
+# ==================== AI ULTIMATE API ====================
+
+@app.route('/api/ai/status')
+def ai_status_api():
+    """API - Statut AI Ultimate"""
+    if not AI_AVAILABLE or not ai_ultimate:
+        return jsonify({
+            'available': False,
+            'error': 'AI Ultimate non disponible'
+        })
+    
+    return jsonify({
+        'available': True,
+        'providers': ai_ultimate.get_providers_status()
+    })
+
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat_api():
+    """API - Chat avec AI Ultimate"""
+    if not AI_AVAILABLE or not ai_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'AI Ultimate non disponible'
+        })
+    
+    data = request.get_json()
+    message = data.get('message', '')
+    provider = data.get('provider')  # openai, gemini, ou None
+    system_prompt = data.get('system_prompt')
+    
+    if not message:
+        return jsonify({
+            'success': False,
+            'error': 'Message requis'
+        })
+    
+    try:
+        # Exécuter la requête AI en mode async
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        result = loop.run_until_complete(
+            ai_ultimate.chat(message, provider, system_prompt)
+        )
+        loop.close()
+        
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur AI: {str(e)}'
+        })
+
+@app.route('/api/ai/translate', methods=['POST'])
+def ai_translate_api():
+    """API - Traduction avec AI Ultimate"""
+    if not AI_AVAILABLE or not ai_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'AI Ultimate non disponible'
+        })
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    target_language = data.get('target', 'fr')
+    provider = data.get('provider')
+    
+    if not text:
+        return jsonify({
+            'success': False,
+            'error': 'Texte requis'
+        })
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        result = loop.run_until_complete(
+            ai_ultimate.translate_text(text, target_language, provider)
+        )
+        loop.close()
+        
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur traduction: {str(e)}'
+        })
+
+@app.route('/api/ai/code', methods=['POST'])
+def ai_code_api():
+    """API - Génération de code avec AI Ultimate"""
+    if not AI_AVAILABLE or not ai_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'AI Ultimate non disponible'
+        })
+    
+    data = request.get_json()
+    description = data.get('description', '')
+    language = data.get('language', 'python')
+    provider = data.get('provider')
+    
+    if not description:
+        return jsonify({
+            'success': False,
+            'error': 'Description requise'
+        })
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        result = loop.run_until_complete(
+            ai_ultimate.generate_code(description, language, provider)
+        )
+        loop.close()
+        
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur génération code: {str(e)}'
+        })
+
+# ==================== GAMING ULTIMATE API ====================
+
+@app.route('/api/gaming/status')
+def gaming_status_api():
+    """API - Statut Gaming Ultimate"""
+    return jsonify({
+        'available': GAMING_AVAILABLE,
+        'mode': 'render_compatible',
+        'games_available': ['coinflip', 'dice', 'roulette', 'blackjack', 'slots', 'quiz'] if GAMING_AVAILABLE else []
+    })
+
+@app.route('/api/gaming/play/<game_type>', methods=['POST'])
+def play_game_api(game_type):
+    """API - Jouer un jeu"""
+    if not GAMING_AVAILABLE or not gaming_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'Gaming Ultimate non disponible'
+        })
+    
+    data = request.get_json() or {}
+    user_id = data.get('user_id', 'anonymous')
+    bet = data.get('bet', 50)
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        if game_type == 'coinflip':
+            result = loop.run_until_complete(gaming_ultimate.coinflip(user_id, bet))
+        elif game_type == 'dice':
+            target = data.get('target', 6)
+            result = loop.run_until_complete(gaming_ultimate.dice_roll(user_id, bet, target))
+        elif game_type == 'roulette':
+            choice = data.get('choice', 'rouge')
+            result = loop.run_until_complete(gaming_ultimate.roulette(user_id, bet, choice))
+        elif game_type == 'blackjack':
+            result = loop.run_until_complete(gaming_ultimate.blackjack_simple(user_id, bet))
+        elif game_type == 'slots':
+            result = loop.run_until_complete(gaming_ultimate.slots_machine(user_id, bet))
+        elif game_type == 'quiz':
+            category = data.get('category', 'general')
+            result = loop.run_until_complete(gaming_ultimate.quiz_question(user_id, category))
+        elif game_type == 'number_guess':
+            guess = data.get('guess', 50)
+            result = loop.run_until_complete(gaming_ultimate.number_guessing(user_id, guess, bet))
+        else:
+            loop.close()
+            return jsonify({
+                'success': False,
+                'error': f'Jeu {game_type} non reconnu'
+            })
+        
+        # Mettre à jour les stats
+        loop.run_until_complete(gaming_ultimate.update_user_stats(user_id, result))
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'game_result': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur jeu: {str(e)}'
+        })
+
+@app.route('/api/gaming/stats/<user_id>')
+def gaming_stats_api(user_id):
+    """API - Statistiques utilisateur"""
+    if not GAMING_AVAILABLE or not gaming_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'Gaming Ultimate non disponible'
+        })
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        stats = loop.run_until_complete(gaming_ultimate.get_user_stats(user_id))
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur stats: {str(e)}'
+        })
+
+@app.route('/api/gaming/leaderboard')
+def gaming_leaderboard_api():
+    """API - Classements Gaming"""
+    if not GAMING_AVAILABLE or not gaming_ultimate:
+        return jsonify({
+            'success': False,
+            'error': 'Gaming Ultimate non disponible'
+        })
+    
+    category = request.args.get('category', 'winnings')
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        leaderboard = loop.run_until_complete(gaming_ultimate.get_leaderboard(category))
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'leaderboard': leaderboard,
+            'category': category
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Erreur leaderboard: {str(e)}'
+        })
 
 # ==================== STATIC FILES ====================
 
