@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arsenal V4 WebPanel - Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/arsenal-styles.css">
+    <link rel="stylesheet" href="/css/arsenal-styles.css?v=4.2.1">
+    <meta name="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta name="pragma" content="no-cache">
+    <meta name="expires" content="0">
 </head>
 <body>
     <div class="dashboard-container">
@@ -37,9 +40,9 @@
                 </button>
                 
                 <!-- GAMING & FUN -->
-                <button class="tab-button specialized-page" onclick="window.location.href='/games-ultimate'">
-                    <i class="fas fa-gamepad"></i> Gaming Center 🎮
-                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
+                <button class="tab-button arsenal-gaming" onclick="window.arsenalAPI.showTab('gaming-ultimate')">
+                    <i class="fas fa-gamepad"></i> Gaming Ultimate 🎮
+                    <small style="display: block; opacity: 0.8;">60+ Mini-Jeux</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('fun')">
                     <i class="fas fa-laugh"></i> Fun & Mèmes
@@ -60,9 +63,9 @@
                 </button>
                 
                 <!-- ENTERTAINMENT -->
-                <button class="tab-button specialized-page" onclick="window.location.href='/music-center'">
-                    <i class="fas fa-music"></i> Music Center 🎵
-                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
+                <button class="tab-button arsenal-music" onclick="window.arsenalAPI.showTab('music-ultimate')">
+                    <i class="fas fa-music"></i> Music Ultimate 🎵
+                    <small style="display: block; opacity: 0.8;">Streaming Avancé</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('media')">
                     <i class="fas fa-play-circle"></i> Média
@@ -107,9 +110,9 @@
                 </button>
                 
                 <!-- AI & ASSISTANT -->
-                <button class="tab-button specialized-page" onclick="window.location.href='/ai-center'">
-                    <i class="fas fa-brain"></i> AI Center 🤖
-                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
+                <button class="tab-button arsenal-ai" onclick="window.arsenalAPI.showTab('ai-ultimate')">
+                    <i class="fas fa-brain"></i> AI Ultimate 🤖
+                    <small style="display: block; opacity: 0.8;">Intelligence Avancée</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('assistant')">
                     <i class="fas fa-robot"></i> Assistant
@@ -119,9 +122,9 @@
                 </button>
                 
                 <!-- ECONOMY -->
-                <button class="tab-button specialized-page" onclick="window.location.href='/economy-center'">
-                    <i class="fas fa-coins"></i> Economy Center 💰
-                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
+                <button class="tab-button arsenal-economy" onclick="window.arsenalAPI.showTab('economy-ultimate')">
+                    <i class="fas fa-coins"></i> Economy Ultimate 💰
+                    <small style="display: block; opacity: 0.8;">Système Complet</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('shop')">
                     <i class="fas fa-shopping-cart"></i> Boutique
@@ -333,12 +336,24 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/js/arsenal-api.js"></script>
-    <script src="/js/arsenal-ui.js"></script>
-    <script src="/js/arsenal-ultimate.js"></script>
+    <script src="/js/arsenal-api.js?v=4.2.1"></script>
+    <script src="/js/arsenal-ui.js?v=4.2.1"></script>
+    <script src="/js/arsenal-ultimate.js?v=4.2.1"></script>
     <script>
         // Arsenal V4 Ultimate - Initialisation
         document.addEventListener('DOMContentLoaded', () => {
+            // LOG DE DÉBOGAGE VISIBLE
+            console.log('🚀 ARSENAL V4 ULTIMATE v4.2.1 - CHARGÉ AVEC SUCCÈS!');
+            console.log('✅ Modules Ultimate intégrés dans la sidebar');
+            console.log('🎮 Gaming Ultimate: intégré dans sidebar');
+            console.log('🤖 AI Ultimate: intégré dans sidebar');
+            console.log('🎵 Music Ultimate: intégré dans sidebar');
+            console.log('💰 Economy Ultimate: intégré dans sidebar');
+            
+            // Vérifier que les boutons Ultimate existent
+            const ultimateButtons = document.querySelectorAll('.arsenal-gaming, .arsenal-music, .arsenal-ai, .arsenal-economy');
+            console.log(`🔍 Boutons Ultimate trouvés: ${ultimateButtons.length}/4`);
+            
             // Initialiser l'API Arsenal Ultimate
             if (window.arsenalUltimate) {
                 window.arsenalUltimate.init();
@@ -368,27 +383,27 @@
         
         // Gestion des raccourcis clavier Arsenal V4
         document.addEventListener('keydown', (e) => {
-            // Ctrl + Shift + A = Ouvrir Arsenal AI Center
+            // Ctrl + Shift + A = Ouvrir AI Ultimate
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                window.location.href = '/ai-center';
+                window.arsenalAPI.showTab('ai-ultimate');
                 e.preventDefault();
             }
             
-            // Ctrl + Shift + M = Ouvrir Music Center
+            // Ctrl + Shift + M = Ouvrir Music Ultimate
             if (e.ctrlKey && e.shiftKey && e.key === 'M') {
-                window.location.href = '/music-center';
+                window.arsenalAPI.showTab('music-ultimate');
                 e.preventDefault();
             }
             
-            // Ctrl + Shift + G = Ouvrir Gaming Center
+            // Ctrl + Shift + G = Ouvrir Gaming Ultimate
             if (e.ctrlKey && e.shiftKey && e.key === 'G') {
-                window.location.href = '/games-ultimate';
+                window.arsenalAPI.showTab('gaming-ultimate');
                 e.preventDefault();
             }
             
-            // Ctrl + Shift + E = Ouvrir Economy Center
+            // Ctrl + Shift + E = Ouvrir Economy Ultimate
             if (e.ctrlKey && e.shiftKey && e.key === 'E') {
-                window.location.href = '/economy-center';
+                window.arsenalAPI.showTab('economy-ultimate');
                 e.preventDefault();
             }
             
@@ -602,20 +617,48 @@
             margin-top: 5px;
         }
         
-        .specialized-page {
-            border: 2px solid var(--primary-color) !important;
-            background: linear-gradient(45deg, rgba(0,255,247,0.1), rgba(255,0,110,0.1)) !important;
-            animation: glow 2s infinite alternate !important;
+        .arsenal-gaming {
+            border: 2px solid #39ff14 !important;
+            background: linear-gradient(45deg, rgba(57,255,20,0.1), rgba(0,255,247,0.1)) !important;
+            animation: gameGlow 2s infinite alternate !important;
         }
         
-        .specialized-page:hover {
-            transform: scale(1.05) !important;
-            box-shadow: 0 5px 20px rgba(0,255,247,0.3) !important;
+        .arsenal-music {
+            border: 2px solid #ff006e !important;
+            background: linear-gradient(45deg, rgba(255,0,110,0.1), rgba(57,255,20,0.1)) !important;
+            animation: musicGlow 2s infinite alternate !important;
         }
         
-        @keyframes glow {
-            from { box-shadow: 0 0 5px rgba(0,255,247,0.3); }
-            to { box-shadow: 0 0 15px rgba(0,255,247,0.6); }
+        .arsenal-ai {
+            border: 2px solid #8338ec !important;
+            background: linear-gradient(45deg, rgba(131,56,236,0.1), rgba(255,0,110,0.1)) !important;
+            animation: aiGlow 2s infinite alternate !important;
+        }
+        
+        .arsenal-economy {
+            border: 2px solid #ffaa00 !important;
+            background: linear-gradient(45deg, rgba(255,170,0,0.1), rgba(131,56,236,0.1)) !important;
+            animation: economyGlow 2s infinite alternate !important;
+        }
+        
+        @keyframes gameGlow {
+            from { box-shadow: 0 0 5px rgba(57,255,20,0.3); }
+            to { box-shadow: 0 0 15px rgba(57,255,20,0.6); }
+        }
+        
+        @keyframes musicGlow {
+            from { box-shadow: 0 0 5px rgba(255,0,110,0.3); }
+            to { box-shadow: 0 0 15px rgba(255,0,110,0.6); }
+        }
+        
+        @keyframes aiGlow {
+            from { box-shadow: 0 0 5px rgba(131,56,236,0.3); }
+            to { box-shadow: 0 0 15px rgba(131,56,236,0.6); }
+        }
+        
+        @keyframes economyGlow {
+            from { box-shadow: 0 0 5px rgba(255,170,0,0.3); }
+            to { box-shadow: 0 0 15px rgba(255,170,0,0.6); }
         }
     </style>
 </body>
