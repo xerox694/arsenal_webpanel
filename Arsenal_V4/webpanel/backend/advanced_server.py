@@ -1149,21 +1149,7 @@ try:
 
     # ==================== ROUTES SUPPLÉMENTAIRES ====================
     
-    @app.route('/servers')
-    def servers_page():
-        """Page Serveurs séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            servers_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'servers.html')
-            if os.path.exists(servers_path):
-                return send_from_directory(os.path.dirname(servers_path), 'servers.html')
-            else:
-                return redirect('/dashboard#servers')
-        except Exception as e:
-            print(f"❌ Erreur servers: {e}")
-            return redirect('/dashboard')
+    # servers_page moved below to avoid duplicate
 
     @app.route('/users')
     def users_page():
@@ -2745,4 +2731,4 @@ except Exception as e:
     print(f"❌ Erreur critique: {e}")
     import traceback
     traceback.print_exc()
-    input("Appuyez sur Entrée pour fermer...")
+    # Removed input() for production deployment
