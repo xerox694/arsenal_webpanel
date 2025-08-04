@@ -142,6 +142,11 @@ try:
         """Page d'accueil - Redirection vers login"""
         return redirect('/login')
     
+    @app.route('/health')
+    def health_check():
+        """Health check pour Render"""
+        return {"status": "healthy", "version": "4.0.0"}, 200
+    
     @app.route('/login')
     def login_page():
         """Page de connexion Discord"""
@@ -1149,23 +1154,7 @@ try:
 
     # ==================== ROUTES SUPPLÉMENTAIRES ====================
     
-    # servers_page moved below to avoid duplicate
-
-    @app.route('/users')
-    def users_page():
-        """Page Utilisateurs séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            users_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'users.html')
-            if os.path.exists(users_path):
-                return send_from_directory(os.path.dirname(users_path), 'users.html')
-            else:
-                return redirect('/dashboard#users')
-        except Exception as e:
-            print(f"❌ Erreur users: {e}")
-            return redirect('/dashboard')
+    # servers_page and users_page moved below to avoid duplicates
 
     @app.route('/commands')
     def commands_page():
