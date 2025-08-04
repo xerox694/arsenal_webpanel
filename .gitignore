@@ -18,6 +18,11 @@ hunt_royal_auth.db
 hunt_royal_profiles.db
 arsenal_v4.db
 hunt_royal.db
+
+# 🚫 Dossiers de développement temporaires
+Arsenal_WebPanel_PROPRE/
+temp/
+.temp/
 test_hunt_royal.db
 hunt_royal_cache.json
 
