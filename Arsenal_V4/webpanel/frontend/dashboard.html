@@ -13,6 +13,7 @@
         <header class="dashboard-header">
             <div class="header-left">
                 <h1><i class="fas fa-rocket"></i> Arsenal V4 WebPanel</h1>
+                <div class="version-badge">🚀 ULTIMATE v4.2 - Pages Spécialisées Actives</div>
             </div>
             <div class="header-right">
                 <div class="user-info" onclick="toggleUserDropdown()">
@@ -36,8 +37,9 @@
                 </button>
                 
                 <!-- GAMING & FUN -->
-                <button class="tab-button" onclick="window.location.href='/games-ultimate'">
+                <button class="tab-button specialized-page" onclick="window.location.href='/games-ultimate'">
                     <i class="fas fa-gamepad"></i> Gaming Center 🎮
+                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('fun')">
                     <i class="fas fa-laugh"></i> Fun & Mèmes
@@ -58,8 +60,9 @@
                 </button>
                 
                 <!-- ENTERTAINMENT -->
-                <button class="tab-button" onclick="window.location.href='/music-center'">
+                <button class="tab-button specialized-page" onclick="window.location.href='/music-center'">
                     <i class="fas fa-music"></i> Music Center 🎵
+                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('media')">
                     <i class="fas fa-play-circle"></i> Média
@@ -104,8 +107,9 @@
                 </button>
                 
                 <!-- AI & ASSISTANT -->
-                <button class="tab-button" onclick="window.location.href='/ai-center'">
+                <button class="tab-button specialized-page" onclick="window.location.href='/ai-center'">
                     <i class="fas fa-brain"></i> AI Center 🤖
+                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('assistant')">
                     <i class="fas fa-robot"></i> Assistant
@@ -115,8 +119,9 @@
                 </button>
                 
                 <!-- ECONOMY -->
-                <button class="tab-button" onclick="window.location.href='/economy-center'">
+                <button class="tab-button specialized-page" onclick="window.location.href='/economy-center'">
                     <i class="fas fa-coins"></i> Economy Center 💰
+                    <small style="display: block; opacity: 0.8;">Page Spécialisée</small>
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('shop')">
                     <i class="fas fa-shopping-cart"></i> Boutique
@@ -584,6 +589,33 @@
         .arsenal-theme-synthwave {
             --primary-color: #ff006e;
             --secondary-color: #8338ec;
+        }
+        
+        .version-badge {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            margin-top: 5px;
+        }
+        
+        .specialized-page {
+            border: 2px solid var(--primary-color) !important;
+            background: linear-gradient(45deg, rgba(0,255,247,0.1), rgba(255,0,110,0.1)) !important;
+            animation: glow 2s infinite alternate !important;
+        }
+        
+        .specialized-page:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 5px 20px rgba(0,255,247,0.3) !important;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(0,255,247,0.3); }
+            to { box-shadow: 0 0 15px rgba(0,255,247,0.6); }
         }
     </style>
 </body>
