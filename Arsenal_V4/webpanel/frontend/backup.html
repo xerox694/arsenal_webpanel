@@ -667,37 +667,52 @@
         }
 
         function createBackup(type) {
-            const progressSection = document.getElementById('backup-progress');
-            const progressFill = document.getElementById('progress-fill');
-            const progressStatus = document.getElementById('progress-status');
-            
-            progressSection.classList.add('active');
-            
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 100) progress = 100;
-                
-                progressFill.style.width = progress + '%';
-                progressFill.textContent = Math.round(progress) + '%';
-                
-                if (progress < 30) {
-                    progressStatus.textContent = 'Initialisation de la sauvegarde...';
-                } else if (progress < 60) {
-                    progressStatus.textContent = 'Sauvegarde des données utilisateur...';
-                } else if (progress < 85) {
-                    progressStatus.textContent = 'Compression des fichiers...';
-                } else if (progress < 100) {
-                    progressStatus.textContent = 'Finalisation...';
-                } else {
-                    progressStatus.textContent = 'Sauvegarde terminée avec succès !';
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        progressSection.classList.remove('active');
-                        loadBackups(); // Recharger la liste
-                    }, 2000);
-                }
-            }, 200);
+            // Vérifier d'abord si le bot est en ligne
+            fetch('/api/bot-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'offline') {
+                        alert('❌ Impossible de créer une sauvegarde : Le bot Arsenal V4 est actuellement hors ligne.');
+                        return;
+                    }
+                    
+                    // Bot en ligne - continuer avec la sauvegarde
+                    const progressSection = document.getElementById('backup-progress');
+                    const progressFill = document.getElementById('progress-fill');
+                    const progressStatus = document.getElementById('progress-status');
+                    
+                    progressSection.classList.add('active');
+                    
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += Math.random() * 15;
+                        if (progress > 100) progress = 100;
+                        
+                        progressFill.style.width = progress + '%';
+                        progressFill.textContent = Math.round(progress) + '%';
+                        
+                        if (progress < 30) {
+                            progressStatus.textContent = 'Initialisation de la sauvegarde...';
+                        } else if (progress < 60) {
+                            progressStatus.textContent = 'Sauvegarde des données utilisateur...';
+                        } else if (progress < 85) {
+                            progressStatus.textContent = 'Compression des fichiers...';
+                        } else if (progress < 100) {
+                            progressStatus.textContent = 'Finalisation...';
+                        } else {
+                            progressStatus.textContent = 'Sauvegarde terminée avec succès !';
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                progressSection.classList.remove('active');
+                                checkBotStatus(); // Recharger les données
+                            }, 2000);
+                        }
+                    }, 200);
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur de connexion au serveur. Impossible de créer la sauvegarde.');
+                });
         }
 
         function downloadBackup(backupName) {
@@ -727,18 +742,71 @@
             alert('Options de restauration disponibles dans la liste des sauvegardes ci-dessous.');
         }
 
-        // Simulation de chargement des données
-        setTimeout(() => {
-            // Stats simulées
-            document.getElementById('total-backups').textContent = backupsData.length;
-            document.getElementById('storage-used').textContent = '234 MB';
-            document.getElementById('last-backup').textContent = '6h';
-            document.getElementById('success-rate').textContent = '99.8%';
+        // Vérification de l'état du bot avant d'afficher les données
+        async function checkBotStatus() {
+            try {
+                const response = await fetch('/api/bot-status');
+                const data = await response.json();
+                
+                if (data.status === 'offline') {
+                    // Bot éteint - afficher des valeurs par défaut
+                    document.getElementById('total-backups').textContent = '0';
+                    document.getElementById('storage-used').textContent = 'N/A';
+                    document.getElementById('last-backup').textContent = 'N/A';
+                    document.getElementById('success-rate').textContent = 'N/A';
+                    
+                    // Afficher message d'état offline
+                    document.getElementById('backups-container').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--error-color);">
+                            <i class="fas fa-power-off" style="font-size: 2em; margin-bottom: 15px;"></i><br>
+                            <strong>Bot Arsenal V4 Offline</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.9em;">
+                                Les sauvegardes ne sont pas disponibles quand le bot est éteint
+                            </span>
+                        </div>
+                    `;
+                    
+                    document.getElementById('schedule-container').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--warning-color);">
+                            <i class="fas fa-clock" style="font-size: 1.5em; margin-bottom: 10px;"></i><br>
+                            <strong>Planification Suspendue</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.9em;">
+                                Les sauvegardes automatiques reprендront au redémarrage du bot
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    // Bot en ligne - afficher les vraies données
+                    document.getElementById('total-backups').textContent = backupsData.length;
+                    document.getElementById('storage-used').textContent = '234 MB';
+                    document.getElementById('last-backup').textContent = '6h';
+                    document.getElementById('success-rate').textContent = '99.8%';
+                    
+                    loadBackups();
+                    loadSchedule();
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification du statut:', error);
+                // En cas d'erreur, on considère le bot comme offline
+                document.getElementById('total-backups').textContent = '?';
+                document.getElementById('storage-used').textContent = 'Erreur';
+                document.getElementById('last-backup').textContent = 'Erreur';
+                document.getElementById('success-rate').textContent = 'Erreur';
+                
+                document.getElementById('backups-container').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--error-color);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 15px;"></i><br>
+                        <strong>Erreur de Connexion</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 0.9em;">
+                            Impossible de vérifier l'état du bot
+                        </span>
+                    </div>
+                `;
+            }
+        }
 
-            // Charger le contenu
-            loadBackups();
-            loadSchedule();
-        }, 2000);
+        // Charger les données après vérification
+        setTimeout(checkBotStatus, 2000);
 
         // Animation d'entrée
         document.addEventListener('DOMContentLoaded', () => {

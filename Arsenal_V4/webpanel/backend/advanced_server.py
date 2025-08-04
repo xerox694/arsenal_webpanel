@@ -1396,6 +1396,28 @@ try:
 
     # ==================== ROUTES API HUNT ROYAL ====================
     
+    @app.route('/api/bot-status', methods=['GET'])
+    def get_bot_status():
+        """Vérifier l'état du bot Arsenal V4"""
+        try:
+            # Pour l'instant, on considère le bot comme offline
+            # Dans une vraie implémentation, on vérifierait la connexion Discord
+            bot_status = {
+                "status": "offline",
+                "uptime": None,
+                "guild_count": 0,
+                "user_count": 0,
+                "last_seen": "N/A"
+            }
+            
+            return jsonify(bot_status)
+        except Exception as e:
+            print(f"❌ Erreur bot status: {e}")
+            return jsonify({
+                "status": "error",
+                "error": str(e)
+            }), 500
+    
     @app.route('/api/hunt-royal/validate-token', methods=['POST'])
     def validate_hunt_royal_token():
         """Valider un token Hunt Royal"""
