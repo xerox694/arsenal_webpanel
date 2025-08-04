@@ -25,10 +25,49 @@
 
         <!-- Main Content -->
         <main class="dashboard-main">
-            <!-- Navigation Tabs -->
+            <!-- Navigation Tabs - ARSENAL V4 ULTIMATE -->
             <nav class="tabs-navigation">
-                <button class="tab-button active" onclick="window.arsenalAPI.showTab('bot')">
-                    <i class="fas fa-robot"></i> Bot
+                <!-- CORE MODULES -->
+                <button class="tab-button active" onclick="window.arsenalAPI.showTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('bot-status')">
+                    <i class="fas fa-robot"></i> Bot Status
+                </button>
+                
+                <!-- GAMING & FUN -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('games')">
+                    <i class="fas fa-gamepad"></i> Mini-Jeux
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('fun')">
+                    <i class="fas fa-laugh"></i> Fun & Mèmes
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('levels')">
+                    <i class="fas fa-trophy"></i> XP & Niveaux
+                </button>
+                
+                <!-- MODERATION -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('moderation')">
+                    <i class="fas fa-shield-alt"></i> Modération
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('automod')">
+                    <i class="fas fa-robot"></i> Auto-Mod
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('tickets')">
+                    <i class="fas fa-ticket-alt"></i> Tickets
+                </button>
+                
+                <!-- ENTERTAINMENT -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('music')">
+                    <i class="fas fa-music"></i> Musique
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('media')">
+                    <i class="fas fa-play-circle"></i> Média
+                </button>
+                
+                <!-- STATS & INFO -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('analytics')">
+                    <i class="fas fa-chart-line"></i> Analytics
                 </button>
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('serveurs')">
                     <i class="fas fa-server"></i> Serveurs
@@ -36,30 +75,510 @@
                 <button class="tab-button" onclick="window.arsenalAPI.showTab('utilisateurs')">
                     <i class="fas fa-users"></i> Utilisateurs
                 </button>
-                <button class="tab-button" onclick="window.arsenalAPI.showTab('commandes')">
-                    <i class="fas fa-terminal"></i> Commandes
+                
+                <!-- AUTOMATION -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('automation')">
+                    <i class="fas fa-cog"></i> Automatisation
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('notifications')">
+                    <i class="fas fa-bell"></i> Notifications
+                </button>
+                
+                <!-- PERSONALIZATION -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('custom')">
+                    <i class="fas fa-paint-brush"></i> Personnalisation
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('welcome')">
+                    <i class="fas fa-hand-wave"></i> Bienvenue
+                </button>
+                
+                <!-- COMMUNITY -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('community')">
+                    <i class="fas fa-globe"></i> Communauté
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('translation')">
+                    <i class="fas fa-language"></i> Traduction
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('polls')">
+                    <i class="fas fa-poll"></i> Sondages
+                </button>
+                
+                <!-- AI & ASSISTANT -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('ai-chat')">
+                    <i class="fas fa-brain"></i> IA Chat
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('assistant')">
+                    <i class="fas fa-robot"></i> Assistant
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('reminders')">
+                    <i class="fas fa-clock"></i> Rappels
+                </button>
+                
+                <!-- ECONOMY -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('economy')">
+                    <i class="fas fa-coins"></i> Économie
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('shop')">
+                    <i class="fas fa-shopping-cart"></i> Boutique
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('jobs')">
+                    <i class="fas fa-briefcase"></i> Jobs
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('bank')">
+                    <i class="fas fa-university"></i> Banque
+                </button>
+                
+                <!-- REWARDS -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('rewards')">
+                    <i class="fas fa-gift"></i> Récompenses
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('missions')">
+                    <i class="fas fa-tasks"></i> Missions
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('leaderboard')">
+                    <i class="fas fa-medal"></i> Classements
+                </button>
+                
+                <!-- EVENTS -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('events')">
+                    <i class="fas fa-calendar-star"></i> Événements
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('giveaways')">
+                    <i class="fas fa-gift"></i> Giveaways
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('tournaments')">
+                    <i class="fas fa-trophy"></i> Tournois
+                </button>
+                
+                <!-- LEARNING -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('education')">
+                    <i class="fas fa-graduation-cap"></i> Éducation
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('quiz')">
+                    <i class="fas fa-question-circle"></i> Quiz
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('resources')">
+                    <i class="fas fa-book"></i> Ressources
+                </button>
+                
+                <!-- INTEGRATIONS -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('integrations')">
+                    <i class="fas fa-plug"></i> Intégrations
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('apis')">
+                    <i class="fas fa-code"></i> APIs
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('webhooks')">
+                    <i class="fas fa-link"></i> Webhooks
+                </button>
+                
+                <!-- WELLNESS -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('wellness')">
+                    <i class="fas fa-heart"></i> Bien-être
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('motivation')">
+                    <i class="fas fa-rocket"></i> Motivation
+                </button>
+                
+                <!-- ORGANIZATION -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('calendar')">
+                    <i class="fas fa-calendar"></i> Calendrier
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('projects')">
+                    <i class="fas fa-project-diagram"></i> Projets
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('study')">
+                    <i class="fas fa-book-reader"></i> Étude
+                </button>
+                
+                <!-- RPG & STORIES -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('rpg')">
+                    <i class="fas fa-dragon"></i> RPG
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('stories')">
+                    <i class="fas fa-book-open"></i> Histoires
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('mysteries')">
+                    <i class="fas fa-search"></i> Mystères
+                </button>
+                
+                <!-- ADVANCED -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('ml')">
+                    <i class="fas fa-brain"></i> Machine Learning
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('voice')">
+                    <i class="fas fa-microphone"></i> Vocal
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('environment')">
+                    <i class="fas fa-leaf"></i> Environnement
+                </button>
+                
+                <!-- SECURITY -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('security')">
+                    <i class="fas fa-lock"></i> Sécurité
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('antiraid')">
+                    <i class="fas fa-shield"></i> Anti-Raid
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('verification')">
+                    <i class="fas fa-check-circle"></i> Vérification
+                </button>
+                
+                <!-- MULTIVERSE -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('multiverse')">
+                    <i class="fas fa-globe-americas"></i> Multivers
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('crosschat')">
+                    <i class="fas fa-comments"></i> Cross-Chat
+                </button>
+                
+                <!-- DYNAMIC -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('dynamic-roles')">
+                    <i class="fas fa-user-tag"></i> Rôles Dynamiques
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('personas')">
+                    <i class="fas fa-mask"></i> Personas
+                </button>
+                
+                <!-- CREATIVE -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('creative')">
+                    <i class="fas fa-palette"></i> Créatif
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('art-gen')">
+                    <i class="fas fa-image"></i> Générateur Art
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('writing')">
+                    <i class="fas fa-pen"></i> Écriture
+                </button>
+                
+                <!-- CRAZY FEATURES -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('challenges')">
+                    <i class="fas fa-fire"></i> Défis Fous
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('absurd')">
+                    <i class="fas fa-laugh-squint"></i> Mode Absurde
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('sensory')">
+                    <i class="fas fa-eye"></i> Sensoriel
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('spectacle')">
+                    <i class="fas fa-tv"></i> Spectacle
+                </button>
+                
+                <!-- SETTINGS -->
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('settings')">
+                    <i class="fas fa-cogs"></i> Paramètres
+                </button>
+                <button class="tab-button" onclick="window.arsenalAPI.showTab('advanced-config')">
+                    <i class="fas fa-sliders-h"></i> Config Avancée
                 </button>
             </nav>
 
             <!-- Tab Content -->
             <div id="tab-content" class="tab-content">
-                <div class="loading-spinner">Chargement du contenu...</div>
+                <div class="loading-spinner">
+                    <div class="spinner-container">
+                        <div class="arsenal-spinner"></div>
+                        <div class="loading-text">Chargement d'Arsenal V4 Ultimate...</div>
+                        <div class="loading-subtitle">🚀 Le bot Discord le plus avancé au monde</div>
+                    </div>
+                </div>
             </div>
         </main>
+        
+        <!-- User Dropdown Menu -->
+        <div id="userDropdown" class="user-dropdown" style="display: none;">
+            <div class="dropdown-header">
+                <img id="dropdownAvatar" src="" alt="Avatar">
+                <div class="dropdown-user-info">
+                    <div id="dropdownUsername"></div>
+                    <div id="dropdownDiscriminator"></div>
+                </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="window.arsenalAPI.showTab('profile')">
+                <i class="fas fa-user"></i> Mon Profil
+            </div>
+            <div class="dropdown-item" onclick="window.arsenalAPI.showTab('preferences')">
+                <i class="fas fa-cog"></i> Préférences
+            </div>
+            <div class="dropdown-item" onclick="window.arsenalAPI.showTab('arsenal-stats')">
+                <i class="fas fa-chart-bar"></i> Mes Stats Arsenal
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="window.arsenalAPI.logout()">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </div>
+        </div>
+        
+        <!-- Arsenal V4 Ultimate Notification System -->
+        <div id="arsenalNotifications" class="notification-container"></div>
+        
+        <!-- Arsenal V4 Floating Action Button -->
+        <div class="arsenal-fab" onclick="window.arsenalAPI.showHelp()">
+            <i class="fas fa-question-circle"></i>
+            <div class="fab-tooltip">Aide Arsenal V4</div>
+        </div>
+        
+        <!-- Arsenal V4 Status Indicator -->
+        <div class="status-indicator">
+            <div class="status-dot" id="botStatusDot"></div>
+            <div class="status-text" id="botStatusText">Initialisation...</div>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="/js/arsenal-api.js"></script>
     <script src="/js/arsenal-ui.js"></script>
+    <script src="/js/arsenal-ultimate.js"></script>
     <script>
-        // Initialiser le premier onglet au chargement
+        // Arsenal V4 Ultimate - Initialisation
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialiser l'API Arsenal Ultimate
+            if (window.arsenalUltimate) {
+                window.arsenalUltimate.init();
+            }
+            
+            // Initialiser les notifications temps réel
+            if (window.arsenalAPI && window.arsenalAPI.initRealTimeUpdates) {
+                window.arsenalAPI.initRealTimeUpdates();
+            }
+            
+            // Charger le dashboard par défaut
             setTimeout(() => {
                 if (window.arsenalAPI && window.arsenalAPI.showTab) {
-                    window.arsenalAPI.showTab('bot');
+                    window.arsenalAPI.showTab('dashboard');
                 }
             }, 1000);
+            
+            // Easter eggs et fonctionnalités cachées
+            window.arsenalAPI.initEasterEggs();
         });
+        
+        // Fonctions globales Arsenal V4
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Gestion des raccourcis clavier Arsenal V4
+        document.addEventListener('keydown', (e) => {
+            // Ctrl + Shift + A = Ouvrir Arsenal AI
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                window.arsenalAPI.showTab('ai-chat');
+                e.preventDefault();
+            }
+            
+            // Ctrl + Shift + M = Ouvrir Musique
+            if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+                window.arsenalAPI.showTab('music');
+                e.preventDefault();
+            }
+            
+            // Ctrl + Shift + G = Ouvrir Games
+            if (e.ctrlKey && e.shiftKey && e.key === 'G') {
+                window.arsenalAPI.showTab('games');
+                e.preventDefault();
+            }
+            
+            // Échap = Fermer les modals
+            if (e.key === 'Escape') {
+                document.getElementById('userDropdown').style.display = 'none';
+            }
+        });
+        
+        // Système de thèmes dynamiques Arsenal V4
+        function switchArsenalTheme(theme) {
+            document.body.className = `arsenal-theme-${theme}`;
+            localStorage.setItem('arsenalTheme', theme);
+        }
+        
+        // Charger le thème sauvegardé
+        const savedTheme = localStorage.getItem('arsenalTheme') || 'cyber';
+        switchArsenalTheme(savedTheme);
     </script>
+    
+    <!-- Arsenal V4 Ultimate CSS Animations -->
+    <style>
+        .arsenal-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: arsenalSpin 1s linear infinite;
+        }
+        
+        @keyframes arsenalSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner-container {
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--text-primary);
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-subtitle {
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1001;
+        }
+        
+        .dropdown-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dropdown-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--hover-color);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 5px 0;
+        }
+        
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1002;
+        }
+        
+        .arsenal-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,255,247,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .arsenal-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0,255,247,0.5);
+        }
+        
+        .fab-tooltip {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: var(--card-bg);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .arsenal-fab:hover .fab-tooltip {
+            opacity: 1;
+        }
+        
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--error-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.online {
+            background: var(--success-color);
+        }
+        
+        .status-dot.loading {
+            background: var(--warning-color);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Thèmes Arsenal V4 */
+        .arsenal-theme-cyber {
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+        }
+        
+        .arsenal-theme-neon {
+            --primary-color: #39ff14;
+            --secondary-color: #ff073a;
+        }
+        
+        .arsenal-theme-matrix {
+            --primary-color: #00ff41;
+            --secondary-color: #ff4757;
+        }
+        
+        .arsenal-theme-synthwave {
+            --primary-color: #ff006e;
+            --secondary-color: #8338ec;
+        }
+    </style>
 </body>
 </html>
