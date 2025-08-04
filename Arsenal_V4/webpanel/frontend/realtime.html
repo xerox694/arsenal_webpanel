@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temps Réel - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .realtime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .realtime-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .realtime-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .realtime-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .realtime-card:hover::before {
+            left: 100%;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--success-color);
+            font-size: 0.9em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .activity-feed {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary-color);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-online {
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            color: var(--warning-color);
+        }
+
+        .status-error {
+            color: var(--error-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>&nbsp;&nbsp;Monitoring Temps Réel
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">⚡ Monitoring Temps Réel</h1>
+
+        <div class="realtime-grid">
+            <div class="realtime-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">Status Bot</div>
+                        <div class="live-indicator">
+                            <i class="fas fa-circle"></i>
+                            EN LIGNE
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-value" id="uptime">99.7%</div>
+                <div class="metric-label">Temps de fonctionnement</div>
+            </div>
+
+            <div class="realtime-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">CPU Usage</div>
+                        <div class="live-indicator">
+                            <i class="fas fa-circle"></i>
+                            LIVE
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-value" id="cpu-usage">23%</div>
+                <div class="metric-label">Utilisation processeur</div>
+            </div>
+
+            <div class="realtime-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">RAM Usage</div>
+                        <div class="live-indicator">
+                            <i class="fas fa-circle"></i>
+                            LIVE
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-value" id="ram-usage">156MB</div>
+                <div class="metric-label">Mémoire utilisée</div>
+            </div>
+
+            <div class="realtime-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">Latence</div>
+                        <div class="live-indicator">
+                            <i class="fas fa-circle"></i>
+                            LIVE
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-value" id="latency">45ms</div>
+                <div class="metric-label">Ping Discord API</div>
+            </div>
+        </div>
+
+        <div class="activity-feed">
+            <h3 class="section-title">
+                <i class="fas fa-stream"></i>
+                Activité en Temps Réel
+            </h3>
+            <div id="activity-list">
+                <!-- Les activités seront ajoutées dynamiquement -->
+            </div>
+        </div>
+
+        <div class="realtime-card">
+            <h3 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Status Général
+            </h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-value status-online" id="servers-online">42</div>
+                    <div class="metric-label">Serveurs En Ligne</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value status-online" id="users-active">1,247</div>
+                    <div class="metric-label">Utilisateurs Actifs</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value status-warning" id="commands-hour">127</div>
+                    <div class="metric-label">Commandes/Heure</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value status-online" id="database-status">OK</div>
+                    <div class="metric-label">Base de Données</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simulation des données en temps réel
+        function updateMetrics() {
+            // CPU Usage
+            const cpuUsage = Math.floor(Math.random() * 30) + 15;
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            
+            // RAM Usage
+            const ramUsage = Math.floor(Math.random() * 50) + 120;
+            document.getElementById('ram-usage').textContent = ramUsage + 'MB';
+            
+            // Latency
+            const latency = Math.floor(Math.random() * 20) + 35;
+            document.getElementById('latency').textContent = latency + 'ms';
+            
+            // Commands per hour
+            const commandsHour = Math.floor(Math.random() * 50) + 100;
+            document.getElementById('commands-hour').textContent = commandsHour;
+        }
+
+        function addActivity(message, icon, type = 'info') {
+            const activityList = document.getElementById('activity-list');
+            const now = new Date().toLocaleTimeString();
+            
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <div class="activity-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">${message}</div>
+                    <div class="activity-time">${now}</div>
+                </div>
+            `;
+            
+            activityList.insertBefore(activityItem, activityList.firstChild);
+            
+            // Garder seulement les 10 dernières activités
+            while (activityList.children.length > 10) {
+                activityList.removeChild(activityList.lastChild);
+            }
+        }
+
+        // Simulation d'activités
+        function simulateActivity() {
+            const activities = [
+                { msg: "Nouvelle commande exécutée sur Arsenal Gaming", icon: "fas fa-terminal" },
+                { msg: "Utilisateur connecté sur Dev Community", icon: "fas fa-user-plus" },
+                { msg: "Message modéré automatiquement", icon: "fas fa-shield-alt" },
+                { msg: "Backup automatique effectué", icon: "fas fa-save" },
+                { msg: "Nouveau serveur ajouté", icon: "fas fa-server" }
+            ];
+            
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            addActivity(randomActivity.msg, randomActivity.icon);
+        }
+
+        // Démarrer les mises à jour
+        setInterval(updateMetrics, 3000);
+        setInterval(simulateActivity, 5000);
+
+        // Première activité
+        setTimeout(() => {
+            addActivity("Monitoring temps réel démarré", "fas fa-play");
+        }, 1000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.realtime-card, .activity-feed');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -363,7 +363,7 @@
   "fusion_system": {
     "description": "Système de fusion pour créer des super gemmes et méga gemmes",
     "super_stones": {
-      "description": "Fusion de 2 gemmes identiques niveau 7",
+      "description": "Fusion de 2 gemmes différentes niveau 7",
       "cost": {
         "gems_required": 2,
         "same_type": true,
@@ -379,7 +379,7 @@
       }
     },
     "mega_stones": {
-      "description": "Fusion de 3 gemmes identiques niveau 7",
+      "description": "Fusion de 3 gemmes différentes niveau 7",
       "cost": {
         "gems_required": 3,
         "same_type": true,

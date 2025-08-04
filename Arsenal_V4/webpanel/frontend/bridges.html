@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridges - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .bridges-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .bridge-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bridge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .bridge-card:hover::before {
+            left: 100%;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bridge-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .bridge-item:hover {
+            background: var(--hover-color);
+            border-color: var(--primary-color);
+        }
+
+        .bridge-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .bridge-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .bridge-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .status-online {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error-color);
+        }
+
+        .status-warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .bridge-status {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-online-badge {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-offline-badge {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error-color);
+        }
+
+        .status-warning-badge {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .bridge-details {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .bridge-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .bridge-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-decoration: none;
+        }
+
+        .bridge-btn:hover {
+            background: var(--hover-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .bridge-btn.primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-color: transparent;
+        }
+
+        .bridge-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 247, 0.3);
+        }
+
+        .bridge-btn.danger {
+            background: linear-gradient(45deg, var(--error-color), #ff6b6b);
+            border-color: transparent;
+        }
+
+        .bridge-btn.danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .create-bridge {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 247, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading i {
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .bridges-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-network-wired"></i>&nbsp;&nbsp;Centre des Bridges
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">🌉 Gestionnaire de Bridges</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="total-bridges">-</div>
+                        <div class="stat-label">Bridges Total</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="active-bridges">-</div>
+                        <div class="stat-label">Actifs</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="messages-today">-</div>
+                        <div class="stat-label">Messages Aujourd'hui</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="servers-connected">-</div>
+                        <div class="stat-label">Serveurs Connectés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="create-bridge">
+            <h3 class="section-title">
+                <i class="fas fa-plus"></i>
+                Créer un Nouveau Bridge
+            </h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nom du Bridge</label>
+                    <input type="text" class="form-input" placeholder="Nom du bridge..." id="bridge-name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type de Bridge</label>
+                    <select class="form-select" id="bridge-type">
+                        <option value="channel">Canal → Canal</option>
+                        <option value="guild">Serveur → Serveur</option>
+                        <option value="webhook">Webhook</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Source</label>
+                    <input type="text" class="form-input" placeholder="ID du canal source..." id="source-channel">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Destination</label>
+                    <input type="text" class="form-input" placeholder="ID du canal destination..." id="dest-channel">
+                </div>
+            </div>
+
+            <div class="bridge-actions">
+                <button class="bridge-btn primary" onclick="createBridge()">
+                    <i class="fas fa-plus"></i>
+                    Créer Bridge
+                </button>
+                <button class="bridge-btn" onclick="testConnection()">
+                    <i class="fas fa-flask"></i>
+                    Tester Connexion
+                </button>
+            </div>
+        </div>
+
+        <div class="bridges-container">
+            <div class="bridge-card">
+                <h3 class="section-title">
+                    <i class="fas fa-link"></i>
+                    Bridges Actifs
+                </h3>
+
+                <div id="active-bridges-list">
+                    <div class="loading" id="active-loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des bridges actifs...
+                    </div>
+                </div>
+            </div>
+
+            <div class="bridge-card">
+                <h3 class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Bridges Inactifs
+                </h3>
+
+                <div id="inactive-bridges-list">
+                    <div class="loading" id="inactive-loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des bridges inactifs...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Données des bridges
+        const bridgesData = {
+            active: [
+                { 
+                    name: 'Bridge Arsenal → Hunt Royal', 
+                    type: 'channel', 
+                    source: '#general (Arsenal)', 
+                    dest: '#bridge (Hunt Royal)',
+                    messages: 1247,
+                    status: 'online'
+                },
+                { 
+                    name: 'News Bridge', 
+                    type: 'webhook', 
+                    source: '#announcements', 
+                    dest: 'Webhook URL',
+                    messages: 534,
+                    status: 'online'
+                },
+                { 
+                    name: 'Staff Communication', 
+                    type: 'guild', 
+                    source: 'Staff Server', 
+                    dest: 'Main Server',
+                    messages: 892,
+                    status: 'warning'
+                }
+            ],
+            inactive: [
+                { 
+                    name: 'Test Bridge', 
+                    type: 'channel', 
+                    source: '#test', 
+                    dest: '#test-bridge',
+                    messages: 45,
+                    status: 'offline'
+                },
+                { 
+                    name: 'Legacy Bridge', 
+                    type: 'custom', 
+                    source: 'Old Channel', 
+                    dest: 'Legacy System',
+                    messages: 0,
+                    status: 'offline'
+                }
+            ]
+        };
+
+        function loadBridges() {
+            loadActiveBridges();
+            loadInactiveBridges();
+        }
+
+        function loadActiveBridges() {
+            const container = document.getElementById('active-bridges-list');
+            
+            if (bridgesData.active.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucun bridge actif</p>';
+                return;
+            }
+
+            const bridgesHtml = bridgesData.active.map(bridge => `
+                <div class="bridge-item">
+                    <div class="bridge-header">
+                        <div class="bridge-name">
+                            <div class="bridge-icon status-${bridge.status}">
+                                <i class="fas fa-${bridge.status === 'online' ? 'check' : bridge.status === 'warning' ? 'exclamation' : 'times'}"></i>
+                            </div>
+                            ${bridge.name}
+                        </div>
+                        <div class="bridge-status status-${bridge.status}-badge">${bridge.status === 'online' ? 'En Ligne' : bridge.status === 'warning' ? 'Attention' : 'Hors Ligne'}</div>
+                    </div>
+                    <div class="bridge-details">
+                        <strong>Type:</strong> ${bridge.type} | <strong>Messages:</strong> ${bridge.messages} | <strong>Source:</strong> ${bridge.source} → <strong>Dest:</strong> ${bridge.dest}
+                    </div>
+                    <div class="bridge-actions">
+                        <button class="bridge-btn" onclick="editBridge('${bridge.name}')">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="bridge-btn" onclick="viewStats('${bridge.name}')">
+                            <i class="fas fa-chart-bar"></i> Stats
+                        </button>
+                        <button class="bridge-btn danger" onclick="disableBridge('${bridge.name}')">
+                            <i class="fas fa-stop"></i> Désactiver
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = bridgesHtml;
+        }
+
+        function loadInactiveBridges() {
+            const container = document.getElementById('inactive-bridges-list');
+            
+            if (bridgesData.inactive.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucun bridge inactif</p>';
+                return;
+            }
+
+            const bridgesHtml = bridgesData.inactive.map(bridge => `
+                <div class="bridge-item">
+                    <div class="bridge-header">
+                        <div class="bridge-name">
+                            <div class="bridge-icon status-offline">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            ${bridge.name}
+                        </div>
+                        <div class="bridge-status status-offline-badge">Hors Ligne</div>
+                    </div>
+                    <div class="bridge-details">
+                        <strong>Type:</strong> ${bridge.type} | <strong>Messages:</strong> ${bridge.messages} | <strong>Source:</strong> ${bridge.source} → <strong>Dest:</strong> ${bridge.dest}
+                    </div>
+                    <div class="bridge-actions">
+                        <button class="bridge-btn primary" onclick="enableBridge('${bridge.name}')">
+                            <i class="fas fa-play"></i> Activer
+                        </button>
+                        <button class="bridge-btn" onclick="editBridge('${bridge.name}')">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="bridge-btn danger" onclick="deleteBridge('${bridge.name}')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = bridgesHtml;
+        }
+
+        function createBridge() {
+            const name = document.getElementById('bridge-name').value;
+            const type = document.getElementById('bridge-type').value;
+            const source = document.getElementById('source-channel').value;
+            const dest = document.getElementById('dest-channel').value;
+
+            if (!name || !source || !dest) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            // Simuler la création
+            alert(`Bridge "${name}" créé avec succès !`);
+            
+            // Ajouter à la liste active
+            bridgesData.active.push({
+                name: name,
+                type: type,
+                source: source,
+                dest: dest,
+                messages: 0,
+                status: 'online'
+            });
+
+            // Réinitialiser le formulaire
+            document.getElementById('bridge-name').value = '';
+            document.getElementById('source-channel').value = '';
+            document.getElementById('dest-channel').value = '';
+
+            // Recharger les listes
+            loadBridges();
+        }
+
+        function testConnection() {
+            const source = document.getElementById('source-channel').value;
+            const dest = document.getElementById('dest-channel').value;
+
+            if (!source || !dest) {
+                alert('Veuillez spécifier la source et la destination');
+                return;
+            }
+
+            alert('Test de connexion en cours...\n\n✅ Source accessible\n✅ Destination accessible\n✅ Permissions OK');
+        }
+
+        function editBridge(name) {
+            alert(`Modification du bridge "${name}" - Interface à implémenter`);
+        }
+
+        function viewStats(name) {
+            alert(`Statistiques du bridge "${name}":\n\n📊 Messages aujourd'hui: 124\n📈 Moyenne/jour: 89\n⏱️ Latence moyenne: 0.3s\n🔄 Uptime: 99.2%`);
+        }
+
+        function enableBridge(name) {
+            const bridge = bridgesData.inactive.find(b => b.name === name);
+            if (bridge) {
+                bridge.status = 'online';
+                bridgesData.active.push(bridge);
+                bridgesData.inactive = bridgesData.inactive.filter(b => b.name !== name);
+                loadBridges();
+                alert(`Bridge "${name}" activé avec succès !`);
+            }
+        }
+
+        function disableBridge(name) {
+            if (confirm(`Désactiver le bridge "${name}" ?`)) {
+                const bridge = bridgesData.active.find(b => b.name === name);
+                if (bridge) {
+                    bridge.status = 'offline';
+                    bridgesData.inactive.push(bridge);
+                    bridgesData.active = bridgesData.active.filter(b => b.name !== name);
+                    loadBridges();
+                    alert(`Bridge "${name}" désactivé`);
+                }
+            }
+        }
+
+        function deleteBridge(name) {
+            if (confirm(`Supprimer définitivement le bridge "${name}" ?`)) {
+                bridgesData.inactive = bridgesData.inactive.filter(b => b.name !== name);
+                loadBridges();
+                alert(`Bridge "${name}" supprimé`);
+            }
+        }
+
+        // Simulation de chargement des données
+        setTimeout(() => {
+            document.getElementById('active-loading').style.display = 'none';
+            document.getElementById('inactive-loading').style.display = 'none';
+            
+            // Stats simulées
+            document.getElementById('total-bridges').textContent = '5';
+            document.getElementById('active-bridges').textContent = '3';
+            document.getElementById('messages-today').textContent = '2,673';
+            document.getElementById('servers-connected').textContent = '8';
+
+            // Charger le contenu
+            loadBridges();
+        }, 2000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.stat-card, .create-bridge, .bridge-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

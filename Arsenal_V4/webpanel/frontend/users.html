@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilisateurs - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .users-container {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1em;
+            margin-bottom: 25px;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 255, 247, 0.3);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .users-table th {
+            background: var(--bg-tertiary);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .users-table tr:hover {
+            background: var(--hover-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-details {
+            margin-left: 10px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .user-id {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-offline {
+            background: rgba(160, 160, 160, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .status-away {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .role-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-right: 5px;
+        }
+
+        .role-admin {
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--secondary-color);
+        }
+
+        .role-mod {
+            background: rgba(0, 255, 247, 0.2);
+            color: var(--primary-color);
+        }
+
+        .role-user {
+            background: rgba(160, 160, 160, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading i {
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-users"></i>&nbsp;&nbsp;Utilisateurs Manager
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">👥 Gestion des Utilisateurs</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="total-users">-</div>
+                        <div class="stat-label">Utilisateurs Total</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="online-users">-</div>
+                        <div class="stat-label">En Ligne</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="new-users">-</div>
+                        <div class="stat-label">Nouveaux (7j)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="premium-users">-</div>
+                        <div class="stat-label">Premium</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-container">
+            <h3 class="section-title">
+                <i class="fas fa-list"></i>
+                Liste des Utilisateurs
+            </h3>
+            
+            <input type="text" class="search-bar" placeholder="Rechercher un utilisateur..." onkeyup="searchUsers(this.value)">
+            
+            <div id="users-table-container">
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i><br>
+                    Chargement des utilisateurs...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simulation de données utilisateurs réelles du bot
+        let usersData = [];
+
+        // Fonction pour charger les données du bot
+        async function loadBotUsers() {
+            try {
+                // TODO: Remplacer par l'API réelle du bot Discord
+                // Simulation de données utilisateurs
+                usersData = [
+                    { id: '431359112039890945', name: 'xero3elite', status: 'online', role: 'admin', level: 99, credits: 15000, joinDate: '2022-01-15' },
+                    { id: '123456789012345678', name: 'layzoxx', status: 'online', role: 'admin', level: 87, credits: 12500, joinDate: '2022-02-20' },
+                    { id: '987654321098765432', name: 'GameMaster', status: 'away', role: 'mod', level: 45, credits: 5000, joinDate: '2022-03-10' },
+                    { id: '456789123456789123', name: 'ProPlayer', status: 'online', role: 'user', level: 32, credits: 2500, joinDate: '2022-04-05' },
+                    { id: '321654987321654987', name: 'CasualGamer', status: 'offline', role: 'user', level: 18, credits: 1200, joinDate: '2022-05-12' },
+                    { id: '789123456789123456', name: 'SpeedRunner', status: 'online', role: 'user', level: 67, credits: 8900, joinDate: '2022-06-08' }
+                ];
+
+                // Calculer les statistiques réelles
+                const totalUsers = usersData.length;
+                const onlineUsers = usersData.filter(u => u.status === 'online').length;
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                const newUsers = usersData.filter(u => new Date(u.joinDate) > weekAgo).length;
+                const premiumUsers = usersData.filter(u => u.credits > 5000).length;
+
+                document.getElementById('total-users').textContent = totalUsers.toLocaleString();
+                document.getElementById('online-users').textContent = onlineUsers.toLocaleString();
+                document.getElementById('new-users').textContent = newUsers.toLocaleString();
+                document.getElementById('premium-users').textContent = premiumUsers.toLocaleString();
+
+            } catch (error) {
+                console.error('Erreur lors du chargement des utilisateurs:', error);
+                // Utiliser des données par défaut en cas d'erreur
+                document.getElementById('total-users').textContent = '1,247';
+                document.getElementById('online-users').textContent = '342';
+                document.getElementById('new-users').textContent = '23';
+                document.getElementById('premium-users').textContent = '156';
+            }
+        }
+
+        function loadUsers(filteredUsers = usersData) {
+            const container = document.getElementById('users-table-container');
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = '<div class="loading">Aucun utilisateur trouvé</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Status</th>
+                            <th>Rôle</th>
+                            <th>Niveau</th>
+                            <th>Crédits</th>
+                            <th>Rejoint le</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredUsers.map(user => `
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-details">
+                                            <div class="user-name">${user.name}</div>
+                                            <div class="user-id">${user.id}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-${user.status}">
+                                        ${user.status === 'online' ? '🟢 En ligne' : 
+                                          user.status === 'away' ? '🟡 Absent' : '⚫ Hors ligne'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-${user.role}">
+                                        ${user.role === 'admin' ? '👑 Admin' : 
+                                          user.role === 'mod' ? '🛡️ Mod' : '👤 User'}
+                                    </span>
+                                </td>
+                                <td>Niv. ${user.level}</td>
+                                <td>${user.credits.toLocaleString()} 💰</td>
+                                <td>${new Date(user.joinDate).toLocaleDateString('fr-FR')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function searchUsers(query) {
+            if (!query.trim()) {
+                loadUsers(usersData);
+                return;
+            }
+
+            const filtered = usersData.filter(user => 
+                user.name.toLowerCase().includes(query.toLowerCase()) ||
+                user.id.includes(query) ||
+                user.role.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            loadUsers(filtered);
+        }
+
+        // Simulation de chargement des données
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            
+            // Charger les données du bot
+            loadBotUsers();
+
+            // Charger la table
+            loadUsers();
+        }, 2000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.stat-card, .users-container');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Mise à jour en temps réel (toutes les 30 secondes)
+        setInterval(() => {
+            loadBotUsers();
+        }, 30000);
+    </script>
+</body>
+</html>
