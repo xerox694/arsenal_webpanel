@@ -1919,7 +1919,7 @@ try:
             }), 500
     
     @app.route('/api/bot/status')
-    def get_bot_status():
+    def get_bot_status_dashboard():
         """Status du bot en temps réel"""
         # FORCE des données réalistes TOUJOURS
         bot_status = {
