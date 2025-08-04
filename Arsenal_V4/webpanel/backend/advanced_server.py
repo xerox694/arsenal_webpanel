@@ -1154,23 +1154,7 @@ try:
 
     # ==================== ROUTES SUPPLÉMENTAIRES ====================
     
-    # servers_page and users_page moved below to avoid duplicates
-
-    @app.route('/commands')
-    def commands_page():
-        """Page Commandes séparée"""
-        try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
-            commands_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'commands.html')
-            if os.path.exists(commands_path):
-                return send_from_directory(os.path.dirname(commands_path), 'commands.html')
-            else:
-                return redirect('/dashboard#commands')
-        except Exception as e:
-            print(f"❌ Erreur commands: {e}")
-            return redirect('/dashboard')
+    # servers_page, users_page and commands_page moved below to avoid duplicates
 
     @app.route('/automod')
     def automod_page():
