@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Analytics - Arsenal V4</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e, #16213e);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .analytics-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .analytics-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Arsenal V4" class="img-fluid" style="max-width: 100px;">
+                        <h4 class="text-white mt-2">Arsenal V4</h4>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('analytics') }}">
+                                <i class="fas fa-chart-line me-2"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('users') }}">
+                                <i class="fas fa-users me-2"></i> Utilisateurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('servers') }}">
+                                <i class="fas fa-server me-2"></i> Serveurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('music') }}">
+                                <i class="fas fa-music me-2"></i> Musique
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('moderation') }}">
+                                <i class="fas fa-shield-alt me-2"></i> Modération
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('economy') }}">
+                                <i class="fas fa-coins me-2"></i> Économie
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" href="{{ url_for('settings') }}">
+                                <i class="fas fa-cog me-2"></i> Paramètres
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-chart-line text-primary me-2"></i>Analytics du Bot</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-outline-secondary" onclick="refreshData()">
+                                <i class="fas fa-sync-alt"></i> Actualiser
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="exportData()">
+                                <i class="fas fa-download"></i> Exporter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métriques principales -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalUsers">{{ stats.users or 0 }}</div>
+                            <div>Utilisateurs Totaux</div>
+                            <small><i class="fas fa-arrow-up text-success"></i> +5.2% ce mois</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalServers">{{ stats.guilds or 0 }}</div>
+                            <div>Serveurs Connectés</div>
+                            <small><i class="fas fa-arrow-up text-success"></i> +12% ce mois</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalCommands">{{ stats.commands or 0 }}</div>
+                            <div>Commandes Exécutées</div>
+                            <small><i class="fas fa-arrow-up text-success"></i> +8.7% ce mois</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-value" id="uptime">{{ stats.uptime or '0%' }}</div>
+                            <div>Temps de Fonctionnement</div>
+                            <small><i class="fas fa-check text-success"></i> Stable</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphiques -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="analytics-card">
+                            <h4><i class="fas fa-chart-area text-info me-2"></i>Activité des Utilisateurs</h4>
+                            <div class="chart-container">
+                                <canvas id="userActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="analytics-card">
+                            <h4><i class="fas fa-chart-pie text-warning me-2"></i>Commandes Populaires</h4>
+                            <div class="chart-container">
+                                <canvas id="commandsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="analytics-card">
+                            <h4><i class="fas fa-server text-success me-2"></i>Croissance des Serveurs</h4>
+                            <div class="chart-container">
+                                <canvas id="serversChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="analytics-card">
+                            <h4><i class="fas fa-clock text-danger me-2"></i>Utilisation par Heure</h4>
+                            <div class="chart-container">
+                                <canvas id="hourlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau des statistiques détaillées -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="analytics-card">
+                            <h4><i class="fas fa-table text-secondary me-2"></i>Statistiques Détaillées</h4>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Métrique</th>
+                                            <th>Aujourd'hui</th>
+                                            <th>Cette Semaine</th>
+                                            <th>Ce Mois</th>
+                                            <th>Tendance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailedStats">
+                                        <tr>
+                                            <td><i class="fas fa-users text-primary me-2"></i>Nouveaux Utilisateurs</td>
+                                            <td>12</td>
+                                            <td>89</td>
+                                            <td>347</td>
+                                            <td><span class="badge bg-success"><i class="fas fa-arrow-up"></i> +15%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fas fa-server text-info me-2"></i>Nouveaux Serveurs</td>
+                                            <td>3</td>
+                                            <td>15</td>
+                                            <td>42</td>
+                                            <td><span class="badge bg-success"><i class="fas fa-arrow-up"></i> +22%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fas fa-terminal text-warning me-2"></i>Commandes/Jour</td>
+                                            <td>1,247</td>
+                                            <td>8,934</td>
+                                            <td>35,678</td>
+                                            <td><span class="badge bg-success"><i class="fas fa-arrow-up"></i> +8%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fas fa-exclamation-triangle text-danger me-2"></i>Erreurs</td>
+                                            <td>2</td>
+                                            <td>7</td>
+                                            <td>23</td>
+                                            <td><span class="badge bg-warning"><i class="fas fa-arrow-down"></i> -5%</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuration des graphiques
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+
+        // Graphique d'activité des utilisateurs
+        const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+        const userActivityChart = new Chart(userActivityCtx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Utilisateurs Actifs',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Graphique des commandes populaires
+        const commandsCtx = document.getElementById('commandsChart').getContext('2d');
+        const commandsChart = new Chart(commandsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Music', 'Economy', 'Fun', 'Moderation', 'Utility'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            }
+        });
+
+        // Graphique de croissance des serveurs
+        const serversCtx = document.getElementById('serversChart').getContext('2d');
+        const serversChart = new Chart(serversCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Nouveaux Serveurs',
+                    data: [5, 8, 12, 15, 18, 22],
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Graphique utilisation par heure
+        const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+        const hourlyChart = new Chart(hourlyCtx, {
+            type: 'line',
+            data: {
+                labels: ['00h', '04h', '08h', '12h', '16h', '20h'],
+                datasets: [{
+                    label: 'Commandes/Heure',
+                    data: [10, 5, 15, 35, 45, 30],
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Fonctions utilitaires
+        function refreshData() {
+            // Recharger les données
+            location.reload();
+        }
+
+        function exportData() {
+            // Exporter les données (CSV, JSON, etc.)
+            const data = {
+                users: document.getElementById('totalUsers').textContent,
+                servers: document.getElementById('totalServers').textContent,
+                commands: document.getElementById('totalCommands').textContent,
+                uptime: document.getElementById('uptime').textContent,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'arsenal_analytics_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+        }
+
+        // Mise à jour en temps réel
+        setInterval(() => {
+            fetch('/api/analytics/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalUsers').textContent = data.stats.users || 0;
+                        document.getElementById('totalServers').textContent = data.stats.servers || 0;
+                        document.getElementById('totalCommands').textContent = data.stats.commands || 0;
+                        document.getElementById('uptime').textContent = data.stats.uptime || '0%';
+                    }
+                })
+                .catch(error => console.log('Erreur mise à jour stats:', error));
+        }, 30000); // Mise à jour toutes les 30 secondes
+    </script>
+</body>
+</html>
