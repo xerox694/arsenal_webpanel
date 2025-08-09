@@ -100,7 +100,7 @@
                 rgba(15, 20, 35, 0.96) 100%);
             backdrop-filter: blur(25px);
             border-right: 2px solid var(--border-color);
-            z-index: 1000;
+            z-index: 999;
             transform: translateX(0);
             transition: transform 0.3s ease;
             overflow-y: auto;
@@ -161,6 +161,9 @@
             padding: 30px;
             min-height: calc(100vh - 70px);
             transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1;
+            background: inherit;
         }
 
         .main-content.expanded {
@@ -346,10 +349,10 @@
         <nav class="sidebar-nav">
             <div class="menu-section">
                 <div class="menu-title">🏠 Principal</div>
-                <div class="menu-item active" onclick="showPage('dashboard', this)">
+                <a href="/dashboard" class="menu-item active">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
-                </div>
+                </a>
                 <a href="/analytics" class="menu-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
@@ -425,7 +428,7 @@
             </div>
 
             <div class="menu-section">
-                <div class="menu-title">🤖 Intelligence</div>
+                <div class="menu-title">🤖 Intelligence & Outils</div>
                 <a href="/ai-center" class="menu-item">
                     <i class="fas fa-brain"></i>
                     <span>AI Center</span>
@@ -445,7 +448,7 @@
             </div>
 
             <div class="menu-section">
-                <div class="menu-title">⚙️ Système</div>
+                <div class="menu-title">⚙️ Système & Config</div>
                 <a href="/botinfo" class="menu-item">
                     <i class="fas fa-info-circle"></i>
                     <span>Info Bot</span>
