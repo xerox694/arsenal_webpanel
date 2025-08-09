@@ -134,6 +134,31 @@ def real_time_stats_api():
     """API - Statistiques temps réel"""
     return jsonify(real_time_stats)
 
+@app.route('/api/test')
+def test_api():
+    """API - Test de connexion"""
+    return jsonify({
+        'status': 'ok',
+        'message': 'Arsenal V4 API opérationnelle',
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/servers/list')
+def servers_list_api():
+    """API - Liste des serveurs"""
+    return jsonify({
+        'success': True,
+        'servers': [
+            {
+                'id': '123456789',
+                'name': 'Serveur Test Arsenal',
+                'members': 150,
+                'online': 45,
+                'icon': None
+            }
+        ]
+    })
+
 # ==================== AI ULTIMATE API ====================
 
 @app.route('/api/ai/status')
@@ -432,8 +457,8 @@ def start_discord_bot():
         if not discord_token:
             return False, "❌ DISCORD_TOKEN manquant dans les variables d'environnement"
         
-        # Chemin vers le bot
-        bot_dir = Path(__file__).parent / 'Arsenal_V4' / 'bot'
+        # Chemin vers le bot (utiliser notre main.py corrigé)
+        bot_dir = Path(__file__).parent
         bot_main = bot_dir / 'main.py'
         
         if not bot_main.exists():
@@ -442,7 +467,7 @@ def start_discord_bot():
         # Environnement
         env = os.environ.copy()
         env['DISCORD_TOKEN'] = discord_token
-        env['PYTHONPATH'] = str(bot_dir.parent)
+        env['PYTHONPATH'] = str(bot_dir)
         
         # Démarrer le processus bot
         bot_process = subprocess.Popen(
