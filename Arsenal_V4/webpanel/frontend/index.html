@@ -781,12 +781,14 @@
             margin-top: 70px;
             margin-left: 0;
             padding: 30px;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             min-height: calc(100vh - 70px);
+            width: 100%;
         }
 
         .main-content.sidebar-open {
             margin-left: 300px;
+            width: calc(100% - 300px);
         }
 
         .page-header {
@@ -2236,25 +2238,17 @@
 
             <div class="menu-section">
                 <div class="menu-title">🎵 Musique & Audio</div>
-                <a href="/music" class="menu-item menu-link">
-                    <i class="fas fa-music"></i>
-                    <span>Musique</span>
-                </a>
                 <a href="/music-center" class="menu-item menu-link">
-                    <i class="fas fa-headphones"></i>
-                    <span>🎵 Music Center</span>
+                    <i class="fas fa-music"></i>
+                    <span>Music</span>
                 </a>
             </div>
 
             <div class="menu-section">
                 <div class="menu-title">💰 Économie</div>
-                <a href="/economy" class="menu-item menu-link">
-                    <i class="fas fa-coins"></i>
-                    <span>Économie</span>
-                </a>
                 <a href="/economy-center" class="menu-item menu-link">
-                    <i class="fas fa-bank"></i>
-                    <span>💰 Economy Center</span>
+                    <i class="fas fa-coins"></i>
+                    <span>Economy</span>
                 </a>
                 <a href="/economy-page" class="menu-item menu-link">
                     <i class="fas fa-chart-pie"></i>
@@ -2264,13 +2258,9 @@
 
             <div class="menu-section">
                 <div class="menu-title">🎮 Jeux & Divertissement</div>
-                <a href="/games" class="menu-item menu-link">
-                    <i class="fas fa-gamepad"></i>
-                    <span>Jeux</span>
-                </a>
                 <a href="/games-ultimate" class="menu-item menu-link">
-                    <i class="fas fa-trophy"></i>
-                    <span>🎮 Games Ultimate</span>
+                    <i class="fas fa-gamepad"></i>
+                    <span>Games Center</span>
                 </a>
                 <div class="menu-item" onclick="openCasino()">
                     <i class="fas fa-dice"></i>
@@ -2278,7 +2268,7 @@
                 </div>
                 <a href="/calculator" class="menu-item menu-link">
                     <i class="fas fa-calculator"></i>
-                    <span>🔢 SuperCalculator</span>
+                    <span>🔢 Calculator</span>
                 </a>
             </div>
 
