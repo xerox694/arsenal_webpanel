@@ -8,9 +8,6 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- CSS Framework -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -20,17 +17,18 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary: #00d4aa;
-            --secondary: #4fb3d9;
-            --dark: #0f1419;
-            --dark-lighter: #1a2332;
-            --dark-accent: #2a3441;
+            --primary-color: #00fff7;
+            --secondary-color: #0088ff;
+            --bg-dark: #0a0a0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(0, 255, 247, 0.3);
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --text-secondary: #b8c5d1;
+            --accent-color: #00fff7;
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
+            --error-color: #ff4444;
+            --hover-color: rgba(0, 255, 247, 0.1);
         }
 
         * {
@@ -41,63 +39,700 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--dark);
+            background: linear-gradient(120deg, var(--bg-dark) 60%, var(--primary-color) 100%);
             color: var(--text-primary);
             overflow-x: hidden;
         }
 
-        /* Sidebar moderne */
-        .sidebar {
+        /* Header moderne */
+        .header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 280px;
-            height: 100vh;
-            background: var(--dark-lighter);
-            border-right: 1px solid var(--border);
+            right: 0;
+            height: 70px;
+            background: linear-gradient(135deg, 
+                rgba(10, 15, 28, 0.95) 0%, 
+                rgba(20, 25, 40, 0.9) 100%);
             backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--hover-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Sidebar futuriste */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: linear-gradient(180deg, 
+                rgba(10, 15, 28, 0.98) 0%, 
+                rgba(15, 20, 35, 0.96) 100%);
+            backdrop-filter: blur(25px);
+            border-right: 2px solid var(--border-color);
             z-index: 1000;
             transform: translateX(0);
             transition: transform 0.3s ease;
+            overflow-y: auto;
         }
 
         .sidebar.collapsed {
             transform: translateX(-280px);
         }
 
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sidebar-brand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 20px 0;
         }
 
-        .nav-section {
-            margin-bottom: 1.5rem;
+        .menu-section {
+            margin-bottom: 30px;
         }
 
-        .nav-section-title {
-            padding: 0 1.5rem 0.5rem;
-            font-size: 0.75rem;
+        .menu-title {
+            padding: 0 20px 15px;
+            font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 1px;
             color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
         }
 
-        .nav-item {
-            margin: 0.25rem 0.75rem;
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            margin: 5px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: var(--hover-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            width: 20px;
+            font-size: 16px;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .breadcrumb {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, 
+                rgba(10, 15, 28, 0.9) 0%, 
+                rgba(20, 25, 40, 0.8) 50%, 
+                rgba(15, 20, 35, 0.9) 100%);
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(25px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 247, 0.2),
+                inset 0 0 50px rgba(255, 255, 255, 0.03),
+                0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 80px rgba(0, 255, 247, 0.4),
+                0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #fff;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.online { background: var(--success-color); }
+        .status-dot.offline { background: var(--error-color); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">ARSENAL V4</div>
+        </div>
+        
+        <div class="header-controls">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-weight: bold;">Dashboard Professionnel</div>
+                <div style="width: 35px; height: 35px; border-radius: 50%; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="menu-section">
+                <div class="menu-title">🏠 Principal</div>
+                <div class="menu-item active" onclick="showPage('dashboard', this)">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <a href="/analytics" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/realtime" class="menu-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Temps Réel</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">🔧 Gestion Bot</div>
+                <a href="/servers" class="menu-item">
+                    <i class="fas fa-server"></i>
+                    <span>Serveurs</span>
+                </a>
+                <a href="/users" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Utilisateurs</span>
+                </a>
+                <a href="/commands" class="menu-item">
+                    <i class="fas fa-terminal"></i>
+                    <span>Commandes</span>
+                </a>
+                <a href="/moderation" class="menu-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Modération</span>
+                </a>
+                <a href="/automod" class="menu-item">
+                    <i class="fas fa-robot"></i>
+                    <span>Auto-Mod</span>
+                </a>
+                <a href="/security" class="menu-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Sécurité</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">🎮 Fonctionnalités</div>
+                <a href="/music" class="menu-item">
+                    <i class="fas fa-music"></i>
+                    <span>Musique</span>
+                </a>
+                <a href="/music-center" class="menu-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Music Center</span>
+                </a>
+                <a href="/economy" class="menu-item">
+                    <i class="fas fa-coins"></i>
+                    <span>Économie</span>
+                </a>
+                <a href="/economy-center" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Economy Center</span>
+                </a>
+                <a href="/economy-page" class="menu-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>Economy Page</span>
+                </a>
+                <a href="/games" class="menu-item">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Mini-Jeux</span>
+                </a>
+                <a href="/games-ultimate" class="menu-item">
+                    <i class="fas fa-trophy"></i>
+                    <span>Games Ultimate</span>
+                </a>
+                <a href="/calculator" class="menu-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculator</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">🤖 Intelligence</div>
+                <a href="/ai-center" class="menu-item">
+                    <i class="fas fa-brain"></i>
+                    <span>AI Center</span>
+                </a>
+                <a href="/backup" class="menu-item">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Backup</span>
+                </a>
+                <a href="/bridges" class="menu-item">
+                    <i class="fas fa-bridge"></i>
+                    <span>Ponts Inter-Serveur</span>
+                </a>
+                <a href="/hub" class="menu-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>Hub Config</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">⚙️ Système</div>
+                <a href="/botinfo" class="menu-item">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Info Bot</span>
+                </a>
+                <a href="/help" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </a>
+                <a href="/performance" class="menu-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Performance</span>
+                </a>
+                <a href="/logs" class="menu-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Logs</span>
+                </a>
+                <a href="/database" class="menu-item">
+                    <i class="fas fa-database"></i>
+                    <span>Base de Données</span>
+                </a>
+                <a href="/api" class="menu-item">
+                    <i class="fas fa-code"></i>
+                    <span>API</span>
+                </a>
+                <a href="/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Dashboard Page -->
+        <div class="page-header">
+            <div>
+                <div class="page-title">🚀 Dashboard Arsenal V4</div>
+                <div class="breadcrumb">Accueil > Vue d'ensemble</div>
+            </div>
+            <button class="btn" onclick="refreshDashboard()">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Status Cards -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-robot card-icon"></i>
+                        Status Bot
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot online" id="bot-status"></div>
+                    <span id="bot-text">En ligne</span>
+                </div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 10px;">
+                    Dernière connexion: <span id="last-online">Il y a 2 minutes</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-server card-icon"></i>
+                        Serveurs
+                    </div>
+                </div>
+                <div class="stat-number" id="servers-count">
+                    12
+                </div>
+                <div class="stat-label">Serveurs actifs</div>
+                <div style="margin-top: 10px; color: var(--success-color);" id="servers-change">
+                    +2 cette semaine
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-users card-icon"></i>
+                        Utilisateurs
+                    </div>
+                </div>
+                <div class="stat-number" id="users-count">
+                    8,547
+                </div>
+                <div class="stat-label">Utilisateurs total</div>
+                <div style="margin-top: 10px; color: var(--success-color);" id="users-change">
+                    +453 ce mois
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-bolt card-icon"></i>
+                        Commandes
+                    </div>
+                </div>
+                <div class="stat-number" id="commands-count">
+                    24,891
+                </div>
+                <div class="stat-label">Commandes exécutées</div>
+                <div style="margin-top: 10px; color: var(--warning-color);" id="commands-change">
+                    +1,247 aujourd'hui
+                </div>
+            </div>
+
+            <!-- Performance Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-area card-icon"></i>
+                        Performance Système
+                    </div>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-expand"></i> Détails
+                    </button>
+                </div>
+                <canvas id="performanceChart" width="400" height="100"></canvas>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-rocket card-icon"></i>
+                        Actions Rapides
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <a href="/music" class="btn" style="justify-content: center;">
+                        <i class="fas fa-music"></i>
+                        Musique
+                    </a>
+                    <a href="/economy" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-coins"></i>
+                        Économie
+                    </a>
+                    <a href="/moderation" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-shield-alt"></i>
+                        Modération
+                    </a>
+                    <a href="/settings" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-activity card-icon"></i>
+                        Activité Récente
+                    </div>
+                </div>
+                <div id="activity-feed" style="max-height: 300px; overflow-y: auto;">
+                    <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success-color);"></div>
+                            <span style="color: var(--text-secondary); font-size: 12px;">il y a 5 min</span>
+                        </div>
+                        <div style="margin-top: 5px;">Nouveau serveur connecté: <strong>Gaming Paradise</strong></div>
+                    </div>
+                    <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning-color);"></div>
+                            <span style="color: var(--text-secondary); font-size: 12px;">il y a 12 min</span>
+                        </div>
+                        <div style="margin-top: 5px;">Module <strong>Hunt Royal</strong> redémarré automatiquement</div>
+                    </div>
+                    <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color);"></div>
+                            <span style="color: var(--text-secondary); font-size: 12px;">il y a 1h</span>
+                        </div>
+                        <div style="margin-top: 5px;">Mise à jour <strong>Arsenal V4.2.1</strong> installée</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('open');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.contains(e.target) && 
+                    !e.target.closest('.sidebar-toggle')) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // Performance Chart
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                    datasets: [{
+                        label: 'CPU %',
+                        data: [15, 12, 28, 45, 38, 22, 18],
+                        borderColor: '#00fff7',
+                        backgroundColor: 'rgba(0, 255, 247, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'RAM %',
+                        data: [32, 35, 42, 38, 41, 37, 35],
+                        borderColor: '#0088ff',
+                        backgroundColor: 'rgba(0, 136, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#888888' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#888888' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh dashboard
+        function refreshDashboard() {
+            // Simulate refresh
+            const btn = event.target.closest('.btn');
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                btn.disabled = false;
+                
+                // Update some random stats
+                document.getElementById('commands-count').textContent = 
+                    (24891 + Math.floor(Math.random() * 100)).toLocaleString();
+            }, 2000);
+        }
+
+        // Initialize chart when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initPerformanceChart();
+        });
+    </script>
+</body>
+</html>
         }
 
         .nav-link {

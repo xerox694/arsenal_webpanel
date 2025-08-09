@@ -97,6 +97,152 @@ def modules():
     """Page des modules professionnelle"""
     return render_template('modules_professional.html')
 
+# ==================== ROUTES FRONTEND ARSENAL V4 ====================
+
+@app.route('/analytics')
+def analytics():
+    """Page Analytics"""
+    return serve_frontend_page('analytics.html')
+
+@app.route('/api')
+def api_page():
+    """Page API"""
+    return serve_frontend_page('api.html')
+
+@app.route('/automod')
+def automod():
+    """Page Auto-Modération"""
+    return serve_frontend_page('automod.html')
+
+@app.route('/backup')
+def backup():
+    """Page Backup"""
+    return serve_frontend_page('backup.html')
+
+@app.route('/botinfo')
+def botinfo():
+    """Page Info Bot"""
+    return serve_frontend_page('botinfo.html')
+
+@app.route('/bridges')
+def bridges():
+    """Page Ponts Inter-Serveur"""
+    return serve_frontend_page('bridges.html')
+
+@app.route('/calculator')
+def calculator():
+    """Page Calculator"""
+    return serve_frontend_page('calculator.html')
+
+@app.route('/commands')
+def commands():
+    """Page Commandes"""
+    return serve_frontend_page('commands.html')
+
+@app.route('/database')
+def database():
+    """Page Base de Données"""
+    return serve_frontend_page('database.html')
+
+@app.route('/economy')
+def economy():
+    """Page Économie"""
+    return serve_frontend_page('economy.html')
+
+@app.route('/economy-center')
+def economy_center():
+    """Page Economy Center"""
+    return serve_frontend_page('economy-center.html')
+
+@app.route('/economy-page')
+def economy_page():
+    """Page Economy Page"""
+    return serve_frontend_page('economy-page.html')
+
+@app.route('/games')
+def games():
+    """Page Mini-Jeux"""
+    return serve_frontend_page('games.html')
+
+@app.route('/games-ultimate')
+def games_ultimate():
+    """Page Games Ultimate"""
+    return serve_frontend_page('games-ultimate.html')
+
+@app.route('/help')
+def help_page():
+    """Page Help"""
+    return serve_frontend_page('help.html')
+
+@app.route('/hub')
+def hub():
+    """Page Hub Config"""
+    return serve_frontend_page('hub.html')
+
+@app.route('/logs')
+def logs():
+    """Page Logs"""
+    return serve_frontend_page('logs.html')
+
+@app.route('/moderation')
+def moderation():
+    """Page Modération"""
+    return serve_frontend_page('moderation.html')
+
+@app.route('/music')
+def music():
+    """Page Musique"""
+    return serve_frontend_page('music.html')
+
+@app.route('/music-center')
+def music_center():
+    """Page Music Center"""
+    return serve_frontend_page('music-center.html')
+
+@app.route('/performance')
+def performance():
+    """Page Performance"""
+    return serve_frontend_page('performance.html')
+
+@app.route('/realtime')
+def realtime():
+    """Page Temps Réel"""
+    return serve_frontend_page('realtime.html')
+
+@app.route('/security')
+def security():
+    """Page Sécurité"""
+    return serve_frontend_page('security.html')
+
+@app.route('/servers')
+def servers():
+    """Page Serveurs"""
+    return serve_frontend_page('servers.html')
+
+@app.route('/settings')
+def settings():
+    """Page Paramètres"""
+    return serve_frontend_page('settings.html')
+
+@app.route('/users')
+def users():
+    """Page Utilisateurs"""
+    return serve_frontend_page('users.html')
+
+@app.route('/ai-center')
+def ai_center():
+    """Page AI Center"""
+    return serve_frontend_page('ai-center.html')
+
+def serve_frontend_page(filename):
+    """Fonction helper pour servir les pages du frontend"""
+    try:
+        frontend_path = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend')
+        return send_from_directory(frontend_path, filename)
+    except Exception as e:
+        print(f"❌ Erreur lors du service de {filename}: {e}")
+        return f"<h1>Page non trouvée</h1><p>Le fichier {filename} n'existe pas.</p>", 404
+
 @app.route('/frontend/<path:filename>')
 def serve_frontend_files(filename):
     """Servir les fichiers HTML du frontend"""
