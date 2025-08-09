@@ -1354,6 +1354,22 @@ try:
             print(f"❌ Erreur economy-center: {e}")
             return redirect('/dashboard')
 
+    @app.route('/economy-page')
+    def economy_page_route():
+        """Page Economy Page"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            economy_page_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'economy-page.html')
+            if os.path.exists(economy_page_path):
+                return send_from_directory(os.path.dirname(economy_page_path), 'economy-page.html')
+            else:
+                return redirect('/dashboard#economy')
+        except Exception as e:
+            print(f"❌ Erreur economy-page: {e}")
+            return redirect('/dashboard')
+
     # ==================== FIN PAGES SPÉCIALISÉES ====================
 
     @app.route('/backup')
