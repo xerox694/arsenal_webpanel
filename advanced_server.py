@@ -79,13 +79,23 @@ real_time_stats = {
 
 @app.route('/')
 def home():
-    """Page d'accueil - Redirection vers dashboard"""
-    return render_template('index.html')
+    """Page d'accueil professionnelle"""
+    return render_template('index_professional.html')
 
 @app.route('/dashboard')
 def dashboard():
-    """Dashboard principal intégré"""
-    return render_template('dashboard.html')
+    """Dashboard principal professionnel"""
+    return render_template('dashboard_professional.html')
+
+@app.route('/login')
+def login():
+    """Page de connexion professionnelle"""
+    return render_template('login_professional.html')
+
+@app.route('/modules')
+def modules():
+    """Page des modules professionnelle"""
+    return render_template('modules_professional.html')
 
 @app.route('/frontend/<path:filename>')
 def serve_frontend_files(filename):
