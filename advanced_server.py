@@ -632,18 +632,7 @@ def create_templates():
     with open(templates_dir / 'index.html', 'w', encoding='utf-8') as f:
         f.write(index_content)
     
-    # Créer un lien symbolique vers dashboard.html
-    dashboard_source = Path(__file__).parent / 'Arsenal_V4' / 'webpanel' / 'frontend' / 'dashboard.html'
-    dashboard_target = templates_dir / 'dashboard.html'
-    
-    try:
-        if dashboard_target.exists():
-            dashboard_target.unlink()
-        dashboard_target.symlink_to(dashboard_source)
-    except:
-        # Si les liens symboliques ne fonctionnent pas, copier le fichier
-        import shutil
-        shutil.copy2(dashboard_source, dashboard_target)
+    # Note: dashboard.html existe déjà dans templates/, pas besoin de lien symbolique
 
 # ==================== POINT D'ENTRÉE PRINCIPAL ====================
 
