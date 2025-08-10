@@ -1329,11 +1329,6 @@ try:
         print(f"🎰 Casino accédé par {session['user_info']['username']}")
         return send_from_directory('..', 'casino.html')
 
-    @app.route('/economy')
-    def economy_page():
-        """Page d'économie Arsenal avec VRAIES données"""
-        return send_from_directory('.', 'economy.html')
-
     @app.route('/calculator')
     def calculator_page():
         """Page Hunt Royal Calculator"""
