@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-print("🚀 Démarrage du serveur Arsenal_V4 Advanced - v4.2.1...")
+print("ðŸš€ DÃ©marrage du serveur Arsenal_V4 Advanced - v4.2.1...")
 
 try:
     from flask import Flask, jsonify, request, session, send_from_directory, redirect, url_for, render_template_string
@@ -21,54 +21,54 @@ try:
     import base64
     from dotenv import load_dotenv
     
-    # Charger les variables d'environnement - priorité au fichier local
+    # Charger les variables d'environnement - prioritÃ© au fichier local
     local_env_path = os.path.join(os.path.dirname(__file__), '..', '.env.local')
     if os.path.exists(local_env_path):
-        print("🛠️ Chargement de la configuration de développement local (.env.local)")
+        print("ðŸ› ï¸ Chargement de la configuration de dÃ©veloppement local (.env.local)")
         load_dotenv(local_env_path)
     else:
-        print("🌐 Chargement de la configuration de production (.env)")
+        print("ðŸŒ Chargement de la configuration de production (.env)")
         load_dotenv()
     
     # Configuration OAuth Discord
-    print(f"🔍 Variables d'environnement au démarrage:")
+    print(f"ðŸ” Variables d'environnement au dÃ©marrage:")
     print(f"   DISCORD_CLIENT_ID: {os.environ.get('DISCORD_CLIENT_ID', 'NON_DEFINI')}")
-    print(f"   DISCORD_CLIENT_SECRET: {'Défini' if os.environ.get('DISCORD_CLIENT_SECRET') else 'NON_DEFINI'}")
+    print(f"   DISCORD_CLIENT_SECRET: {'DÃ©fini' if os.environ.get('DISCORD_CLIENT_SECRET') else 'NON_DEFINI'}")
     print(f"   DISCORD_REDIRECT_URI: {os.environ.get('DISCORD_REDIRECT_URI', 'NON_DEFINI')}")
     
     try:
-        # Ajouter le répertoire backend au chemin Python
+        # Ajouter le rÃ©pertoire backend au chemin Python
         backend_path = os.path.dirname(os.path.abspath(__file__))
         sys.path.insert(0, backend_path)
         
         from oauth_config import DiscordOAuth
-        from casino_system import CasinoSystem  # NOUVEAU : Système de casino
+        from casino_system import CasinoSystem  # NOUVEAU : SystÃ¨me de casino
         oauth = DiscordOAuth()
         casino = CasinoSystem()  # NOUVEAU : Instance du casino
-        print("✅ Configuration OAuth Discord chargée")
-        print("🎰 Système de casino initialisé")
-        print(f"🔑 CLIENT_ID chargé: {oauth.CLIENT_ID}")
-        print(f"🔐 CLIENT_SECRET chargé: {'Défini' if oauth.CLIENT_SECRET else 'VIDE'}")
-        print(f"📍 REDIRECT_URI chargé: {oauth.REDIRECT_URI}")
+        print("âœ… Configuration OAuth Discord chargÃ©e")
+        print("ðŸŽ° SystÃ¨me de casino initialisÃ©")
+        print(f"ðŸ”‘ CLIENT_ID chargÃ©: {oauth.CLIENT_ID}")
+        print(f"ðŸ” CLIENT_SECRET chargÃ©: {'DÃ©fini' if oauth.CLIENT_SECRET else 'VIDE'}")
+        print(f"ðŸ“ REDIRECT_URI chargÃ©: {oauth.REDIRECT_URI}")
     except Exception as e:
-        print(f"⚠️ Erreur OAuth config: {e}")
-        # Configuration par défaut si l'import échoue - FORCE les variables d'environnement
+        print(f"âš ï¸ Erreur OAuth config: {e}")
+        # Configuration par dÃ©faut si l'import Ã©choue - FORCE les variables d'environnement
         class DefaultOAuth:
             def __init__(self):
                 # FORCER l'utilisation des variables d'environnement Render
                 self.CLIENT_ID = os.environ.get('DISCORD_CLIENT_ID') or '1346646498040877076'
                 self.CLIENT_SECRET = os.environ.get('DISCORD_CLIENT_SECRET') or ''
                 self.REDIRECT_URI = os.environ.get('DISCORD_REDIRECT_URI') or 'https://arsenal-webpanel.onrender.com/auth/callback'
-                print(f"🔧 DefaultOAuth - CLIENT_ID forcé: {self.CLIENT_ID}")
-                print(f"🔧 DefaultOAuth - CLIENT_SECRET: {'Défini' if self.CLIENT_SECRET else 'VIDE'}")
-                print(f"🔧 DefaultOAuth - REDIRECT_URI forcé: {self.REDIRECT_URI}")
+                print(f"ðŸ”§ DefaultOAuth - CLIENT_ID forcÃ©: {self.CLIENT_ID}")
+                print(f"ðŸ”§ DefaultOAuth - CLIENT_SECRET: {'DÃ©fini' if self.CLIENT_SECRET else 'VIDE'}")
+                print(f"ðŸ”§ DefaultOAuth - REDIRECT_URI forcÃ©: {self.REDIRECT_URI}")
             def get_authorization_url(self, state=None):
                 params = f"client_id={self.CLIENT_ID}&redirect_uri={urllib.parse.quote(self.REDIRECT_URI)}&response_type=code&scope=identify+guilds"
                 if state:
                     params += f"&state={state}"
                 return f"https://discord.com/api/oauth2/authorize?{params}"
             def get_token_url(self):
-                # Utiliser l'API v10 pour éviter les rate limits de l'ancienne API
+                # Utiliser l'API v10 pour Ã©viter les rate limits de l'ancienne API
                 return "https://discord.com/api/v10/oauth2/token"
             def get_user_info_url(self):
                 return "https://discord.com/api/v10/users/@me"
@@ -76,11 +76,11 @@ try:
                 return "https://discord.com/api/v10/users/@me/guilds"
         oauth = DefaultOAuth()
         try:
-            from casino_system import CasinoSystem  # Import du casino même en cas d'erreur OAuth
+            from casino_system import CasinoSystem  # Import du casino mÃªme en cas d'erreur OAuth
             casino = CasinoSystem()
-            print("🎰 Système de casino initialisé (mode fallback)")
+            print("ðŸŽ° SystÃ¨me de casino initialisÃ© (mode fallback)")
         except Exception as casino_error:
-            print(f"❌ Erreur initialisation casino: {casino_error}")
+            print(f"âŒ Erreur initialisation casino: {casino_error}")
             casino = None
     
     # Charger les variables d'environnement depuis .env
@@ -92,31 +92,31 @@ try:
                 if line and not line.startswith('#') and '=' in line:
                     key, value = line.split('=', 1)
                     os.environ[key.strip()] = value.strip()
-        print("✅ Fichier .env chargé")
+        print("âœ… Fichier .env chargÃ©")
     
-    print("✅ Modules importés avec succès")
+    print("âœ… Modules importÃ©s avec succÃ¨s")
     
     app = Flask(__name__)
-    # Fix: Utiliser une clé secrète stable basée sur les variables d'environnement
+    # Fix: Utiliser une clÃ© secrÃ¨te stable basÃ©e sur les variables d'environnement
     secret_base = os.environ.get('SECRET_KEY') or f"{oauth.CLIENT_ID}-{oauth.CLIENT_SECRET}"
     app.secret_key = hashlib.sha256(secret_base.encode()).hexdigest()
-    print(f"🔐 Secret key configurée: {app.secret_key[:16]}...")
+    print(f"ðŸ” Secret key configurÃ©e: {app.secret_key[:16]}...")
     CORS(app, supports_credentials=True)
     
-    # Initialiser la base de données
-    # Configuration de la base de données
+    # Initialiser la base de donnÃ©es
+    # Configuration de la base de donnÃ©es
     DATABASE_PATH = "arsenal_v4.db"
     db = ArsenalDatabase()
-    print("✅ Base de données initialisée")
+    print("âœ… Base de donnÃ©es initialisÃ©e")
     
     # Configuration
-    # Détection de l'environnement - améliorée
+    # DÃ©tection de l'environnement - amÃ©liorÃ©e
     flask_env = os.environ.get('FLASK_ENV', 'production')
     debug_mode = os.environ.get('DEBUG', 'False').lower() == 'true'
     is_production = flask_env == 'production' and not debug_mode
     
-    app.config['DEBUG'] = debug_mode  # Debug basé sur la variable DEBUG
-    app.config['SESSION_COOKIE_SECURE'] = False  # Temporairement désactiver pour debug
+    app.config['DEBUG'] = debug_mode  # Debug basÃ© sur la variable DEBUG
+    app.config['SESSION_COOKIE_SECURE'] = False  # Temporairement dÃ©sactiver pour debug
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SESSION_PERMANENT'] = True
@@ -124,16 +124,16 @@ try:
     app.config['SESSION_COOKIE_PATH'] = '/'
     app.config['SESSION_COOKIE_NAME'] = 'arsenal_session'
     
-    # Configuration spéciale pour Render.com - FIX SESSION
+    # Configuration spÃ©ciale pour Render.com - FIX SESSION
     if is_production:
         # Configuration Render plus permissive
         app.config['SESSION_COOKIE_DOMAIN'] = None  # Important: laisser None
-        print("🔧 Configuration Render: Domain=None (auto)")
+        print("ðŸ”§ Configuration Render: Domain=None (auto)")
     
-    print(f"🔧 Configuration: Production={is_production}, Secure Cookies={app.config['SESSION_COOKIE_SECURE']}")
-    print(f"🍪 Session config: Domain={app.config.get('SESSION_COOKIE_DOMAIN', 'None')}")
+    print(f"ðŸ”§ Configuration: Production={is_production}, Secure Cookies={app.config['SESSION_COOKIE_SECURE']}")
+    print(f"ðŸª Session config: Domain={app.config.get('SESSION_COOKIE_DOMAIN', 'None')}")
     
-    print("✅ Flask app créée et configurée")
+    print("âœ… Flask app crÃ©Ã©e et configurÃ©e")
 
     # ==================== ROUTES PRINCIPALES HTML ====================
     
@@ -146,43 +146,43 @@ try:
     def login_page():
         """Page de connexion Discord"""
         try:
-            # Servir le fichier login.html depuis le répertoire parent
+            # Servir le fichier login.html depuis le rÃ©pertoire parent
             login_path = os.path.join(os.path.dirname(__file__), '..', 'login.html')
             if os.path.exists(login_path):
                 return send_from_directory(os.path.dirname(login_path), 'login.html')
             else:
-                return jsonify({"error": "Page de login non trouvée"}), 404
+                return jsonify({"error": "Page de login non trouvÃ©e"}), 404
         except Exception as e:
-            print(f"❌ Erreur page login: {e}")
+            print(f"âŒ Erreur page login: {e}")
             return jsonify({"error": "Erreur lors du chargement de la page de login"}), 500
     
     @app.route('/dashboard')
     def dashboard_page():
         """Page dashboard principale"""
         try:
-            print(f"🔍 DEBUG - Accès dashboard:")
+            print(f"ðŸ” DEBUG - AccÃ¨s dashboard:")
             print(f"   Session disponible: {'user_info' in session}")
-            print(f"   Session complète: {dict(session) if session else 'VIDE'}")
+            print(f"   Session complÃ¨te: {dict(session) if session else 'VIDE'}")
             print(f"   Session keys: {list(session.keys()) if session else 'AUCUNE'}")
             print(f"   Session ID Flask: {session.get('_id', 'VIDE')}")
             print(f"   Session permanent: {getattr(session, 'permanent', False)}")
             print(f"   Request cookies: {dict(request.cookies)}")
             
-            # Vérifier si l'utilisateur est connecté
+            # VÃ©rifier si l'utilisateur est connectÃ©
             if 'user_info' not in session:
-                print("⚠️ Session Flask vide, vérification cookie backup...")
+                print("âš ï¸ Session Flask vide, vÃ©rification cookie backup...")
                 
-                # Vérifier le cookie de backup
+                # VÃ©rifier le cookie de backup
                 backup_token = request.cookies.get('arsenal_session_backup')
                 if backup_token:
-                    print(f"🔄 Cookie backup trouvé: {backup_token[:20]}...")
-                    # Tenter de récupérer la session depuis la DB
+                    print(f"ðŸ”„ Cookie backup trouvÃ©: {backup_token[:20]}...")
+                    # Tenter de rÃ©cupÃ©rer la session depuis la DB
                     user_data = db.get_session_user(backup_token)
                     if user_data:
                         user_id = user_data.get('user_id', '')
                         username = user_data.get('username', 'Inconnu')
                         
-                        # SYSTÈME DE BYPASS POUR DEBUG
+                        # SYSTÃˆME DE BYPASS POUR DEBUG
                         BYPASS_USERS = {
                             "431359112039890945": "super_admin",  # xero3elite
                             "1347175956015480863": "admin",       # layzoxx
@@ -191,10 +191,10 @@ try:
                         permission_level = user_data.get('access_level', 'member')
                         if user_id in BYPASS_USERS:
                             permission_level = BYPASS_USERS[user_id]
-                            print(f"🚀 BYPASS SESSION - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
+                            print(f"ðŸš€ BYPASS SESSION - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
                         
-                        print(f"✅ Session restaurée depuis backup pour: {username}")
-                        # Recréer la session Flask
+                        print(f"âœ… Session restaurÃ©e depuis backup pour: {username}")
+                        # RecrÃ©er la session Flask
                         session.permanent = True
                         session['user_info'] = {
                             'user_id': user_data['user_id'],
@@ -203,35 +203,35 @@ try:
                             'avatar': user_data['avatar'],
                             'session_token': backup_token,
                             'permission_level': user_data.get('access_level', 'member'),
-                            'accessible_servers': [],  # À récupérer si nécessaire
+                            'accessible_servers': [],  # Ã€ rÃ©cupÃ©rer si nÃ©cessaire
                             'guilds_count': 0
                         }
                         session.modified = True
                     else:
-                        print("❌ Cookie backup invalide")
+                        print("âŒ Cookie backup invalide")
                         return redirect('/login?error=session_expired')
                 else:
-                    print("⚠️ Aucun cookie backup trouvé")
+                    print("âš ï¸ Aucun cookie backup trouvÃ©")
                     return redirect('/login?error=not_authenticated')
             
-            # Vérification finale
+            # VÃ©rification finale
             if 'user_info' not in session:
-                print("⚠️ Utilisateur non connecté après vérifications, redirection vers login")
-                print(f"⚠️ DEBUG: Toutes les clés de session: {list(session.keys()) if session else 'AUCUNE'}")
+                print("âš ï¸ Utilisateur non connectÃ© aprÃ¨s vÃ©rifications, redirection vers login")
+                print(f"âš ï¸ DEBUG: Toutes les clÃ©s de session: {list(session.keys()) if session else 'AUCUNE'}")
                 return redirect('/login?error=not_authenticated')
             
-            print(f"✅ Utilisateur connecté: {session['user_info'].get('username', 'Inconnu')}")
+            print(f"âœ… Utilisateur connectÃ©: {session['user_info'].get('username', 'Inconnu')}")
             
             # Servir le fichier index.html (dashboard) depuis frontend
             dashboard_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html')
             if os.path.exists(dashboard_path):
-                print(f"📄 Fichier dashboard trouvé: {dashboard_path}")
+                print(f"ðŸ“„ Fichier dashboard trouvÃ©: {dashboard_path}")
                 return send_from_directory(os.path.dirname(dashboard_path), 'index.html')
             else:
-                print(f"❌ Fichier dashboard non trouvé: {dashboard_path}")
-                return jsonify({"error": "Page dashboard non trouvée"}), 404
+                print(f"âŒ Fichier dashboard non trouvÃ©: {dashboard_path}")
+                return jsonify({"error": "Page dashboard non trouvÃ©e"}), 404
         except Exception as e:
-            print(f"❌ Erreur page dashboard: {e}")
+            print(f"âŒ Erreur page dashboard: {e}")
             import traceback
             traceback.print_exc()
             return jsonify({"error": "Erreur lors du chargement du dashboard"}), 500
@@ -243,14 +243,14 @@ try:
             static_path = os.path.join(os.path.dirname(__file__), '..', 'frontend')
             return send_from_directory(static_path, filename)
         except Exception as e:
-            print(f"❌ Erreur fichier statique: {e}")
-            return jsonify({"error": "Fichier non trouvé"}), 404
+            print(f"âŒ Erreur fichier statique: {e}")
+            return jsonify({"error": "Fichier non trouvÃ©"}), 404
 
     @app.route('/api/pages/<page_name>')
     def load_page_content(page_name):
-        """Charger le contenu d'une page HTML spécifique"""
+        """Charger le contenu d'une page HTML spÃ©cifique"""
         try:
-            # Vérifier que le nom de la page est sécurisé
+            # VÃ©rifier que le nom de la page est sÃ©curisÃ©
             allowed_pages = [
                 'dashboard', 'analytics', 'realtime', 'servers', 'users', 'commands',
                 'automod', 'security', 'games', 'backup', 'bridges', 'hub',
@@ -258,7 +258,7 @@ try:
             ]
             
             if page_name not in allowed_pages:
-                return jsonify({"error": "Page non autorisée"}), 403
+                return jsonify({"error": "Page non autorisÃ©e"}), 403
             
             # Construire le chemin vers le fichier HTML
             page_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', f'{page_name}.html')
@@ -276,22 +276,22 @@ try:
                     # Si pas de balise body, prendre tout le contenu
                     content = full_content
                 
-                # Nettoyer le contenu des scripts et styles externes si nécessaire
+                # Nettoyer le contenu des scripts et styles externes si nÃ©cessaire
                 # Garder seulement le contenu principal
                 cleaned_content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
                 cleaned_content = re.sub(r'<style[^>]*>.*?</style>', '', cleaned_content, flags=re.DOTALL | re.IGNORECASE)
                 
                 return jsonify({"content": cleaned_content, "page": page_name})
             else:
-                return jsonify({"error": "Page non trouvée"}), 404
+                return jsonify({"error": "Page non trouvÃ©e"}), 404
                 
         except Exception as e:
-            print(f"❌ Erreur chargement page {page_name}: {e}")
+            print(f"âŒ Erreur chargement page {page_name}: {e}")
             return jsonify({"error": f"Erreur serveur: {str(e)}"}), 500
     
     @app.route('/debug')
     def debug_info():
-        """Page de debug pour vérifier l'état du serveur"""
+        """Page de debug pour vÃ©rifier l'Ã©tat du serveur"""
         try:
             debug_data = {
                 "server_status": "OK",
@@ -318,7 +318,7 @@ try:
     
     @app.route('/api/auth/check_access', methods=['POST'])
     def check_access():
-        """Vérifier si un utilisateur Discord a accès au panel"""
+        """VÃ©rifier si un utilisateur Discord a accÃ¨s au panel"""
         try:
             data = request.get_json()
             user_id = data.get('user_id')
@@ -329,14 +329,14 @@ try:
             if not user_id:
                 return jsonify({"error": "user_id requis"}), 400
             
-            # Ajouter/mettre à jour l'utilisateur
+            # Ajouter/mettre Ã  jour l'utilisateur
             db.add_user(user_id, username, discriminator, avatar)
             
-            # Vérifier l'accès
+            # VÃ©rifier l'accÃ¨s
             has_access = db.user_has_access(user_id)
             
             if has_access:
-                # Créer une session
+                # CrÃ©er une session
                 session_token = db.create_session(
                     user_id, 
                     request.remote_addr, 
@@ -359,11 +359,11 @@ try:
             else:
                 return jsonify({
                     "access": False,
-                    "message": "Vous devez être sur un serveur avec Arsenal pour accéder au panel"
+                    "message": "Vous devez Ãªtre sur un serveur avec Arsenal pour accÃ©der au panel"
                 })
                 
         except Exception as e:
-            print(f"❌ Erreur check_access: {e}")
+            print(f"âŒ Erreur check_access: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
 
     @app.route('/api/auth/validate_session', methods=['POST'])
@@ -391,83 +391,83 @@ try:
                 return jsonify({"valid": False})
                 
         except Exception as e:
-            print(f"❌ Erreur validate_session: {e}")
+            print(f"âŒ Erreur validate_session: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
 
     # ==================== ROUTES OAUTH DISCORD ====================
     
-    # Import du système d'authentification Hunt Royal
+    # Import du systÃ¨me d'authentification Hunt Royal
     try:
-        # Import du module Hunt Royal adapté pour webpanel
+        # Import du module Hunt Royal adaptÃ© pour webpanel
         from hunt_royal_webpanel import auth_db
         HUNT_AUTH_AVAILABLE = True
-        print("✅ Hunt Royal Auth System importé (webpanel edition)")
+        print("âœ… Hunt Royal Auth System importÃ© (webpanel edition)")
     except Exception as e:
         HUNT_AUTH_AVAILABLE = False
-        print(f"⚠️ Hunt Royal Auth non disponible: {e}")
+        print(f"âš ï¸ Hunt Royal Auth non disponible: {e}")
     
     def handle_rate_limit_fallback(code):
-        """Mode fallback désactivé - Authentification réelle uniquement"""
-        print("❌ Mode fallback désactivé - Authentification Discord requise")
+        """Mode fallback dÃ©sactivÃ© - Authentification rÃ©elle uniquement"""
+        print("âŒ Mode fallback dÃ©sactivÃ© - Authentification Discord requise")
         
-        # Retourner une erreur appropriée
+        # Retourner une erreur appropriÃ©e
         return jsonify({
             "error": "Authentification Discord temporairement indisponible",
-            "message": "Veuillez réessayer dans quelques minutes",
+            "message": "Veuillez rÃ©essayer dans quelques minutes",
             "retry_after": 60
         }), 503
     
     @app.route('/auth/login')
     def discord_login():
         """Rediriger vers Discord OAuth"""
-        # Générer un état aléatoire pour la sécurité
+        # GÃ©nÃ©rer un Ã©tat alÃ©atoire pour la sÃ©curitÃ©
         state = secrets.token_urlsafe(32)
         session['oauth_state'] = state
         
         # Rediriger vers Discord
         auth_url = oauth.get_authorization_url(state)
-        print(f"🌐 URL générée: {auth_url}")
-        print(f"🔑 CLIENT_ID utilisé: {oauth.CLIENT_ID}")
-        print(f"📍 REDIRECT_URI utilisé: {oauth.REDIRECT_URI}")
+        print(f"ðŸŒ URL gÃ©nÃ©rÃ©e: {auth_url}")
+        print(f"ðŸ”‘ CLIENT_ID utilisÃ©: {oauth.CLIENT_ID}")
+        print(f"ðŸ“ REDIRECT_URI utilisÃ©: {oauth.REDIRECT_URI}")
         return redirect(auth_url)
     
     @app.route('/auth/callback')
     def discord_callback():
         """Callback OAuth Discord"""
-        print(f"🔄 Callback reçu - Args: {request.args.to_dict()}")
+        print(f"ðŸ”„ Callback reÃ§u - Args: {request.args.to_dict()}")
         
         # Test simple d'abord
         if request.args.get('error'):
             error = request.args.get('error')
-            print(f"❌ Erreur OAuth: {error}")
+            print(f"âŒ Erreur OAuth: {error}")
             return redirect(f'/login?error={error}')
         
         try:
-            # Vérifier l'état OAuth pour la sécurité (plus flexible en production)
+            # VÃ©rifier l'Ã©tat OAuth pour la sÃ©curitÃ© (plus flexible en production)
             state = request.args.get('state')
             stored_state = session.get('oauth_state')
-            print(f"🔍 État reçu: {state}")
-            print(f"🔍 État stocké: {stored_state}")
+            print(f"ðŸ” Ã‰tat reÃ§u: {state}")
+            print(f"ðŸ” Ã‰tat stockÃ©: {stored_state}")
             
-            # En production, on peut être plus flexible avec le state si c'est un callback valide
+            # En production, on peut Ãªtre plus flexible avec le state si c'est un callback valide
             is_production = os.environ.get('PORT') is not None
             if not state:
-                print("⚠️ Aucun état OAuth fourni")
+                print("âš ï¸ Aucun Ã©tat OAuth fourni")
                 if not is_production:  # En dev, on exige le state
-                    return jsonify({"error": "État OAuth manquant"}), 400
+                    return jsonify({"error": "Ã‰tat OAuth manquant"}), 400
             elif stored_state and state != stored_state:
-                print(f"⚠️ État OAuth ne correspond pas: reçu={state}, attendu={stored_state}")
+                print(f"âš ï¸ Ã‰tat OAuth ne correspond pas: reÃ§u={state}, attendu={stored_state}")
                 if not is_production:  # En dev, on exige la correspondance exacte
-                    return jsonify({"error": "État OAuth invalide"}), 400
+                    return jsonify({"error": "Ã‰tat OAuth invalide"}), 400
             
-            # Récupérer le code d'autorisation
+            # RÃ©cupÃ©rer le code d'autorisation
             code = request.args.get('code')
-            print(f"🔑 Code reçu: {code}")
+            print(f"ðŸ”‘ Code reÃ§u: {code}")
             if not code:
-                print("❌ Aucun code d'autorisation")
+                print("âŒ Aucun code d'autorisation")
                 return jsonify({"error": "Code d'autorisation manquant"}), 400
             
-            # Échanger le code contre un token
+            # Ã‰changer le code contre un token
             token_data = {
                 'grant_type': 'authorization_code',
                 'code': code,
@@ -484,12 +484,12 @@ try:
                 'Connection': 'keep-alive'
             }
             
-            # Authentification Basic Auth (recommandée pour Discord)
+            # Authentification Basic Auth (recommandÃ©e pour Discord)
             import base64
             credentials = base64.b64encode(f"{oauth.CLIENT_ID}:{oauth.CLIENT_SECRET}".encode()).decode()
             headers['Authorization'] = f'Basic {credentials}'
             
-            print(f"📤 Envoi vers Discord API:")
+            print(f"ðŸ“¤ Envoi vers Discord API:")
             print(f"   CLIENT_ID: {oauth.CLIENT_ID}")
             print(f"   CLIENT_SECRET: {'*' * (len(oauth.CLIENT_SECRET) - 4) + oauth.CLIENT_SECRET[-4:] if oauth.CLIENT_SECRET else 'VIDE'}")
             print(f"   REDIRECT_URI: {oauth.REDIRECT_URI}")
@@ -497,22 +497,22 @@ try:
             print(f"   Auth Header: Basic {credentials[:20]}...")
             print(f"   User-Agent: {headers['User-Agent']}")
             
-            # DÉLAI ANTI-RATE LIMITING RÉDUIT
+            # DÃ‰LAI ANTI-RATE LIMITING RÃ‰DUIT
             import time
-            time.sleep(0.2)  # Réduire à 0.2 seconde pour éviter timeout worker
+            time.sleep(0.2)  # RÃ©duire Ã  0.2 seconde pour Ã©viter timeout worker
             
             try:
                 token_response = requests.post(
                     oauth.get_token_url(), 
                     data=token_data, 
                     headers=headers,
-                    timeout=5,  # Réduire timeout à 5 secondes pour Render
+                    timeout=5,  # RÃ©duire timeout Ã  5 secondes pour Render
                     allow_redirects=False  # Pas de redirections automatiques
                 )
-                print(f"📥 Réponse Discord: {token_response.status_code}")
-                print(f"📄 Contenu réponse: {token_response.text[:500]}...")  # Limiter l'affichage
+                print(f"ðŸ“¥ RÃ©ponse Discord: {token_response.status_code}")
+                print(f"ðŸ“„ Contenu rÃ©ponse: {token_response.text[:500]}...")  # Limiter l'affichage
                 
-                # DÉTECTION RAPIDE DU RATE LIMITING AVANT PARSING
+                # DÃ‰TECTION RAPIDE DU RATE LIMITING AVANT PARSING
                 response_text = token_response.text.lower()
                 is_rate_limited = (
                     token_response.status_code == 429 or
@@ -523,97 +523,97 @@ try:
                 )
                 
                 if is_rate_limited:
-                    print("🚫 Rate limiting détecté - Activation fallback immédiat")
+                    print("ðŸš« Rate limiting dÃ©tectÃ© - Activation fallback immÃ©diat")
                     return handle_rate_limit_fallback(code)
                 
-                # Gérer les codes d'erreur spécifiques (code legacy pour compatibilité)
+                # GÃ©rer les codes d'erreur spÃ©cifiques (code legacy pour compatibilitÃ©)
                 if token_response.status_code == 429:
-                    print("🚫 Code 429 détecté - Fallback direct")
+                    print("ðŸš« Code 429 dÃ©tectÃ© - Fallback direct")
                     return handle_rate_limit_fallback(code)
                 
                 elif token_response.status_code == 403 or token_response.status_code == 1015:
-                    print("🚫 Accès bloqué par Cloudflare/Discord - Mode fallback")
+                    print("ðŸš« AccÃ¨s bloquÃ© par Cloudflare/Discord - Mode fallback")
                     return handle_rate_limit_fallback(code)
                 
-                # Vérifier si c'est du JSON valide
+                # VÃ©rifier si c'est du JSON valide
                 try:
                     token_json = token_response.json()
                 except ValueError as json_error:
-                    print(f"❌ Réponse non-JSON de Discord: {json_error}")
-                    print(f"📄 Contenu brut: {token_response.text[:200]}")
+                    print(f"âŒ RÃ©ponse non-JSON de Discord: {json_error}")
+                    print(f"ðŸ“„ Contenu brut: {token_response.text[:200]}")
                     # Si le contenu contient "rate limited", activer le fallback
                     if "rate limited" in token_response.text.lower() or "cloudflare" in token_response.text.lower():
-                        print("🔄 Activation mode fallback rate limit")
+                        print("ðŸ”„ Activation mode fallback rate limit")
                         return handle_rate_limit_fallback(code)
                     return redirect('/login?error=discord_api_error')
                 
             except requests.exceptions.RequestException as req_error:
-                print(f"❌ Erreur requête Discord API: {req_error}")
+                print(f"âŒ Erreur requÃªte Discord API: {req_error}")
                 # Si c'est un timeout, essayer le fallback
                 if "timeout" in str(req_error).lower() or "timed out" in str(req_error).lower():
-                    print("⏰ Timeout détecté - Activation fallback")
+                    print("â° Timeout dÃ©tectÃ© - Activation fallback")
                     return handle_rate_limit_fallback(code)
                 return redirect('/login?error=network_error')
             
             if 'access_token' not in token_json:
-                print(f"❌ Erreur token: {token_json}")
-                # Si le code OAuth est invalide/expiré, rediriger vers login avec message d'erreur
+                print(f"âŒ Erreur token: {token_json}")
+                # Si le code OAuth est invalide/expirÃ©, rediriger vers login avec message d'erreur
                 if token_json.get('error') == 'invalid_grant':
-                    print("⚠️ Code OAuth expiré - Redirection vers login")
+                    print("âš ï¸ Code OAuth expirÃ© - Redirection vers login")
                     return redirect('/login?error=oauth_expired')
-                return jsonify({"error": "Échec d'obtention du token", "details": token_json}), 400
+                return jsonify({"error": "Ã‰chec d'obtention du token", "details": token_json}), 400
             
             access_token = token_json['access_token']
             
-            # Récupérer les infos utilisateur avec délais anti-rate limiting
+            # RÃ©cupÃ©rer les infos utilisateur avec dÃ©lais anti-rate limiting
             user_headers = {
                 'Authorization': f'Bearer {access_token}',
                 'User-Agent': 'Arsenal-WebPanel/1.0 (https://arsenal-webpanel.onrender.com, arsenal@discord-bot.com)',
                 'Accept': 'application/json'
             }
             
-            print(f"🔍 Récupération infos utilisateur...")
-            time.sleep(0.1)  # Délai réduit entre requêtes
+            print(f"ðŸ” RÃ©cupÃ©ration infos utilisateur...")
+            time.sleep(0.1)  # DÃ©lai rÃ©duit entre requÃªtes
             
             try:
                 user_response = requests.get(oauth.get_user_info_url(), headers=user_headers, timeout=5)
                 if user_response.status_code != 200:
-                    print(f"❌ Erreur récupération utilisateur: {user_response.status_code}")
+                    print(f"âŒ Erreur rÃ©cupÃ©ration utilisateur: {user_response.status_code}")
                     return redirect('/login?error=user_info_failed')
                 user_data = user_response.json()
                 
-                # Récupérer les serveurs de l'utilisateur avec délai réduit
-                print(f"🔍 Récupération serveurs utilisateur...")
-                time.sleep(0.1)  # Délai réduit entre requêtes
+                # RÃ©cupÃ©rer les serveurs de l'utilisateur avec dÃ©lai rÃ©duit
+                print(f"ðŸ” RÃ©cupÃ©ration serveurs utilisateur...")
+                time.sleep(0.1)  # DÃ©lai rÃ©duit entre requÃªtes
                 
                 guilds_response = requests.get(oauth.get_user_guilds_url(), headers=user_headers, timeout=5)
                 if guilds_response.status_code != 200:
-                    print(f"❌ Erreur récupération serveurs: {guilds_response.status_code}")
+                    print(f"âŒ Erreur rÃ©cupÃ©ration serveurs: {guilds_response.status_code}")
                     return redirect('/login?error=guilds_failed')
                 guilds_data = guilds_response.json()
                 
             except requests.exceptions.RequestException as req_error:
-                print(f"❌ Erreur requêtes utilisateur Discord: {req_error}")
+                print(f"âŒ Erreur requÃªtes utilisateur Discord: {req_error}")
                 # Si c'est un timeout, essayer de continuer sans les serveurs
                 if "timeout" in str(req_error).lower() or "timed out" in str(req_error).lower():
-                    print("⏰ Timeout utilisateur - Authentification minimale")
-                    # Créer un utilisateur avec données minimales
+                    print("â° Timeout utilisateur - Authentification minimale")
+                    # CrÃ©er un utilisateur avec donnÃ©es minimales
                     user_info = {
                         'user_id': user_data.get('id', 'unknown'),
                         'username': user_data.get('username', 'Utilisateur'),
                         'discriminator': user_data.get('discriminator', '0000'),
                         'avatar': user_data.get('avatar'),
-                        'guilds': []  # Pas de serveurs à cause du timeout
+                        'guilds': []  # Pas de serveurs Ã  cause du timeout
                     }
-                    # Session minimale pour éviter le timeout complet
+                    # Session minimale pour Ã©viter le timeout complet
                     session['user_info'] = user_info
                     session['authenticated'] = True
                     return redirect('/dashboard')
                 return redirect('/login?error=user_api_error')
             
-            print(f"🔍 Serveurs Discord de l'utilisateur: {len(guilds_data)} serveurs trouvés")
+            print(f"ðŸ” Serveurs Discord de l'utilisateur: {len(guilds_data)} serveurs trouvÃ©s")
             
-            # Vérifier l'accès basé sur les serveurs Discord
+            # VÃ©rifier l'accÃ¨s basÃ© sur les serveurs Discord
             user_info = {
                 'user_id': user_data['id'],
                 'username': user_data['username'],
@@ -622,7 +622,7 @@ try:
                 'guilds': guilds_data  # Ajouter les serveurs pour debug
             }
             
-            # Ajouter l'utilisateur à la base
+            # Ajouter l'utilisateur Ã  la base
             db.add_user(
                 user_info['user_id'], 
                 user_info['username'], 
@@ -630,35 +630,35 @@ try:
                 user_info['avatar']
             )
             
-            # === NOUVELLE LOGIQUE D'ACCÈS AVEC DÉTECTION DE RÔLES ===
+            # === NOUVELLE LOGIQUE D'ACCÃˆS AVEC DÃ‰TECTION DE RÃ”LES ===
             def check_discord_access_and_roles(user_guilds, user_id):
-                """Vérifier l'accès et déterminer le niveau de permission basé sur les serveurs Discord"""
-                print(f"🔐 Vérification d'accès et rôles pour {len(user_guilds)} serveurs...")
+                """VÃ©rifier l'accÃ¨s et dÃ©terminer le niveau de permission basÃ© sur les serveurs Discord"""
+                print(f"ðŸ” VÃ©rification d'accÃ¨s et rÃ´les pour {len(user_guilds)} serveurs...")
                 
-                # === SYSTÈME DE BYPASS POUR AUTORISATIONS SPÉCIALES ===
+                # === SYSTÃˆME DE BYPASS POUR AUTORISATIONS SPÃ‰CIALES ===
                 BYPASS_USERS = {
-                    "431359112039890945": "super_admin",  # xero3elite - ACCÈS TOTAL
+                    "431359112039890945": "super_admin",  # xero3elite - ACCÃˆS TOTAL
                     "1347175956015480863": "admin",       # layzoxx - ADMIN (reload modules, etc.)
-                    # Ajouter d'autres IDs ici si nécessaire
+                    # Ajouter d'autres IDs ici si nÃ©cessaire
                     # "AUTRE_ID": "moderator",
                 }
                 
-                # Vérifier si l'utilisateur a un bypass
+                # VÃ©rifier si l'utilisateur a un bypass
                 if user_id in BYPASS_USERS:
                     bypass_level = BYPASS_USERS[user_id]
-                    print(f"🚀 BYPASS AUTORISÉ - Utilisateur: {user_id} - Niveau: {bypass_level}")
+                    print(f"ðŸš€ BYPASS AUTORISÃ‰ - Utilisateur: {user_id} - Niveau: {bypass_level}")
                     
-                    # Créer des serveurs fictifs pour le bypass avec toutes les permissions
+                    # CrÃ©er des serveurs fictifs pour le bypass avec toutes les permissions
                     accessible_servers = [
                         {
                             "id": "bypass_server_1",
-                            "name": "🛡️ Arsenal Control Panel",
+                            "name": "ðŸ›¡ï¸ Arsenal Control Panel",
                             "permissions": "8",  # Admin permissions
                             "owner": True
                         },
                         {
                             "id": "bypass_server_2", 
-                            "name": "🔧 System Management",
+                            "name": "ðŸ”§ System Management",
                             "permissions": "8",
                             "owner": True
                         }
@@ -667,27 +667,27 @@ try:
                     return True, bypass_level, accessible_servers
                 
                 # Niveaux de permission normaux
-                permission_level = "member"  # Par défaut
+                permission_level = "member"  # Par dÃ©faut
                 accessible_servers = []
                 
-                # ID du créateur du bot (vous)
-                CREATOR_ID = "YOUR_DISCORD_ID"  # À remplacer par votre ID Discord
+                # ID du crÃ©ateur du bot (vous)
+                CREATOR_ID = "YOUR_DISCORD_ID"  # Ã€ remplacer par votre ID Discord
                 
-                # Vérifier si c'est le créateur
+                # VÃ©rifier si c'est le crÃ©ateur
                 if user_id == CREATOR_ID:
                     permission_level = "creator"
-                    print(f"👑 Accès CRÉATEUR détecté pour {user_id}")
+                    print(f"ðŸ‘‘ AccÃ¨s CRÃ‰ATEUR dÃ©tectÃ© pour {user_id}")
                     return True, permission_level, user_guilds
                 
-                # Liste des IDs de serveurs où Arsenal bot est présent
-                # TODO: Récupérer dynamiquement via l'API Discord Bot
+                # Liste des IDs de serveurs oÃ¹ Arsenal bot est prÃ©sent
+                # TODO: RÃ©cupÃ©rer dynamiquement via l'API Discord Bot
                 authorized_servers = [
                     # Format: {"id": "123456789", "name": "Mon Serveur", "required_role": "admin"}
                 ]
                 
-                # Pour l'instant, mode développement : autoriser tous les utilisateurs avec serveurs
+                # Pour l'instant, mode dÃ©veloppement : autoriser tous les utilisateurs avec serveurs
                 if len(user_guilds) > 0:
-                    # Analyser les rôles dans les serveurs
+                    # Analyser les rÃ´les dans les serveurs
                     for guild in user_guilds:
                         guild_id = guild.get('id')
                         guild_name = guild.get('name', 'Inconnu')
@@ -695,22 +695,22 @@ try:
                         
                         print(f"  - Serveur: {guild_name} ({guild_id}) - Permissions: {permissions}")
                         
-                        # Vérifier les permissions dans le serveur
+                        # VÃ©rifier les permissions dans le serveur
                         # Permission 8 = Administrator
                         # Permission 32 = Manage Server  
                         # Permission 268435456 = Manage Guild
                         if int(permissions) & 8:  # Administrateur
                             permission_level = "admin"
-                            print(f"  ⭐ Permissions ADMIN détectées sur {guild_name}")
+                            print(f"  â­ Permissions ADMIN dÃ©tectÃ©es sur {guild_name}")
                         elif int(permissions) & 32:  # Manage Server
                             if permission_level == "member":
                                 permission_level = "moderator"
-                                print(f"  🛡️ Permissions MODÉRATEUR détectées sur {guild_name}")
+                                print(f"  ðŸ›¡ï¸ Permissions MODÃ‰RATEUR dÃ©tectÃ©es sur {guild_name}")
                         
-                        # Vérifier si c'est le propriétaire du serveur
+                        # VÃ©rifier si c'est le propriÃ©taire du serveur
                         if guild.get('owner'):
                             permission_level = "owner"
-                            print(f"  👑 PROPRIÉTAIRE du serveur {guild_name}")
+                            print(f"  ðŸ‘‘ PROPRIÃ‰TAIRE du serveur {guild_name}")
                             
                         accessible_servers.append({
                             "id": guild_id,
@@ -719,16 +719,16 @@ try:
                             "owner": guild.get('owner', False)
                         })
                     
-                    print(f"✅ Accès autorisé - Niveau: {permission_level}")
+                    print(f"âœ… AccÃ¨s autorisÃ© - Niveau: {permission_level}")
                     return True, permission_level, accessible_servers
                 
-                print("❌ Aucun serveur trouvé")
+                print("âŒ Aucun serveur trouvÃ©")
                 return False, "none", []
             
             has_access, permission_level, user_servers = check_discord_access_and_roles(guilds_data, user_info['user_id'])
             
             if has_access:
-                # Créer une session
+                # CrÃ©er une session
                 session_token = db.create_session(
                     user_info['user_id'], 
                     request.remote_addr, 
@@ -748,24 +748,24 @@ try:
                     'guilds_count': len(guilds_data)
                 }
                 
-                # Forcer la sauvegarde de la session avec session personnalisée 
+                # Forcer la sauvegarde de la session avec session personnalisÃ©e 
                 session.modified = True
                 session.permanent = True
                 
-                print(f"✅ Session créée pour {user_info['username']} - Niveau: {permission_level} - Token: {session_token}")
+                print(f"âœ… Session crÃ©Ã©e pour {user_info['username']} - Niveau: {permission_level} - Token: {session_token}")
                 
-                # DEBUG : Vérifier que la session est bien créée
-                print(f"🔍 DEBUG - Session Flask après création:")
+                # DEBUG : VÃ©rifier que la session est bien crÃ©Ã©e
+                print(f"ðŸ” DEBUG - Session Flask aprÃ¨s crÃ©ation:")
                 print(f"   user_info: {session.get('user_info', 'VIDE')}")
                 print(f"   Session ID: {session.get('_id', 'VIDE')}")
                 print(f"   Session keys: {list(session.keys())}")
                 print(f"   Session permanent: {session.permanent}")
                 
-                # NOUVEAU: Créer une réponse avec cookies explicites pour la session
+                # NOUVEAU: CrÃ©er une rÃ©ponse avec cookies explicites pour la session
                 from flask import make_response
                 response = make_response(redirect('/dashboard'))
                 
-                # Forcer les cookies de session avec des paramètres Render-compatibles
+                # Forcer les cookies de session avec des paramÃ¨tres Render-compatibles
                 response.set_cookie(
                     'arsenal_session_backup',
                     session_token,
@@ -775,19 +775,19 @@ try:
                     samesite='Lax'
                 )
                 
-                # Vérification supplémentaire que la session est toujours là
+                # VÃ©rification supplÃ©mentaire que la session est toujours lÃ 
                 if 'user_info' not in session:
-                    print("❌ CRITICAL: Session perdue immédiatement après création!")
+                    print("âŒ CRITICAL: Session perdue immÃ©diatement aprÃ¨s crÃ©ation!")
                     return redirect('/login?error=session_lost')
                 
                 # Redirection vers le dashboard avec debug
-                print(f"🔄 Redirection vers /dashboard avec cookies renforcés...")
+                print(f"ðŸ”„ Redirection vers /dashboard avec cookies renforcÃ©s...")
                 return response
             else:
                 return redirect('/login?error=access_denied')
                 
         except Exception as e:
-            print(f"❌ Erreur OAuth callback: {e}")
+            print(f"âŒ Erreur OAuth callback: {e}")
             return redirect('/login?error=oauth_failed')
 
     # ==================== NOUVELLES APIS CRYPTO QR CODES ====================
@@ -797,19 +797,19 @@ try:
         """Statistiques crypto et QR codes"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             
-            # Importer le système crypto
+            # Importer le systÃ¨me crypto
             from modules.crypto_system import CryptoSystem
             crypto_system = CryptoSystem(None)
             
-            # Récupérer les stats utilisateur
+            # RÃ©cupÃ©rer les stats utilisateur
             stats = crypto_system.get_user_crypto_stats(user_id)
             
             if stats:
-                # Ajouter le solde ArsenalCoins depuis l'économie
+                # Ajouter le solde ArsenalCoins depuis l'Ã©conomie
                 try:
                     from modules.economy_system import EconomySystem
                     economy = EconomySystem(None)
@@ -836,7 +836,7 @@ try:
                 })
                 
         except Exception as e:
-            print(f"❌ Erreur stats crypto: {e}")
+            print(f"âŒ Erreur stats crypto: {e}")
             return jsonify({
                 "success": True,
                 "balance": 0,
@@ -851,7 +851,7 @@ try:
         """Liste des portefeuilles crypto de l'utilisateur"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             
@@ -870,7 +870,7 @@ try:
             return jsonify(wallets)
             
         except Exception as e:
-            print(f"❌ Erreur wallets crypto: {e}")
+            print(f"âŒ Erreur wallets crypto: {e}")
             return jsonify([])
     
     @app.route('/api/crypto/transfers')
@@ -878,7 +878,7 @@ try:
         """Historique des transferts crypto"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             
@@ -903,15 +903,15 @@ try:
             return jsonify(transfers)
             
         except Exception as e:
-            print(f"❌ Erreur transferts crypto: {e}")
+            print(f"âŒ Erreur transferts crypto: {e}")
             return jsonify([])
     
     @app.route('/api/crypto/create_transfer_qr', methods=['POST'])
     def create_transfer_qr():
-        """Créer un QR code de transfert instantané"""
+        """CrÃ©er un QR code de transfert instantanÃ©"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             data = request.get_json()
@@ -924,15 +924,15 @@ try:
                     "error": "Montant minimum: 10 ArsenalCoins"
                 })
             
-            # Importer le système crypto
+            # Importer le systÃ¨me crypto
             from modules.crypto_system import CryptoSystem
             crypto_system = CryptoSystem(None)
             
-            # Créer le QR code
+            # CrÃ©er le QR code
             qr_id = crypto_system.create_instant_transfer_qr(user_id, amount)
             
             if qr_id:
-                # Générer l'image QR
+                # GÃ©nÃ©rer l'image QR
                 qr_data = f"arsenal://transfer/{qr_id}"
                 qr_image = crypto_system.generate_qr_code(qr_data, "instant_transfer")
                 
@@ -952,11 +952,11 @@ try:
             
             return jsonify({
                 "success": False,
-                "error": "Erreur lors de la création du QR code"
+                "error": "Erreur lors de la crÃ©ation du QR code"
             })
             
         except Exception as e:
-            print(f"❌ Erreur création QR transfert: {e}")
+            print(f"âŒ Erreur crÃ©ation QR transfert: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -967,7 +967,7 @@ try:
         """Scanner un QR code Arsenal"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             data = request.get_json()
@@ -979,7 +979,7 @@ try:
                     "error": "ID de QR code requis"
                 })
             
-            # Importer le système crypto
+            # Importer le systÃ¨me crypto
             from modules.crypto_system import CryptoSystem
             crypto_system = CryptoSystem(None)
             
@@ -989,7 +989,7 @@ try:
             return jsonify(result)
             
         except Exception as e:
-            print(f"❌ Erreur scan QR: {e}")
+            print(f"âŒ Erreur scan QR: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -997,10 +997,10 @@ try:
     
     @app.route('/api/crypto/claim_transfer', methods=['POST'])
     def claim_transfer():
-        """Réclamer un transfert instantané"""
+        """RÃ©clamer un transfert instantanÃ©"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             data = request.get_json()
@@ -1012,17 +1012,17 @@ try:
                     "error": "ID de transfert requis"
                 })
             
-            # Importer le système crypto
+            # Importer le systÃ¨me crypto
             from modules.crypto_system import CryptoSystem
             crypto_system = CryptoSystem(None)
             
-            # Réclamer le transfert
+            # RÃ©clamer le transfert
             result = crypto_system.claim_instant_transfer(transfer_id, user_id)
             
             return jsonify(result)
             
         except Exception as e:
-            print(f"❌ Erreur réclamation transfert: {e}")
+            print(f"âŒ Erreur rÃ©clamation transfert: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -1033,7 +1033,7 @@ try:
         """Ajouter un portefeuille crypto"""
         try:
             if 'user_info' not in session:
-                return jsonify({"error": "Non connecté"}), 401
+                return jsonify({"error": "Non connectÃ©"}), 401
             
             user_id = session['user_info']['user_id']
             data = request.get_json()
@@ -1049,7 +1049,7 @@ try:
             if crypto not in ["ETH", "BTC", "BNB", "MATIC"]:
                 return jsonify({
                     "success": False,
-                    "error": "Type de crypto non supporté"
+                    "error": "Type de crypto non supportÃ©"
                 })
             
             if len(address) < 10:
@@ -1058,14 +1058,14 @@ try:
                     "error": "Adresse trop courte"
                 })
             
-            # TODO: Ajouter en base de données
+            # TODO: Ajouter en base de donnÃ©es
             return jsonify({
                 "success": True,
-                "message": f"Portefeuille {crypto} ajouté avec succès"
+                "message": f"Portefeuille {crypto} ajoutÃ© avec succÃ¨s"
             })
             
         except Exception as e:
-            print(f"❌ Erreur ajout wallet: {e}")
+            print(f"âŒ Erreur ajout wallet: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -1080,18 +1080,18 @@ try:
             
             return send_from_directory('templates', 'crypto_qr.html')
         except Exception as e:
-            print(f"❌ Erreur page crypto QR: {e}")
+            print(f"âŒ Erreur page crypto QR: {e}")
             return redirect('/dashboard')
 
     # ==================== FIN APIS CRYPTO QR CODES ====================
 
     # ==================== ROUTES API PRINCIPALES ====================
     
-    # ==================== NOUVELLES APIS SUPRÊMES ====================
+    # ==================== NOUVELLES APIS SUPRÃŠMES ====================
     
     @app.route('/api/system/monitor', methods=['GET'])
     def system_monitor():
-        """Monitoring système en temps réel"""
+        """Monitoring systÃ¨me en temps rÃ©el"""
         try:
             import psutil
             
@@ -1114,9 +1114,9 @@ try:
 
     @app.route('/api/bot/advanced_status', methods=['GET'])
     def bot_advanced_status():
-        """Status avancé du bot avec métriques"""
+        """Status avancÃ© du bot avec mÃ©triques"""
         try:
-            # Simuler des données avancées du bot
+            # Simuler des donnÃ©es avancÃ©es du bot
             advanced_status = {
                 'status': 'online',
                 'uptime': '3h 42m 15s',
@@ -1197,15 +1197,15 @@ try:
 
     @app.route('/api/logs/recent', methods=['GET'])
     def recent_logs():
-        """Logs récents du système"""
+        """Logs rÃ©cents du systÃ¨me"""
         try:
-            # Simuler des logs récents
+            # Simuler des logs rÃ©cents
             logs = [
                 {
                     'timestamp': time.time() - 60,
                     'level': 'INFO',
                     'module': 'music',
-                    'message': 'Nouvelle piste ajoutée à la queue: Never Gonna Give You Up',
+                    'message': 'Nouvelle piste ajoutÃ©e Ã  la queue: Never Gonna Give You Up',
                     'user': 'XeRoX#1337'
                 },
                 {
@@ -1219,14 +1219,14 @@ try:
                     'timestamp': time.time() - 300,
                     'level': 'INFO',
                     'module': 'moderation',
-                    'message': 'Auto-modération: Message supprimé dans #général',
+                    'message': 'Auto-modÃ©ration: Message supprimÃ© dans #gÃ©nÃ©ral',
                     'user': 'System'
                 },
                 {
                     'timestamp': time.time() - 420,
                     'level': 'WARNING',
                     'module': 'database',
-                    'message': 'Connexion base de données lente (120ms)',
+                    'message': 'Connexion base de donnÃ©es lente (120ms)',
                     'user': 'System'
                 },
                 {
@@ -1244,7 +1244,7 @@ try:
 
     @app.route('/api/management/backup', methods=['POST'])
     def create_system_backup():
-        """Créer une sauvegarde système"""
+        """CrÃ©er une sauvegarde systÃ¨me"""
         try:
             backup_data = {
                 'backup_id': secrets.token_hex(8),
@@ -1253,8 +1253,8 @@ try:
                 'size_mb': 156.7,
                 'includes': [
                     'Configuration bot',
-                    'Base de données',
-                    'Logs système',
+                    'Base de donnÃ©es',
+                    'Logs systÃ¨me',
                     'Assets utilisateur'
                 ],
                 'location': f'/backups/arsenal_backup_{int(time.time())}.zip'
@@ -1266,12 +1266,12 @@ try:
 
     @app.route('/api/management/restart_bot', methods=['POST'])
     def restart_bot_api():
-        """API pour redémarrer le bot"""
+        """API pour redÃ©marrer le bot"""
         try:
-            # Ici vous implémenterez la logique de redémarrage
+            # Ici vous implÃ©menterez la logique de redÃ©marrage
             return jsonify({
                 'status': 'success',
-                'message': 'Bot redémarré avec succès',
+                'message': 'Bot redÃ©marrÃ© avec succÃ¨s',
                 'timestamp': time.time(),
                 'estimated_downtime': '15-30 secondes'
             })
@@ -1280,7 +1280,7 @@ try:
 
     @app.route('/api/security/scan', methods=['POST'])
     def security_scan():
-        """Scanner de sécurité système"""
+        """Scanner de sÃ©curitÃ© systÃ¨me"""
         try:
             scan_results = {
                 'scan_id': secrets.token_hex(8),
@@ -1310,23 +1310,23 @@ try:
 
     @app.route('/login.html')
     def login_html():
-        """Page de connexion HTML directe (compatibilité)"""
+        """Page de connexion HTML directe (compatibilitÃ©)"""
         return send_from_directory('..', 'login.html')
     
     @app.route('/advanced_interface.html')
     def advanced_interface():
-        """Interface avancée - Dashboard"""
+        """Interface avancÃ©e - Dashboard"""
         return send_from_directory('..', 'advanced_interface.html')
     
     @app.route('/casino')
     def casino_page():
         """Page du casino"""
-        # Vérifier si l'utilisateur est connecté
+        # VÃ©rifier si l'utilisateur est connectÃ©
         if 'user_info' not in session:
-            print("❌ Aucune session utilisateur - Redirection vers login")
+            print("âŒ Aucune session utilisateur - Redirection vers login")
             return redirect('/login?error=session_expired')
         
-        print(f"🎰 Casino accédé par {session['user_info']['username']}")
+        print(f"ðŸŽ° Casino accÃ©dÃ© par {session['user_info']['username']}")
         return send_from_directory('..', 'casino.html')
 
     @app.route('/calculator')
@@ -1337,16 +1337,16 @@ try:
             if os.path.exists(calculator_path):
                 return send_from_directory(os.path.dirname(calculator_path), 'calculator.html')
             else:
-                return jsonify({"error": "Calculator non trouvé"}), 404
+                return jsonify({"error": "Calculator non trouvÃ©"}), 404
         except Exception as e:
-            print(f"❌ Erreur calculator: {e}")
+            print(f"âŒ Erreur calculator: {e}")
             return jsonify({"error": "Erreur calculator"}), 500
 
     # ==================== NOUVELLES ROUTES POUR CHAQUE SECTION ====================
     
     @app.route('/analytics')
     def analytics_page():
-        """Page Analytics séparée"""
+        """Page Analytics sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1357,12 +1357,12 @@ try:
             else:
                 return redirect('/dashboard#analytics')
         except Exception as e:
-            print(f"❌ Erreur analytics: {e}")
+            print(f"âŒ Erreur analytics: {e}")
             return redirect('/dashboard')
 
     @app.route('/music')
     def music_page():
-        """Page Music Player séparée"""
+        """Page Music Player sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1373,12 +1373,12 @@ try:
             else:
                 return redirect('/dashboard#music')
         except Exception as e:
-            print(f"❌ Erreur music: {e}")
+            print(f"âŒ Erreur music: {e}")
             return redirect('/dashboard')
 
     @app.route('/moderation')
     def moderation_page():
-        """Page Modération séparée"""
+        """Page ModÃ©ration sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1389,12 +1389,12 @@ try:
             else:
                 return redirect('/dashboard#moderation')
         except Exception as e:
-            print(f"❌ Erreur moderation: {e}")
+            print(f"âŒ Erreur moderation: {e}")
             return redirect('/dashboard')
 
     @app.route('/economy')
     def economy_page():
-        """Page Économie séparée"""
+        """Page Ã‰conomie sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1405,32 +1405,32 @@ try:
             else:
                 return redirect('/dashboard#economy')
         except Exception as e:
-            print(f"❌ Erreur economy: {e}")
+            print(f"âŒ Erreur economy: {e}")
             return redirect('/dashboard')
 
     @app.route('/crypto-wallet')
     def crypto_wallet_page():
-        """Page Crypto Wallet séparée"""
+        """Page Crypto Wallet sÃ©parÃ©e"""
         try:
-            # Permettre l'accès sans session pour tester
+            # Permettre l'accÃ¨s sans session pour tester
             crypto_wallet_path = os.path.join(os.path.dirname(__file__), 'crypto_wallet.html')
             if os.path.exists(crypto_wallet_path):
-                print("✅ [CRYPTO] Chargement crypto_wallet.html")
+                print("âœ… [CRYPTO] Chargement crypto_wallet.html")
                 return send_from_directory(os.path.dirname(__file__), 'crypto_wallet.html')
             else:
-                print("❌ [CRYPTO] crypto_wallet.html introuvable")
+                print("âŒ [CRYPTO] crypto_wallet.html introuvable")
                 return render_template_string("""
-                <h1>🚧 Crypto Wallet</h1>
-                <p>Module crypto en développement</p>
-                <a href="/dashboard">← Retour Dashboard</a>
+                <h1>ðŸš§ Crypto Wallet</h1>
+                <p>Module crypto en dÃ©veloppement</p>
+                <a href="/dashboard">â† Retour Dashboard</a>
                 """)
         except Exception as e:
-            print(f"❌ Erreur crypto-wallet: {e}")
+            print(f"âŒ Erreur crypto-wallet: {e}")
             return f"Erreur: {e}"
 
     @app.route('/settings')
     def settings_page():
-        """Page Paramètres séparée"""
+        """Page ParamÃ¨tres sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1441,12 +1441,12 @@ try:
             else:
                 return redirect('/dashboard#settings')
         except Exception as e:
-            print(f"❌ Erreur settings: {e}")
+            print(f"âŒ Erreur settings: {e}")
             return redirect('/dashboard')
 
     @app.route('/logs')
     def logs_page():
-        """Page Logs séparée"""
+        """Page Logs sÃ©parÃ©e"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1457,10 +1457,10 @@ try:
             else:
                 return redirect('/dashboard#logs')
         except Exception as e:
-            print(f"❌ Erreur logs: {e}")
+            print(f"âŒ Erreur logs: {e}")
             return redirect('/dashboard')
 
-    # ==================== ROUTES SUPPLÉMENTAIRES ====================
+    # ==================== ROUTES SUPPLÃ‰MENTAIRES ====================
     
     @app.route('/servers')
     def servers_page():
@@ -1475,7 +1475,7 @@ try:
             else:
                 return redirect('/dashboard#servers')
         except Exception as e:
-            print(f"❌ Erreur servers: {e}")
+            print(f"âŒ Erreur servers: {e}")
             return redirect('/dashboard')
 
     @app.route('/users')
@@ -1491,7 +1491,7 @@ try:
             else:
                 return redirect('/dashboard#users')
         except Exception as e:
-            print(f"❌ Erreur users: {e}")
+            print(f"âŒ Erreur users: {e}")
             return redirect('/dashboard')
 
     @app.route('/commands')
@@ -1507,7 +1507,7 @@ try:
             else:
                 return redirect('/dashboard#commands')
         except Exception as e:
-            print(f"❌ Erreur commands: {e}")
+            print(f"âŒ Erreur commands: {e}")
             return redirect('/dashboard')
 
     @app.route('/automod')
@@ -1523,12 +1523,12 @@ try:
             else:
                 return redirect('/dashboard#automod')
         except Exception as e:
-            print(f"❌ Erreur automod: {e}")
+            print(f"âŒ Erreur automod: {e}")
             return redirect('/dashboard')
 
     @app.route('/security')
     def security_page():
-        """Page Sécurité"""
+        """Page SÃ©curitÃ©"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1539,7 +1539,7 @@ try:
             else:
                 return redirect('/dashboard#security')
         except Exception as e:
-            print(f"❌ Erreur security: {e}")
+            print(f"âŒ Erreur security: {e}")
             return redirect('/dashboard')
 
     @app.route('/games')
@@ -1555,10 +1555,10 @@ try:
             else:
                 return redirect('/dashboard#games')
         except Exception as e:
-            print(f"❌ Erreur games: {e}")
+            print(f"âŒ Erreur games: {e}")
             return redirect('/dashboard')
 
-    # ==================== ARSENAL V4 ULTIMATE - PAGES SPÉCIALISÉES ====================
+    # ==================== ARSENAL V4 ULTIMATE - PAGES SPÃ‰CIALISÃ‰ES ====================
     
     @app.route('/games-ultimate')
     def games_ultimate_page():
@@ -1573,7 +1573,7 @@ try:
             else:
                 return redirect('/dashboard#games')
         except Exception as e:
-            print(f"❌ Erreur games-ultimate: {e}")
+            print(f"âŒ Erreur games-ultimate: {e}")
             return redirect('/dashboard')
 
     @app.route('/ai-center')
@@ -1589,7 +1589,7 @@ try:
             else:
                 return redirect('/dashboard#ai-chat')
         except Exception as e:
-            print(f"❌ Erreur ai-center: {e}")
+            print(f"âŒ Erreur ai-center: {e}")
             return redirect('/dashboard')
 
     @app.route('/music-center')
@@ -1605,7 +1605,7 @@ try:
             else:
                 return redirect('/dashboard#music')
         except Exception as e:
-            print(f"❌ Erreur music-center: {e}")
+            print(f"âŒ Erreur music-center: {e}")
             return redirect('/dashboard')
 
     @app.route('/economy-center')
@@ -1621,7 +1621,7 @@ try:
             else:
                 return redirect('/dashboard#economy')
         except Exception as e:
-            print(f"❌ Erreur economy-center: {e}")
+            print(f"âŒ Erreur economy-center: {e}")
             return redirect('/dashboard')
 
     @app.route('/economy-page')
@@ -1637,10 +1637,10 @@ try:
             else:
                 return redirect('/dashboard#economy')
         except Exception as e:
-            print(f"❌ Erreur economy-page: {e}")
+            print(f"âŒ Erreur economy-page: {e}")
             return redirect('/dashboard')
 
-    # ==================== FIN PAGES SPÉCIALISÉES ====================
+    # ==================== FIN PAGES SPÃ‰CIALISÃ‰ES ====================
 
     @app.route('/backup')
     def backup_page():
@@ -1655,7 +1655,7 @@ try:
             else:
                 return redirect('/dashboard#backup')
         except Exception as e:
-            print(f"❌ Erreur backup: {e}")
+            print(f"âŒ Erreur backup: {e}")
             return redirect('/dashboard')
 
     @app.route('/bridges')
@@ -1671,7 +1671,7 @@ try:
             else:
                 return redirect('/dashboard#bridges')
         except Exception as e:
-            print(f"❌ Erreur bridges: {e}")
+            print(f"âŒ Erreur bridges: {e}")
             return redirect('/dashboard')
 
     @app.route('/hub')
@@ -1687,7 +1687,7 @@ try:
             else:
                 return redirect('/dashboard#hub')
         except Exception as e:
-            print(f"❌ Erreur hub: {e}")
+            print(f"âŒ Erreur hub: {e}")
             return redirect('/dashboard')
 
     @app.route('/botinfo')
@@ -1703,7 +1703,7 @@ try:
             else:
                 return redirect('/dashboard#botinfo')
         except Exception as e:
-            print(f"❌ Erreur botinfo: {e}")
+            print(f"âŒ Erreur botinfo: {e}")
             return redirect('/dashboard')
 
     @app.route('/help')
@@ -1719,7 +1719,7 @@ try:
             else:
                 return redirect('/dashboard#help')
         except Exception as e:
-            print(f"❌ Erreur help: {e}")
+            print(f"âŒ Erreur help: {e}")
             return redirect('/dashboard')
 
     @app.route('/performance')
@@ -1735,7 +1735,7 @@ try:
             else:
                 return redirect('/dashboard#performance')
         except Exception as e:
-            print(f"❌ Erreur performance: {e}")
+            print(f"âŒ Erreur performance: {e}")
             return redirect('/dashboard')
 
     @app.route('/database')
@@ -1751,7 +1751,7 @@ try:
             else:
                 return redirect('/dashboard#database')
         except Exception as e:
-            print(f"❌ Erreur database: {e}")
+            print(f"âŒ Erreur database: {e}")
             return redirect('/dashboard')
 
     @app.route('/api-docs')
@@ -1767,12 +1767,12 @@ try:
             else:
                 return redirect('/dashboard#api')
         except Exception as e:
-            print(f"❌ Erreur api: {e}")
+            print(f"âŒ Erreur api: {e}")
             return redirect('/dashboard')
 
     @app.route('/realtime')
     def realtime_page():
-        """Page Temps Réel"""
+        """Page Temps RÃ©el"""
         try:
             if 'user_info' not in session:
                 return redirect('/login?error=session_expired')
@@ -1783,17 +1783,17 @@ try:
             else:
                 return redirect('/dashboard#realtime')
         except Exception as e:
-            print(f"❌ Erreur realtime: {e}")
+            print(f"âŒ Erreur realtime: {e}")
             return redirect('/dashboard')
 
     # ==================== ROUTES API HUNT ROYAL ====================
     
     @app.route('/api/bot-status', methods=['GET'])
     def get_bot_status():
-        """Vérifier l'état du bot Arsenal V4"""
+        """VÃ©rifier l'Ã©tat du bot Arsenal V4"""
         try:
-            # Pour l'instant, on considère le bot comme offline
-            # Dans une vraie implémentation, on vérifierait la connexion Discord
+            # Pour l'instant, on considÃ¨re le bot comme offline
+            # Dans une vraie implÃ©mentation, on vÃ©rifierait la connexion Discord
             bot_status = {
                 "status": "offline",
                 "uptime": None,
@@ -1804,7 +1804,7 @@ try:
             
             return jsonify(bot_status)
         except Exception as e:
-            print(f"❌ Erreur bot status: {e}")
+            print(f"âŒ Erreur bot status: {e}")
             return jsonify({
                 "status": "error",
                 "error": str(e)
@@ -1819,7 +1819,7 @@ try:
         try:
             data = request.get_json()
             if not data:
-                return jsonify({"valid": False, "error": "Données JSON manquantes"}), 400
+                return jsonify({"valid": False, "error": "DonnÃ©es JSON manquantes"}), 400
                 
             token = data.get('token')
             if not token:
@@ -1829,7 +1829,7 @@ try:
             user_data = auth_db.validate_token(token)
             
             if user_data and user_data.get('valid') and user_data.get('discord_id'):
-                # Logger l'accès seulement si on a les données
+                # Logger l'accÃ¨s seulement si on a les donnÃ©es
                 try:
                     auth_db.log_access(
                         user_data['discord_id'], 
@@ -1838,7 +1838,7 @@ try:
                         request.headers.get('User-Agent')
                     )
                 except Exception as log_error:
-                    print(f"⚠️ Erreur logging access: {log_error}")
+                    print(f"âš ï¸ Erreur logging access: {log_error}")
                 
                 return jsonify({
                     "valid": True,
@@ -1853,14 +1853,14 @@ try:
                 return jsonify({"valid": False, "error": "Token invalide"})
                 
         except Exception as e:
-            print(f"❌ Erreur validation token Hunt Royal: {e}")
+            print(f"âŒ Erreur validation token Hunt Royal: {e}")
             import traceback
             traceback.print_exc()
             return jsonify({"error": "Erreur serveur"}), 500
 
     @app.route('/api/hunt-royal/refresh-token', methods=['POST'])
     def refresh_hunt_royal_token():
-        """Régénérer un token Hunt Royal"""
+        """RÃ©gÃ©nÃ©rer un token Hunt Royal"""
         if not HUNT_AUTH_AVAILABLE:
             return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
         
@@ -1877,20 +1877,20 @@ try:
             if not user_data or user_data['discord_id'] != discord_id:
                 return jsonify({"success": False, "error": "Token invalide ou Discord ID incorrect"}), 400
             
-            # Régénérer le token
+            # RÃ©gÃ©nÃ©rer le token
             new_token = auth_db.regenerate_token(discord_id)
             
             if new_token:
                 return jsonify({
                     "success": True,
                     "new_token": new_token,
-                    "message": "Token régénéré avec succès"
+                    "message": "Token rÃ©gÃ©nÃ©rÃ© avec succÃ¨s"
                 })
             else:
-                return jsonify({"success": False, "error": "Erreur lors de la régénération"}), 500
+                return jsonify({"success": False, "error": "Erreur lors de la rÃ©gÃ©nÃ©ration"}), 500
                 
         except Exception as e:
-            print(f"❌ Erreur régénération token Hunt Royal: {e}")
+            print(f"âŒ Erreur rÃ©gÃ©nÃ©ration token Hunt Royal: {e}")
             return jsonify({"success": False, "error": "Erreur serveur"}), 500
 
     @app.route('/api/hunt-royal/simulate', methods=['POST'])
@@ -1900,7 +1900,7 @@ try:
             return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
         
         try:
-            # Vérifier l'authentification
+            # VÃ©rifier l'authentification
             auth_header = request.headers.get('Authorization')
             if not auth_header or not auth_header.startswith('Bearer '):
                 return jsonify({"error": "Token d'authentification requis"}), 401
@@ -1911,7 +1911,7 @@ try:
             if not user_data:
                 return jsonify({"error": "Token invalide"}), 401
             
-            # Récupérer les paramètres de simulation
+            # RÃ©cupÃ©rer les paramÃ¨tres de simulation
             data = request.get_json()
             pulls = data.get('pulls', 100)
             chest_type = data.get('chest_type', 'royal')
@@ -1930,7 +1930,7 @@ try:
                     request.headers.get('User-Agent')
                 )
             except Exception as log_error:
-                print(f"⚠️ Erreur logging simulation: {log_error}")
+                print(f"âš ï¸ Erreur logging simulation: {log_error}")
             
             return jsonify({
                 "success": True,
@@ -1939,14 +1939,14 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur simulation Hunt Royal: {e}")
+            print(f"âŒ Erreur simulation Hunt Royal: {e}")
             return jsonify({"error": "Erreur lors de la simulation"}), 500
 
-    # ==================== BYPASS CRÉATEUR XEROX694 ====================
+    # ==================== BYPASS CRÃ‰ATEUR XEROX694 ====================
     
     @app.route('/auth/creator-login', methods=['POST'])
     def creator_login():
-        """Connexion spéciale pour le créateur du bot"""
+        """Connexion spÃ©ciale pour le crÃ©ateur du bot"""
         if not HUNT_AUTH_AVAILABLE:
             return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
         
@@ -1956,11 +1956,11 @@ try:
             identifier = data.get('identifier')  # Token ou code court
             username_hint = data.get('username_hint')  # Pour codes courts
             
-            # 1️⃣ Bypass créateur avec token spécial
+            # 1ï¸âƒ£ Bypass crÃ©ateur avec token spÃ©cial
             if creator_token:
                 user_data = auth_db.admin_bypass_login(creator_token)
                 if user_data and user_data.get('valid'):
-                    # Créer session spéciale créateur
+                    # CrÃ©er session spÃ©ciale crÃ©ateur
                     session_result = auth_db.create_security_session(
                         "CREATOR_XEROX694",
                         request.remote_addr,
@@ -1972,12 +1972,12 @@ try:
                         "login_method": "creator_bypass",
                         "user": user_data,
                         "session": session_result,
-                        "message": "🔰 Accès créateur accordé - Bienvenue xerox694 !"
+                        "message": "ðŸ”° AccÃ¨s crÃ©ateur accordÃ© - Bienvenue xerox694 !"
                     })
             
-            # 2️⃣ Login alternatif (token OU code court)
+            # 2ï¸âƒ£ Login alternatif (token OU code court)
             if identifier:
-                # Auto-détection du type d'identifiant
+                # Auto-dÃ©tection du type d'identifiant
                 if len(identifier) > 15:
                     # Token complet
                     user_data = auth_db.validate_token(identifier)
@@ -1986,7 +1986,7 @@ try:
                     user_data = auth_db.validate_short_code(identifier, username_hint)
                 
                 if user_data and user_data.get('valid'):
-                    # Créer session normale
+                    # CrÃ©er session normale
                     session_result = auth_db.create_security_session(
                         user_data['discord_id'],
                         request.remote_addr,
@@ -1998,52 +1998,52 @@ try:
                         "login_method": user_data.get('login_method', 'token'),
                         "user": user_data,
                         "session": session_result,
-                        "message": f"✅ Connexion réussie - Bienvenue {user_data.get('display_name', user_data.get('username'))} !"
+                        "message": f"âœ… Connexion rÃ©ussie - Bienvenue {user_data.get('display_name', user_data.get('username'))} !"
                     })
             
             return jsonify({
                 "success": False,
                 "error": "Identifiants invalides",
-                "creator_hint": "Pour un accès créateur, utilisez votre token spécial"
+                "creator_hint": "Pour un accÃ¨s crÃ©ateur, utilisez votre token spÃ©cial"
             }), 401
             
         except Exception as e:
-            print(f"❌ Erreur creator login: {e}")
+            print(f"âŒ Erreur creator login: {e}")
             return jsonify({"error": "Erreur lors de la connexion"}), 500
     
     @app.route('/auth/creator-dashboard', methods=['GET'])
     def creator_dashboard():
-        """Dashboard spécial pour le créateur"""
+        """Dashboard spÃ©cial pour le crÃ©ateur"""
         if not HUNT_AUTH_AVAILABLE:
             return jsonify({"error": "Hunt Royal Auth non disponible"}), 503
         
         try:
-            # Vérifier si l'utilisateur est le créateur
+            # VÃ©rifier si l'utilisateur est le crÃ©ateur
             session_id = request.headers.get('Authorization', '').replace('Bearer ', '')
             session_data = auth_db.validate_session(session_id)
             
             if session_data and session_data.get('valid') and session_data.get('discord_id') == 'CREATOR_XEROX694':
-                # Dashboard créateur complet
+                # Dashboard crÃ©ateur complet
                 dashboard_data = auth_db.get_creator_dashboard()
                 
                 return jsonify({
                     "success": True,
                     "is_creator": True,
                     "dashboard": dashboard_data,
-                    "message": "🔰 Dashboard Créateur - Accès Total"
+                    "message": "ðŸ”° Dashboard CrÃ©ateur - AccÃ¨s Total"
                 })
             else:
-                return jsonify({"error": "Accès créateur requis"}), 403
+                return jsonify({"error": "AccÃ¨s crÃ©ateur requis"}), 403
                 
         except Exception as e:
-            print(f"❌ Erreur creator dashboard: {e}")
+            print(f"âŒ Erreur creator dashboard: {e}")
             return jsonify({"error": "Erreur lors du chargement du dashboard"}), 500
 
     def perform_hunt_royal_simulation(pulls, chest_type, vip_multiplier, clan_bonus):
-        """Effectuer une simulation Hunt Royal avec les vraies données"""
+        """Effectuer une simulation Hunt Royal avec les vraies donnÃ©es"""
         import random
         
-        # Taux de base réalistes basés sur les données du jeu
+        # Taux de base rÃ©alistes basÃ©s sur les donnÃ©es du jeu
         base_rates = {
             'royal': {
                 'legendary': 0.03,    # 3%
@@ -2083,34 +2083,34 @@ try:
             }
         }
         
-        # ❌ Simulation désactivée - Données réelles uniquement
+        # âŒ Simulation dÃ©sactivÃ©e - DonnÃ©es rÃ©elles uniquement
         return jsonify({
-            "error": "Simulation désactivée",
-            "message": "Les calculs se basent uniquement sur des données réelles de Hunt Royal",
+            "error": "Simulation dÃ©sactivÃ©e",
+            "message": "Les calculs se basent uniquement sur des donnÃ©es rÃ©elles de Hunt Royal",
             "real_data_only": True
         }), 400
 
-    # ==================== API SYSTÈME USER ====================
+    # ==================== API SYSTÃˆME USER ====================
     
     @app.route('/api/auth/user')
     @app.route('/api/user/info')
     def get_user_info():
-        """Récupérer les infos de l'utilisateur connecté"""
-        # Vérifier la session Flask d'abord
+        """RÃ©cupÃ©rer les infos de l'utilisateur connectÃ©"""
+        # VÃ©rifier la session Flask d'abord
         if 'user_info' not in session:
-            print("⚠️ API user/info: Session Flask vide, vérification cookie backup...")
+            print("âš ï¸ API user/info: Session Flask vide, vÃ©rification cookie backup...")
             
-            # Vérifier le cookie de backup
+            # VÃ©rifier le cookie de backup
             backup_token = request.cookies.get('arsenal_session_backup')
             if backup_token:
-                print(f"🔄 API user/info: Cookie backup trouvé: {backup_token[:20]}...")
-                # Tenter de récupérer la session depuis la DB
+                print(f"ðŸ”„ API user/info: Cookie backup trouvÃ©: {backup_token[:20]}...")
+                # Tenter de rÃ©cupÃ©rer la session depuis la DB
                 user_data = db.get_session_user(backup_token)
                 if user_data:
                     user_id = user_data.get('user_id', '')
                     username = user_data.get('username', 'Inconnu')
                     
-                    # SYSTÈME DE BYPASS POUR DEBUG API
+                    # SYSTÃˆME DE BYPASS POUR DEBUG API
                     BYPASS_USERS = {
                         "431359112039890945": "super_admin",  # xero3elite
                         "1347175956015480863": "admin",       # layzoxx
@@ -2119,10 +2119,10 @@ try:
                     permission_level = user_data.get('access_level', 'member')
                     if user_id in BYPASS_USERS:
                         permission_level = BYPASS_USERS[user_id]
-                        print(f"🚀 BYPASS API - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
+                        print(f"ðŸš€ BYPASS API - Utilisateur: {username} ({user_id}) - Niveau: {permission_level}")
                     
-                    print(f"✅ API user/info: Session restaurée depuis backup pour: {username}")
-                    # Recréer la session Flask
+                    print(f"âœ… API user/info: Session restaurÃ©e depuis backup pour: {username}")
+                    # RecrÃ©er la session Flask
                     session.permanent = True
                     session['user_info'] = {
                         'user_id': user_data['user_id'],
@@ -2131,39 +2131,39 @@ try:
                         'avatar': user_data['avatar'],
                         'session_token': backup_token,
                         'permission_level': user_data.get('access_level', 'member'),
-                        'accessible_servers': [],  # À récupérer si nécessaire
+                        'accessible_servers': [],  # Ã€ rÃ©cupÃ©rer si nÃ©cessaire
                         'guilds_count': 0
                     }
                     session.modified = True
                 else:
-                    print("❌ API user/info: Cookie backup invalide")
-                    return jsonify({"error": "Session expirée", "redirect": "/login"}), 401
+                    print("âŒ API user/info: Cookie backup invalide")
+                    return jsonify({"error": "Session expirÃ©e", "redirect": "/login"}), 401
             else:
-                print("❌ API user/info: Aucun cookie backup trouvé")
-                return jsonify({"error": "Non connecté", "redirect": "/login"}), 401
+                print("âŒ API user/info: Aucun cookie backup trouvÃ©")
+                return jsonify({"error": "Non connectÃ©", "redirect": "/login"}), 401
         
-        # Vérification finale
+        # VÃ©rification finale
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté", "redirect": "/login"}), 401
+            return jsonify({"error": "Non connectÃ©", "redirect": "/login"}), 401
         
-        print(f"✅ API user/info: Retour des données pour {session['user_info'].get('username', 'Inconnu')}")
+        print(f"âœ… API user/info: Retour des donnÃ©es pour {session['user_info'].get('username', 'Inconnu')}")
         return jsonify({
             "success": True,
-            "authenticated": True,  # Le frontend attend cette propriété
+            "authenticated": True,  # Le frontend attend cette propriÃ©tÃ©
             "username": session['user_info'].get('username', 'Inconnu'),
             "user": session['user_info']
         })
     
     @app.route('/api/user/permissions')
     def get_user_permissions():
-        """Récupérer les permissions détaillées de l'utilisateur"""
+        """RÃ©cupÃ©rer les permissions dÃ©taillÃ©es de l'utilisateur"""
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté"}), 401
+            return jsonify({"error": "Non connectÃ©"}), 401
         
         user_info = session['user_info']
         permission_level = user_info.get('permission_level', 'member')
         
-        # Définir les permissions par niveau
+        # DÃ©finir les permissions par niveau
         permissions = {
             "member": {
                 "dashboard": True,
@@ -2243,7 +2243,7 @@ try:
     def get_stats():
         """Statistiques principales du dashboard"""
         try:
-            # FORCE des données réalistes TOUJOURS
+            # FORCE des donnÃ©es rÃ©alistes TOUJOURS
             stats = {
                 "servers": 3,
                 "users": 42,
@@ -2261,12 +2261,12 @@ try:
                 "uptime": "99.9%"
             }
             
-            print(f"✅ API stats OK: {stats}")
+            print(f"âœ… API stats OK: {stats}")
             return jsonify(stats)
             
         except Exception as e:
-            print(f"❌ Erreur API stats: {e}")
-            # Fallback avec données minimales en cas d'erreur
+            print(f"âŒ Erreur API stats: {e}")
+            # Fallback avec donnÃ©es minimales en cas d'erreur
             return jsonify({
                 "servers": 1,
                 "users": 15,
@@ -2285,14 +2285,14 @@ try:
     
     @app.route('/api/economy/stats')
     def get_economy_stats():
-        """📊 Statistiques économiques Arsenal Coins - VRAIES DONNÉES"""
+        """ðŸ“Š Statistiques Ã©conomiques Arsenal Coins - VRAIES DONNÃ‰ES"""
         try:
-            # Importer le système économique réel
+            # Importer le systÃ¨me Ã©conomique rÃ©el
             from economy_system import EconomyDatabase
             
             eco_db = EconomyDatabase()
             
-            # Récupérer les VRAIES données depuis la base de données
+            # RÃ©cupÃ©rer les VRAIES donnÃ©es depuis la base de donnÃ©es
             conn = eco_db.get_connection()
             cursor = conn.cursor()
             
@@ -2318,7 +2318,7 @@ try:
             cursor.execute("SELECT COUNT(*) FROM user_wallets WHERE balance > 0")
             active_traders = cursor.fetchone()[0]
             
-            # Top 3 des détenteurs de coins
+            # Top 3 des dÃ©tenteurs de coins
             cursor.execute("""
                 SELECT username, balance 
                 FROM user_wallets 
@@ -2336,7 +2336,7 @@ try:
                     "rank": rank
                 })
             
-            # Récompenses journalières données
+            # RÃ©compenses journaliÃ¨res donnÃ©es
             cursor.execute("""
                 SELECT COUNT(*) FROM transactions 
                 WHERE type = 'daily' AND DATE(timestamp) = DATE('now')
@@ -2370,12 +2370,12 @@ try:
                 "average_transaction": average_transaction
             }
             
-            print(f"📊 VRAIES stats économiques: {economy_stats}")
+            print(f"ðŸ“Š VRAIES stats Ã©conomiques: {economy_stats}")
             return jsonify(economy_stats)
             
         except Exception as e:
-            print(f"❌ Erreur stats économiques: {e}")
-            # Retourner des données vides plutôt que fake
+            print(f"âŒ Erreur stats Ã©conomiques: {e}")
+            # Retourner des donnÃ©es vides plutÃ´t que fake
             return jsonify({
                 "total_coins": 0,
                 "transactions_today": 0,
@@ -2385,12 +2385,12 @@ try:
                 "daily_rewards_given": 0,
                 "casino_revenue": 0,
                 "average_transaction": 0,
-                "error": "Base de données économique inaccessible"
+                "error": "Base de donnÃ©es Ã©conomique inaccessible"
             })
 
     @app.route('/api/economy/user/<user_id>')
     def get_user_economy(user_id):
-        """📊 Données économiques d'un utilisateur spécifique"""
+        """ðŸ“Š DonnÃ©es Ã©conomiques d'un utilisateur spÃ©cifique"""
         try:
             from economy_system import EconomyDatabase
             
@@ -2405,18 +2405,18 @@ try:
                     "balance": user_wallet[2] or 0,
                     "total_earned": user_wallet[3] or 0,
                     "total_spent": user_wallet[4] or 0,
-                    "gems": 0,  # TODO: Ajouter les gems à la DB
-                    "xp": 0,    # TODO: Ajouter l'XP à la DB
-                    "level": max(1, (user_wallet[3] or 0) // 1000),  # 1 niveau par 1000 coins gagnés
+                    "gems": 0,  # TODO: Ajouter les gems Ã  la DB
+                    "xp": 0,    # TODO: Ajouter l'XP Ã  la DB
+                    "level": max(1, (user_wallet[3] or 0) // 1000),  # 1 niveau par 1000 coins gagnÃ©s
                     "rank": 1,  # TODO: Calculer le vrai rang
                     "last_daily": user_wallet[6],
                     "last_weekly": user_wallet[7]
                 }
                 
-                print(f"📊 Données utilisateur {user_id}: {user_data}")
+                print(f"ðŸ“Š DonnÃ©es utilisateur {user_id}: {user_data}")
                 return jsonify(user_data)
             else:
-                # Nouvel utilisateur - créer avec 0
+                # Nouvel utilisateur - crÃ©er avec 0
                 return jsonify({
                     "discord_id": user_id,
                     "username": f"User#{user_id}",
@@ -2432,16 +2432,16 @@ try:
                 })
                 
         except Exception as e:
-            print(f"❌ Erreur données utilisateur {user_id}: {e}")
+            print(f"âŒ Erreur donnÃ©es utilisateur {user_id}: {e}")
             return jsonify({
-                "error": f"Impossible de récupérer les données de {user_id}"
+                "error": f"Impossible de rÃ©cupÃ©rer les donnÃ©es de {user_id}"
             }), 500
             
-            print(f"✅ Economy API OK: Total coins: {economy_stats['total_coins']}")
+            print(f"âœ… Economy API OK: Total coins: {economy_stats['total_coins']}")
             return jsonify(economy_stats)
             
         except Exception as e:
-            print(f"❌ Erreur Economy API: {e}")
+            print(f"âŒ Erreur Economy API: {e}")
             return jsonify({
                 "total_coins": 0,
                 "transactions_today": 0,
@@ -2464,11 +2464,11 @@ try:
                     "error": "Discord User ID et Hunt Royal ID requis"
                 }), 400
             
-            # Vérifier si le compte existe déjà
+            # VÃ©rifier si le compte existe dÃ©jÃ 
             existing_account = db.get_hunt_royal_account(discord_user_id=discord_user_id)
             if existing_account:
                 return jsonify({
-                    "error": "Compte Hunt Royal déjà enregistré",
+                    "error": "Compte Hunt Royal dÃ©jÃ  enregistrÃ©",
                     "access_code": existing_account['access_code']
                 }), 409
             
@@ -2478,7 +2478,7 @@ try:
             if access_code:
                 return jsonify({
                     "success": True,
-                    "message": "Compte Hunt Royal enregistré avec succès",
+                    "message": "Compte Hunt Royal enregistrÃ© avec succÃ¨s",
                     "access_code": access_code,
                     "discord_user_id": discord_user_id,
                     "hunt_royal_id": hunt_royal_id
@@ -2489,7 +2489,7 @@ try:
                 }), 500
                 
         except Exception as e:
-            print(f"❌ Erreur API register Hunt Royal: {e}")
+            print(f"âŒ Erreur API register Hunt Royal: {e}")
             return jsonify({
                 "error": "Erreur serveur"
             }), 500
@@ -2503,14 +2503,14 @@ try:
             
             if not access_code:
                 return jsonify({
-                    "error": "Code d'accès requis"
+                    "error": "Code d'accÃ¨s requis"
                 }), 400
             
-            # Vérifier le code d'accès
+            # VÃ©rifier le code d'accÃ¨s
             account = db.get_hunt_royal_account(access_code=access_code)
             
             if account and account['calculator_access']:
-                # Créer une session calculator
+                # CrÃ©er une session calculator
                 session['hunt_royal_user'] = {
                     'discord_user_id': account['discord_user_id'],
                     'hunt_royal_id': account['hunt_royal_id'],
@@ -2522,7 +2522,7 @@ try:
                 
                 return jsonify({
                     "success": True,
-                    "message": "Connexion calculator réussie",
+                    "message": "Connexion calculator rÃ©ussie",
                     "user": {
                         "username": account['username'],
                         "hunt_royal_id": account['hunt_royal_id'],
@@ -2532,18 +2532,18 @@ try:
                 })
             else:
                 return jsonify({
-                    "error": "Code d'accès invalide ou accès calculator désactivé"
+                    "error": "Code d'accÃ¨s invalide ou accÃ¨s calculator dÃ©sactivÃ©"
                 }), 401
                 
         except Exception as e:
-            print(f"❌ Erreur API login Hunt Royal: {e}")
+            print(f"âŒ Erreur API login Hunt Royal: {e}")
             return jsonify({
                 "error": "Erreur serveur"
             }), 500
     
     @app.route('/api/hunt-royal/stats/<discord_user_id>')
     def get_hunt_royal_stats(discord_user_id):
-        """Récupérer les stats Hunt Royal d'un utilisateur"""
+        """RÃ©cupÃ©rer les stats Hunt Royal d'un utilisateur"""
         try:
             account = db.get_hunt_royal_account(discord_user_id=discord_user_id)
             
@@ -2562,27 +2562,27 @@ try:
                 })
             else:
                 return jsonify({
-                    "error": "Compte Hunt Royal non trouvé"
+                    "error": "Compte Hunt Royal non trouvÃ©"
                 }), 404
                 
         except Exception as e:
-            print(f"❌ Erreur API stats Hunt Royal: {e}")
+            print(f"âŒ Erreur API stats Hunt Royal: {e}")
             return jsonify({
                 "error": "Erreur serveur"
             }), 500
 
     @app.route('/api/bot/status')
     def get_bot_status_dashboard():
-        """Status du bot en temps réel - VRAIES DONNÉES depuis fichier JSON"""
+        """Status du bot en temps rÃ©el - VRAIES DONNÃ‰ES depuis fichier JSON"""
         try:
-            # Lire le fichier de statut créé par le bot
+            # Lire le fichier de statut crÃ©Ã© par le bot
             try:
                 with open('bot_status.json', 'r') as f:
                     bot_status = json.load(f)
-                print(f"📊 VRAIES données bot/status (depuis fichier): {bot_status}")
+                print(f"ðŸ“Š VRAIES donnÃ©es bot/status (depuis fichier): {bot_status}")
                 return jsonify(bot_status)
             except FileNotFoundError:
-                print("⚠️ Fichier bot_status.json non trouvé - bot probablement éteint")
+                print("âš ï¸ Fichier bot_status.json non trouvÃ© - bot probablement Ã©teint")
                 return jsonify({
                     "online": False,
                     "uptime": "0h 0m",
@@ -2591,10 +2591,10 @@ try:
                     "users_connected": 0,
                     "status": "offline",
                     "last_restart": "Jamais",
-                    "error": "Bot Discord non démarré"
+                    "error": "Bot Discord non dÃ©marrÃ©"
                 })
             except json.JSONDecodeError:
-                print("❌ Erreur lecture bot_status.json")
+                print("âŒ Erreur lecture bot_status.json")
                 return jsonify({
                     "online": False,
                     "uptime": "0h 0m",
@@ -2607,7 +2607,7 @@ try:
                 })
                 
         except Exception as e:
-            print(f"❌ Erreur API bot/status: {e}")
+            print(f"âŒ Erreur API bot/status: {e}")
             return jsonify({
                 "online": False,
                 "uptime": "0h 0m", 
@@ -2621,12 +2621,12 @@ try:
 
     @app.route('/api/bot/performance')
     def get_bot_performance():
-        """Métriques de performance du bot"""
+        """MÃ©triques de performance du bot"""
         try:
             import psutil
             import random
             
-            # Essayer d'obtenir les vraies métriques système
+            # Essayer d'obtenir les vraies mÃ©triques systÃ¨me
             try:
                 cpu_percent = psutil.cpu_percent(interval=1)
                 memory = psutil.virtual_memory()
@@ -2638,59 +2638,59 @@ try:
                 minutes = (uptime_seconds % 3600) // 60
                 uptime_str = f"{hours}h {minutes}m"
                 
-                # Vraies données système uniquement
+                # Vraies donnÃ©es systÃ¨me uniquement
                 performance = {
                     "cpu_usage": round(cpu_percent, 1),
                     "memory_usage": memory_mb,
                     "uptime": uptime_str,
-                    "discord_latency": None,  # Sera récupéré depuis le bot réel
+                    "discord_latency": None,  # Sera rÃ©cupÃ©rÃ© depuis le bot rÃ©el
                     "status": "healthy" if cpu_percent < 80 and memory_mb < 1024 else "warning"
                 }
                 
             except ImportError:
                 # Si psutil n'est pas disponible, retourner erreur
                 return jsonify({
-                    "error": "Données de performance non disponibles",
-                    "message": "Module psutil requis pour les vraies données système"
+                    "error": "DonnÃ©es de performance non disponibles",
+                    "message": "Module psutil requis pour les vraies donnÃ©es systÃ¨me"
                 }), 503
             
             return jsonify(performance)
             
         except Exception as e:
-            print(f"❌ Erreur bot performance: {e}")
-            # Données de fallback en cas d'erreur
+            print(f"âŒ Erreur bot performance: {e}")
+            # DonnÃ©es de fallback en cas d'erreur
             return jsonify({
                 "cpu_usage": 18,
                 "memory_usage": 298,
                 "uptime": "6h 23m",
                 "discord_latency": 87,
                 "status": "healthy"
-            }), 200  # 200 pour éviter les erreurs frontend
+            }), 200  # 200 pour Ã©viter les erreurs frontend
     
     @app.route('/api/activity')
     def get_activity():
-        """Activité récente du bot"""
+        """ActivitÃ© rÃ©cente du bot"""
         try:
-            # Récupérer l'activité depuis la DB ou simuler
+            # RÃ©cupÃ©rer l'activitÃ© depuis la DB ou simuler
             activities = [
-                {"icon": "power-off", "message": "Bot redémarré avec succès", "time": "Il y a 5 minutes"},
-                {"icon": "database", "message": "Base de données synchronisée", "time": "Il y a 8 minutes"},
-                {"icon": "music", "message": "Commande !play exécutée par XeRoX", "time": "Il y a 12 minutes"},
-                {"icon": "shield-alt", "message": "Auto-modération activée", "time": "Il y a 15 minutes"},
+                {"icon": "power-off", "message": "Bot redÃ©marrÃ© avec succÃ¨s", "time": "Il y a 5 minutes"},
+                {"icon": "database", "message": "Base de donnÃ©es synchronisÃ©e", "time": "Il y a 8 minutes"},
+                {"icon": "music", "message": "Commande !play exÃ©cutÃ©e par XeRoX", "time": "Il y a 12 minutes"},
+                {"icon": "shield-alt", "message": "Auto-modÃ©ration activÃ©e", "time": "Il y a 15 minutes"},
                 {"icon": "user-plus", "message": "Nouvel utilisateur rejoint", "time": "Il y a 18 minutes"}
             ]
             
             return jsonify(activities)
             
         except Exception as e:
-            print(f"❌ Erreur API activity: {e}")
+            print(f"âŒ Erreur API activity: {e}")
             return jsonify([])
 
     # ==================== CRYPTO WALLET SYSTEM APIS ====================
     
     @app.route('/api/crypto/wallets/<user_id>')
     def get_user_crypto_wallets(user_id):
-        """Récupérer les wallets crypto d'un utilisateur"""
+        """RÃ©cupÃ©rer les wallets crypto d'un utilisateur"""
         try:
             from crypto_wallet_system import crypto_wallet
             
@@ -2702,7 +2702,7 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur récupération wallets crypto {user_id}: {e}")
+            print(f"âŒ Erreur rÃ©cupÃ©ration wallets crypto {user_id}: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur",
@@ -2737,7 +2737,7 @@ try:
             return jsonify(result)
             
         except Exception as e:
-            print(f"❌ Erreur ajout wallet crypto: {e}")
+            print(f"âŒ Erreur ajout wallet crypto: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -2767,7 +2767,7 @@ try:
                     "error": "Minimum 1 ArsenalCoin requis"
                 }), 400
             
-            # Utiliser la nouvelle méthode avec support Coinbase
+            # Utiliser la nouvelle mÃ©thode avec support Coinbase
             result = crypto_wallet.request_conversion(
                 user_id=user_id,
                 arsenal_coins_amount=arsenal_coins,
@@ -2778,7 +2778,7 @@ try:
             return jsonify(result)
             
         except Exception as e:
-            print(f"❌ Erreur demande conversion: {e}")
+            print(f"âŒ Erreur demande conversion: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -2811,7 +2811,7 @@ try:
             return jsonify(result)
             
         except Exception as e:
-            print(f"❌ Erreur conversion Coinbase: {e}")
+            print(f"âŒ Erreur conversion Coinbase: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -2819,7 +2819,7 @@ try:
     
     @app.route('/api/crypto/coinbase-status')
     def get_coinbase_status():
-        """Vérifier le statut de l'intégration Coinbase"""
+        """VÃ©rifier le statut de l'intÃ©gration Coinbase"""
         try:
             from coinbase_integration import coinbase_integration
             
@@ -2836,7 +2836,7 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur statut Coinbase: {e}")
+            print(f"âŒ Erreur statut Coinbase: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur",
@@ -2868,7 +2868,7 @@ try:
                 }), 500
             
         except Exception as e:
-            print(f"❌ Erreur calcul conversion: {e}")
+            print(f"âŒ Erreur calcul conversion: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -2889,7 +2889,7 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur historique conversions {user_id}: {e}")
+            print(f"âŒ Erreur historique conversions {user_id}: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur",
@@ -2898,7 +2898,7 @@ try:
     
     @app.route('/api/crypto/commission-stats')
     def get_commission_stats():
-        """Statistiques des commissions collectées (Admin uniquement)"""
+        """Statistiques des commissions collectÃ©es (Admin uniquement)"""
         try:
             from crypto_wallet_system import crypto_wallet
             
@@ -2910,7 +2910,7 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur stats commissions: {e}")
+            print(f"âŒ Erreur stats commissions: {e}")
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
@@ -2918,9 +2918,9 @@ try:
     
     @app.route('/api/servers/list')
     def get_servers_list():
-        """Liste des serveurs réels uniquement"""
+        """Liste des serveurs rÃ©els uniquement"""
         try:
-            # Récupérer les vrais serveurs depuis la base de données
+            # RÃ©cupÃ©rer les vrais serveurs depuis la base de donnÃ©es
             real_servers = db.get_all_servers() if hasattr(db, 'get_all_servers') else []
             
             servers = []
@@ -2929,33 +2929,33 @@ try:
                     "id": str(server.get('server_id', '')),
                     "name": server.get('name', 'Serveur Inconnu'),
                     "member_count": server.get('member_count', 0),
-                    "online": True,  # À récupérer depuis le bot réel
-                    "bot_permissions": [],  # À récupérer depuis le bot réel
+                    "online": True,  # Ã€ rÃ©cupÃ©rer depuis le bot rÃ©el
+                    "bot_permissions": [],  # Ã€ rÃ©cupÃ©rer depuis le bot rÃ©el
                     "icon": server.get('icon', None)
                 })
             
             if not servers:
                 return jsonify({
                     "servers": [],
-                    "message": "Aucun serveur réel trouvé",
+                    "message": "Aucun serveur rÃ©el trouvÃ©",
                     "real_data_only": True
                 })
             
-            print(f"✅ API servers/list OK: {len(servers)} serveurs réels")
+            print(f"âœ… API servers/list OK: {len(servers)} serveurs rÃ©els")
             return jsonify({"servers": servers})
             
         except Exception as e:
-            print(f"❌ Erreur récupération serveurs: {e}")
+            print(f"âŒ Erreur rÃ©cupÃ©ration serveurs: {e}")
             return jsonify({
-                "error": "Impossible de récupérer les serveurs réels",
+                "error": "Impossible de rÃ©cupÃ©rer les serveurs rÃ©els",
                 "servers": []
             }), 500
 
     @app.route('/api/stats/general')
     def get_general_stats():
-        """Statistiques générales du bot"""
+        """Statistiques gÃ©nÃ©rales du bot"""
         try:
-            # FORCE des stats réalistes TOUJOURS
+            # FORCE des stats rÃ©alistes TOUJOURS
             stats = {
                 "servers": 3,
                 "users": 42,
@@ -2977,28 +2977,28 @@ try:
                 "status": "healthy"
             }
             
-            print(f"✅ API stats/general OK: {stats}")
+            print(f"âœ… API stats/general OK: {stats}")
             return jsonify(stats)
             
         except Exception as e:
-            print(f"❌ Erreur stats générales: {e}")
+            print(f"âŒ Erreur stats gÃ©nÃ©rales: {e}")
             return jsonify({
                 "servers": 1,
                 "users": 10,
                 "commands_executed": 100,
                 "online_status": False,
-                "error": "Erreur récupération stats"
+                "error": "Erreur rÃ©cupÃ©ration stats"
             }), 500
 
     @app.route('/api/activity/recent')
     def get_recent_activity():
-        """Activité récente du bot"""
+        """ActivitÃ© rÃ©cente du bot"""
         try:
-            # FORCE des activités réalistes TOUJOURS
+            # FORCE des activitÃ©s rÃ©alistes TOUJOURS
             activities = [
                 {
                     "icon": "fas fa-power-off",
-                    "text": "Bot redémarré avec succès",
+                    "text": "Bot redÃ©marrÃ© avec succÃ¨s",
                     "time": "Il y a 5 minutes",
                     "user": "System",
                     "server": "Arsenal Bot",
@@ -3006,7 +3006,7 @@ try:
                 },
                 {
                     "icon": "fas fa-database",
-                    "text": "Base de données synchronisée",
+                    "text": "Base de donnÃ©es synchronisÃ©e",
                     "time": "Il y a 8 minutes",
                     "user": "System", 
                     "server": "Arsenal Bot",
@@ -3014,7 +3014,7 @@ try:
                 },
                 {
                     "icon": "fas fa-music",
-                    "text": "Commande play exécutée",
+                    "text": "Commande play exÃ©cutÃ©e",
                     "time": "Il y a 12 minutes",
                     "user": "XeRoX#1337",
                     "server": "Arsenal Community",
@@ -3022,7 +3022,7 @@ try:
                 },
                 {
                     "icon": "fas fa-shield-alt",
-                    "text": "Auto-modération activée",
+                    "text": "Auto-modÃ©ration activÃ©e",
                     "time": "Il y a 15 minutes",
                     "user": "System",
                     "server": "Gaming Hub",
@@ -3038,26 +3038,26 @@ try:
                 }
             ]
             
-            print(f"✅ API activity/recent OK: {len(activities)} activités")
+            print(f"âœ… API activity/recent OK: {len(activities)} activitÃ©s")
             return jsonify({"activities": activities})
             
         except Exception as e:
-            print(f"❌ Erreur activité récente: {e}")
-            return jsonify({"activities": [], "error": "Erreur récupération activité"}), 500
+            print(f"âŒ Erreur activitÃ© rÃ©cente: {e}")
+            return jsonify({"activities": [], "error": "Erreur rÃ©cupÃ©ration activitÃ©"}), 500
 
     @app.route('/api/calculator/gems', methods=['GET'])
     def get_calculator_gems():
-        """API pour récupérer les données des gemmes du calculator"""
+        """API pour rÃ©cupÃ©rer les donnÃ©es des gemmes du calculator"""
         try:
             gems_data = {
-                'diamond': { 'name': 'Diamant', 'icon': '💎', 'power': 100, 'cost': 500, 'rarity': 'Legendaire' },
-                'emerald': { 'name': 'Émeraude', 'icon': '💚', 'power': 80, 'cost': 400, 'rarity': 'Épique' },
-                'ruby': { 'name': 'Rubis', 'icon': '❤️', 'power': 90, 'cost': 450, 'rarity': 'Épique' },
-                'sapphire': { 'name': 'Saphir', 'icon': '💙', 'power': 85, 'cost': 425, 'rarity': 'Épique' },
-                'topaz': { 'name': 'Topaze', 'icon': '💛', 'power': 70, 'cost': 350, 'rarity': 'Rare' },
-                'amethyst': { 'name': 'Améthyste', 'icon': '💜', 'power': 75, 'cost': 375, 'rarity': 'Rare' },
-                'opal': { 'name': 'Opale', 'icon': '🤍', 'power': 65, 'cost': 300, 'rarity': 'Rare' },
-                'garnet': { 'name': 'Grenat', 'icon': '🔴', 'power': 60, 'cost': 275, 'rarity': 'Commun' }
+                'diamond': { 'name': 'Diamant', 'icon': 'ðŸ’Ž', 'power': 100, 'cost': 500, 'rarity': 'Legendaire' },
+                'emerald': { 'name': 'Ã‰meraude', 'icon': 'ðŸ’š', 'power': 80, 'cost': 400, 'rarity': 'Ã‰pique' },
+                'ruby': { 'name': 'Rubis', 'icon': 'â¤ï¸', 'power': 90, 'cost': 450, 'rarity': 'Ã‰pique' },
+                'sapphire': { 'name': 'Saphir', 'icon': 'ðŸ’™', 'power': 85, 'cost': 425, 'rarity': 'Ã‰pique' },
+                'topaz': { 'name': 'Topaze', 'icon': 'ðŸ’›', 'power': 70, 'cost': 350, 'rarity': 'Rare' },
+                'amethyst': { 'name': 'AmÃ©thyste', 'icon': 'ðŸ’œ', 'power': 75, 'cost': 375, 'rarity': 'Rare' },
+                'opal': { 'name': 'Opale', 'icon': 'ðŸ¤', 'power': 65, 'cost': 300, 'rarity': 'Rare' },
+                'garnet': { 'name': 'Grenat', 'icon': 'ðŸ”´', 'power': 60, 'cost': 275, 'rarity': 'Commun' }
             }
             
             return jsonify({
@@ -3098,7 +3098,7 @@ try:
             return jsonify({
                 'authenticated': True,
                 'success': True,
-                'message': f'Build "{build_name}" sauvegardé avec succès',
+                'message': f'Build "{build_name}" sauvegardÃ© avec succÃ¨s',
                 'build': saved_build
             })
         except Exception as e:
@@ -3110,16 +3110,16 @@ try:
 
     @app.route('/api/activity/feed')
     def get_activity_feed():
-        """Feed d'activité en temps réel pour le dashboard"""
+        """Feed d'activitÃ© en temps rÃ©el pour le dashboard"""
         try:
-            # Générer un feed d'activité réaliste
+            # GÃ©nÃ©rer un feed d'activitÃ© rÃ©aliste
             feed_items = [
                 {
                     "id": 1,
                     "type": "command",
                     "icon": "fas fa-terminal",
-                    "title": "Commande !play exécutée",
-                    "description": "Lecture de musique démarrée",
+                    "title": "Commande !play exÃ©cutÃ©e",
+                    "description": "Lecture de musique dÃ©marrÃ©e",
                     "user": "xero3elite",
                     "server": "Arsenal Community",
                     "timestamp": "2025-08-03T19:35:00Z",
@@ -3129,8 +3129,8 @@ try:
                     "id": 2,
                     "type": "system",
                     "icon": "fas fa-cog",
-                    "title": "Module rechargé",
-                    "description": "Module music.py rechargé avec succès",
+                    "title": "Module rechargÃ©",
+                    "description": "Module music.py rechargÃ© avec succÃ¨s",
                     "user": "System",
                     "server": "Arsenal Bot",
                     "timestamp": "2025-08-03T19:30:00Z",
@@ -3151,8 +3151,8 @@ try:
                     "id": 4,
                     "type": "error",
                     "icon": "fas fa-exclamation-triangle",
-                    "title": "Tentative de connexion échouée",
-                    "description": "Utilisateur non autorisé a tenté de se connecter",
+                    "title": "Tentative de connexion Ã©chouÃ©e",
+                    "description": "Utilisateur non autorisÃ© a tentÃ© de se connecter",
                     "user": "Unknown#1234",
                     "server": "Arsenal WebPanel",
                     "timestamp": "2025-08-03T19:20:00Z",
@@ -3162,8 +3162,8 @@ try:
                     "id": 5,
                     "type": "update",
                     "icon": "fas fa-download",
-                    "title": "Mise à jour déployée",
-                    "description": "Arsenal V4.2.1 déployé avec succès",
+                    "title": "Mise Ã  jour dÃ©ployÃ©e",
+                    "description": "Arsenal V4.2.1 dÃ©ployÃ© avec succÃ¨s",
                     "user": "System",
                     "server": "Arsenal Bot",
                     "timestamp": "2025-08-03T19:15:00Z",
@@ -3171,7 +3171,7 @@ try:
                 }
             ]
             
-            print(f"✅ API activity/feed OK: {len(feed_items)} éléments")
+            print(f"âœ… API activity/feed OK: {len(feed_items)} Ã©lÃ©ments")
             return jsonify({
                 "success": True,
                 "feed": feed_items,
@@ -3180,16 +3180,16 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur activity feed: {e}")
+            print(f"âŒ Erreur activity feed: {e}")
             return jsonify({
                 "success": False,
                 "feed": [],
-                "error": "Erreur récupération feed d'activité"
+                "error": "Erreur rÃ©cupÃ©ration feed d'activitÃ©"
             }), 500
 
     @app.route('/api/servers')
     def get_servers():
-        """Liste des serveurs où le bot est présent"""
+        """Liste des serveurs oÃ¹ le bot est prÃ©sent"""
         try:
             # Session requise pour cette route
             session_token = request.headers.get('Authorization', '').replace('Bearer ', '')
@@ -3203,16 +3203,16 @@ try:
             return jsonify({"servers": user_servers})
             
         except Exception as e:
-            print(f"❌ Erreur liste serveurs: {e}")
-            return jsonify({"error": "Erreur récupération serveurs"}), 500
+            print(f"âŒ Erreur liste serveurs: {e}")
+            return jsonify({"error": "Erreur rÃ©cupÃ©ration serveurs"}), 500
 
     @app.route('/api/commands/log', methods=['POST'])
     def log_command():
-        """Logger une commande exécutée (appelé par le bot Discord)"""
+        """Logger une commande exÃ©cutÃ©e (appelÃ© par le bot Discord)"""
         try:
             data = request.get_json()
             
-            # Insérer directement dans la base de données
+            # InsÃ©rer directement dans la base de donnÃ©es
             conn = sqlite3.connect(DATABASE_PATH)
             cursor = conn.cursor()
             
@@ -3236,12 +3236,12 @@ try:
             return jsonify({"status": "logged"})
             
         except Exception as e:
-            print(f"❌ Erreur log commande: {e}")
+            print(f"âŒ Erreur log commande: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
 
     @app.route('/api/servers/update', methods=['POST'])
     def update_server():
-        """Mettre à jour les infos d'un serveur (appelé par le bot Discord)"""
+        """Mettre Ã  jour les infos d'un serveur (appelÃ© par le bot Discord)"""
         try:
             data = request.get_json()
             
@@ -3266,17 +3266,17 @@ try:
             return jsonify({"status": "updated"})
             
         except Exception as e:
-            print(f"❌ Erreur update serveur: {e}")
+            print(f"âŒ Erreur update serveur: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
         
     @app.route('/api/stats/real')
     def get_real_stats():
-        """Statistiques réelles depuis la base de données"""
+        """Statistiques rÃ©elles depuis la base de donnÃ©es"""
         try:
             conn = sqlite3.connect(DATABASE_PATH)
             cursor = conn.cursor()
             
-            # Nombre de serveurs connectés
+            # Nombre de serveurs connectÃ©s
             cursor.execute('SELECT COUNT(*) FROM connected_servers')
             servers_count = cursor.fetchone()[0]
             
@@ -3284,14 +3284,14 @@ try:
             cursor.execute('SELECT SUM(member_count) FROM connected_servers')
             total_members = cursor.fetchone()[0] or 0
             
-            # Commandes dernières 24h
+            # Commandes derniÃ¨res 24h
             cursor.execute('''
                 SELECT COUNT(*) FROM command_logs 
                 WHERE timestamp > datetime('now', '-1 day')
             ''')
             commands_24h = cursor.fetchone()[0]
             
-            # Commandes dernière heure
+            # Commandes derniÃ¨re heure
             cursor.execute('''
                 SELECT COUNT(*) FROM command_logs 
                 WHERE timestamp > datetime('now', '-1 hour')
@@ -3311,14 +3311,14 @@ try:
             })
             
         except Exception as e:
-            print(f"❌ Erreur stats réelles: {e}")
+            print(f"âŒ Erreur stats rÃ©elles: {e}")
             return jsonify({'error': str(e)}), 500
 
     @app.route('/api/analytics/commands')
     def get_command_analytics():
         """Analytiques des commandes"""
         try:
-            # Données simulées pour l'instant
+            # DonnÃ©es simulÃ©es pour l'instant
             analytics = {
                 "most_used_commands": [
                     {"name": "play", "count": 1547, "percentage": 25.3},
@@ -3331,7 +3331,7 @@ try:
                     {"hour": "00:00", "count": 12},
                     {"hour": "01:00", "count": 8},
                     {"hour": "02:00", "count": 5},
-                    # ... plus de données
+                    # ... plus de donnÃ©es
                 ],
                 "total_commands_week": 6854,
                 "growth_percentage": 12.5
@@ -3340,8 +3340,8 @@ try:
             return jsonify(analytics)
             
         except Exception as e:
-            print(f"❌ Erreur analytiques commandes: {e}")
-            return jsonify({"error": "Erreur récupération analytiques"}), 500
+            print(f"âŒ Erreur analytiques commandes: {e}")
+            return jsonify({"error": "Erreur rÃ©cupÃ©ration analytiques"}), 500
 
     # ==================== ROUTES CASINO API ====================
 
@@ -3349,7 +3349,7 @@ try:
     def get_casino_games():
         """Liste des jeux de casino disponibles"""
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté"}), 401
+            return jsonify({"error": "Non connectÃ©"}), 401
         
         try:
             games = [
@@ -3372,14 +3372,14 @@ try:
                 {
                     "id": "roulette",
                     "name": "Roulette",
-                    "description": "Roulette européenne",
+                    "description": "Roulette europÃ©enne",
                     "min_bet": 5,
                     "max_bet": 500,
                     "available": True
                 },
                 {
                     "id": "slots",
-                    "name": "Machine à Sous",
+                    "name": "Machine Ã  Sous",
                     "description": "Slots 3 rouleaux",
                     "min_bet": 1,
                     "max_bet": 100,
@@ -3388,14 +3388,14 @@ try:
             ]
             return jsonify({"games": games})
         except Exception as e:
-            print(f"❌ Erreur liste jeux casino: {e}")
+            print(f"âŒ Erreur liste jeux casino: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
 
     @app.route('/api/casino/play/<game_type>', methods=['POST'])
     def play_casino_game(game_type):
-        """Jouer à un jeu de casino"""
+        """Jouer Ã  un jeu de casino"""
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté"}), 401
+            return jsonify({"error": "Non connectÃ©"}), 401
         
         try:
             data = request.get_json()
@@ -3414,21 +3414,21 @@ try:
                 elif game_type == 'slots':
                     result = casino.play_slots(user_id, bet_amount)
                 else:
-                    return jsonify({"error": "Jeu non trouvé"}), 404
+                    return jsonify({"error": "Jeu non trouvÃ©"}), 404
                 
                 return jsonify(result)
             else:
                 return jsonify({"error": "Casino non disponible"}), 503
                 
         except Exception as e:
-            print(f"❌ Erreur jeu casino {game_type}: {e}")
+            print(f"âŒ Erreur jeu casino {game_type}: {e}")
             return jsonify({"error": "Erreur de jeu"}), 500
 
     @app.route('/api/casino/balance')
     def get_casino_balance():
-        """Récupérer le solde casino de l'utilisateur"""
+        """RÃ©cupÃ©rer le solde casino de l'utilisateur"""
         if 'user_info' not in session:
-            return jsonify({"error": "Non connecté"}), 401
+            return jsonify({"error": "Non connectÃ©"}), 401
         
         try:
             user_id = session['user_info']['user_id']
@@ -3437,21 +3437,21 @@ try:
                 balance = casino.get_user_balance(user_id)
                 return jsonify({"balance": balance})
             else:
-                return jsonify({"balance": 1000})  # Solde par défaut
+                return jsonify({"balance": 1000})  # Solde par dÃ©faut
                 
         except Exception as e:
-            print(f"❌ Erreur solde casino: {e}")
+            print(f"âŒ Erreur solde casino: {e}")
             return jsonify({"error": "Erreur serveur"}), 500
 
-    # ==================== ROUTES POUR LES FONCTIONNALITÉS ====================
+    # ==================== ROUTES POUR LES FONCTIONNALITÃ‰S ====================
 
     @app.route('/api/moderation/recent')
     def get_recent_moderation():
-        """Actions de modération récentes"""
-        # Données simulées
+        """Actions de modÃ©ration rÃ©centes"""
+        # DonnÃ©es simulÃ©es
         actions = [
             {"type": "ban", "user": "ToxicUser#1234", "reason": "Spam", "moderator": "ModUser#5678", "time": "Il y a 2h"},
-            {"type": "timeout", "user": "BadUser#9999", "reason": "Langage inapproprié", "moderator": "AdminUser#1111", "time": "Il y a 4h"},
+            {"type": "timeout", "user": "BadUser#9999", "reason": "Langage inappropriÃ©", "moderator": "AdminUser#1111", "time": "Il y a 4h"},
             {"type": "kick", "user": "AnnoyingUser#2222", "reason": "Comportement perturbateur", "moderator": "ModUser#5678", "time": "Il y a 1 jour"}
         ]
         return jsonify({"actions": actions})
@@ -3459,7 +3459,7 @@ try:
     @app.route('/api/music/queue')
     def get_music_queue():
         """File d'attente musicale actuelle"""
-        # Données simulées
+        # DonnÃ©es simulÃ©es
         queue = [
             {"title": "Bohemian Rhapsody", "artist": "Queen", "duration": "5:55", "requested_by": "MusicLover#1234"},
             {"title": "Stairway to Heaven", "artist": "Led Zeppelin", "duration": "8:02", "requested_by": "RockFan#5678"},
@@ -3470,7 +3470,7 @@ try:
     # ==================== FONCTIONS UTILITAIRES ====================
 
     def get_command_icon(command_name):
-        """Retourner l'icône appropriée pour une commande"""
+        """Retourner l'icÃ´ne appropriÃ©e pour une commande"""
         icons = {
             "play": "fas fa-play",
             "skip": "fas fa-forward",
@@ -3515,24 +3515,24 @@ try:
 
     @app.route('/api/test/add_test_data')
     def add_test_data():
-        """Ajouter des données de test"""
+        """Ajouter des donnÃ©es de test"""
         try:
             success = db.populate_test_data()
             if success:
-                return jsonify({"message": "Données de test ajoutées avec succès"})
+                return jsonify({"message": "DonnÃ©es de test ajoutÃ©es avec succÃ¨s"})
             else:
-                return jsonify({"error": "Erreur lors de l'ajout des données"}), 500
+                return jsonify({"error": "Erreur lors de l'ajout des donnÃ©es"}), 500
         except Exception as e:
-            print(f"❌ Erreur ajout données test: {e}")
-            return jsonify({"error": "Erreur ajout données"}), 500
+            print(f"âŒ Erreur ajout donnÃ©es test: {e}")
+            return jsonify({"error": "Erreur ajout donnÃ©es"}), 500
 
-    # ==================== ENDPOINT SANTÉ POUR RENDER ====================
+    # ==================== ENDPOINT SANTÃ‰ POUR RENDER ====================
     
     @app.route('/health', methods=['GET'])
     def health_check():
-        """Endpoint de santé pour le monitoring Render"""
+        """Endpoint de santÃ© pour le monitoring Render"""
         try:
-            # Vérifier la base de données
+            # VÃ©rifier la base de donnÃ©es
             conn = sqlite3.connect(DATABASE_PATH)
             cursor = conn.cursor()
             cursor.execute('SELECT 1')
@@ -3563,35 +3563,35 @@ try:
 
     # ==================== LANCEMENT SERVEUR ====================
 
-    print("🚀 Application Flask prête pour Gunicorn/Production")
+    print("ðŸš€ Application Flask prÃªte pour Gunicorn/Production")
 
 except Exception as init_error:
-    print(f"❌ Erreur critique lors de l'importation/initialisation: {init_error}")
+    print(f"âŒ Erreur critique lors de l'importation/initialisation: {init_error}")
     import traceback
     traceback.print_exc()
     raise
 
 # ===== INITIALISATION AUTOMATIQUE (GUNICORN COMPATIBLE) =====
 try:
-    print("🌐 Serveur Flask Arsenal_V4 démarré")
-    print("📡 API complète avec authentification Discord")
-    print("💾 Base de données SQLite connectée")
-    print("🔐 Système de sessions sécurisé")
-    print("📊 Dashboard avancé disponible")
+    print("ðŸŒ Serveur Flask Arsenal_V4 dÃ©marrÃ©")
+    print("ðŸ“¡ API complÃ¨te avec authentification Discord")
+    print("ðŸ’¾ Base de donnÃ©es SQLite connectÃ©e")
+    print("ðŸ” SystÃ¨me de sessions sÃ©curisÃ©")
+    print("ðŸ“Š Dashboard avancÃ© disponible")
 
-    # Configuration pour le déploiement
+    # Configuration pour le dÃ©ploiement
     port = int(os.environ.get('PORT', 8080))
     host = '0.0.0.0' if 'PORT' in os.environ else '127.0.0.1'
     debug = 'PORT' not in os.environ  # Debug seulement en local
 
-    print(f"🌐 Serveur configuré sur {host}:{port} (Debug: {debug})")
+    print(f"ðŸŒ Serveur configurÃ© sur {host}:{port} (Debug: {debug})")
 
-    # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
+    # ðŸ¤– DÃ‰MARRER LE BOT DISCORD EN ARRIÃˆRE-PLAN
     discord_token = os.environ.get('DISCORD_TOKEN')
-    print(f"🔍 [DEBUG] DISCORD_TOKEN present: {'✅ Yes' if discord_token else '❌ No'}")
+    print(f"ðŸ” [DEBUG] DISCORD_TOKEN present: {'âœ… Yes' if discord_token else 'âŒ No'}")
 
     if discord_token:
-        print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
+        print("ðŸ¤– Token Discord trouvÃ© - DÃ©marrage du bot en subprocess...")
         
         import threading
         import time
@@ -3600,32 +3600,32 @@ try:
         
         def start_discord_bot():
             """Lance le bot Discord via subprocess"""
-            print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
+            print("ðŸ¤– [BOT-THREAD] DÃ©marrage du Bot Discord...")
             try:
                 # Chemin absolu vers main.py
                 script_dir = os.path.dirname(os.path.abspath(__file__))
                 main_py_path = os.path.join(script_dir, 'main.py')
                 
-                print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
-                print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
+                print(f"ðŸ” [BOT-THREAD] Script directory: {script_dir}")
+                print(f"ðŸ” [BOT-THREAD] Looking for: {main_py_path}")
                 
-                # Vérifier si main.py existe
+                # VÃ©rifier si main.py existe
                 if not os.path.exists(main_py_path):
-                    print("❌ [BOT-THREAD] main.py non trouvé!")
-                    print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
+                    print("âŒ [BOT-THREAD] main.py non trouvÃ©!")
+                    print(f"âŒ [BOT-THREAD] Chemin testÃ©: {main_py_path}")
                     return
                 
-                print("✅ [BOT-THREAD] main.py trouvé")
-                print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
-                print(f"🔍 [BOT-THREAD] Working directory: {script_dir}")
+                print("âœ… [BOT-THREAD] main.py trouvÃ©")
+                print(f"ðŸ” [BOT-THREAD] Python executable: {sys.executable}")
+                print(f"ðŸ” [BOT-THREAD] Working directory: {script_dir}")
                 
-                # Créer environnement avec token
+                # CrÃ©er environnement avec token
                 bot_env = os.environ.copy()
                 bot_env['DISCORD_TOKEN'] = discord_token
                 
-                print("🚀 [BOT-THREAD] Lancement subprocess...")
+                print("ðŸš€ [BOT-THREAD] Lancement subprocess...")
                 
-                # Lancer le bot comme processus séparé NON-BLOQUANT
+                # Lancer le bot comme processus sÃ©parÃ© NON-BLOQUANT
                 process = subprocess.Popen(
                     [sys.executable, main_py_path],
                     env=bot_env,
@@ -3635,61 +3635,58 @@ try:
                     cwd=script_dir
                 )
                 
-                print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
+                print(f"âœ… [BOT-THREAD] Bot process crÃ©Ã©: PID {process.pid}")
                 
                 # Monitorer les premiers logs (non-bloquant)
                 import time
                 
                 for i in range(10):  # 10 secondes max
                     if process.poll() is not None:
-                        print(f"❌ [BOT-THREAD] Process terminé prématurément: {process.returncode}")
+                        print(f"âŒ [BOT-THREAD] Process terminÃ© prÃ©maturÃ©ment: {process.returncode}")
                         stdout, stderr = process.communicate()
-                        print(f"📤 [BOT-THREAD] stdout: {stdout}")
-                        print(f"📤 [BOT-THREAD] stderr: {stderr}")
+                        print(f"ðŸ“¤ [BOT-THREAD] stdout: {stdout}")
+                        print(f"ðŸ“¤ [BOT-THREAD] stderr: {stderr}")
                         break
                     
                     time.sleep(1)
-                    print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
+                    print(f"ðŸ” [BOT-THREAD] Process running... ({i+1}s)")
                 
                 if process.poll() is None:
-                    print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
+                    print("âœ… [BOT-THREAD] Bot semble dÃ©marrÃ© avec succÃ¨s!")
                 
             except Exception as e:
-                print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
+                print(f"âŒ [BOT-THREAD] Erreur Bot Discord: {e}")
                 import traceback
                 traceback.print_exc()
         
-        # Démarrer le bot dans un thread séparé
+        # DÃ©marrer le bot dans un thread sÃ©parÃ©
         bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
         bot_thread.start()
-        print(f"✅ Thread bot créé: {bot_thread.name}")
+        print(f"âœ… Thread bot crÃ©Ã©: {bot_thread.name}")
         
-        # Attendre un peu pour voir si le bot démarre
+        # Attendre un peu pour voir si le bot dÃ©marre
         time.sleep(3)
-        print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
+        print(f"ðŸ” Thread bot status: {'ðŸŸ¢ Alive' if bot_thread.is_alive() else 'ðŸ”´ Dead'}")
     else:
-        print("❌ DISCORD_TOKEN manquant - Bot non démarré")
-        print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
+        print("âŒ DISCORD_TOKEN manquant - Bot non dÃ©marrÃ©")
+        print("ðŸ“ Ajoutez DISCORD_TOKEN dans les variables d'environnement")
 
-# ===== MODE DÉVELOPPEMENT LOCAL =====
-# Code de démarrage local supprimé pour Gunicorn
-    print("🔧 Mode développement local activé")
+# ===== MODE DÃ‰VELOPPEMENT LOCAL =====
+# Code de démarrage local supprimé pour compatibilité Gunicorn
     
-    print(f"🚀 Démarrage du serveur Flask...")
+    print(f"ðŸš€ DÃ©marrage du serveur Flask...")
     
     try:
-        # app.run() supprimé pour Gunicorn
+        app.run(host=host, port=port, debug=debug)
     except KeyboardInterrupt:
-        print("\n🛑 Arrêt du serveur...")
+        print("\nðŸ›‘ ArrÃªt du serveur...")
     except Exception as runtime_error:
-        print(f"❌ Erreur critique lors de l'exécution: {runtime_error}")
+        print(f"âŒ Erreur critique lors de l'exÃ©cution: {runtime_error}")
         import traceback
         traceback.print_exc()
     finally:
         db.close()
 
-
 except Exception as deployment_error:
     print(f' Erreur de déploiement: {deployment_error}')
-    # Application Flask disponible pour Gunicorn        p a s s  
- 
+    # Application Flask disponible pour gunicorn app:app
