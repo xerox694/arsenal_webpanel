@@ -245,7 +245,7 @@ class ArsenalDatabase:
         try:
             cursor = self.connection.cursor()
             cursor.execute("""
-                SELECT id as server_id, name, owner_id, member_count, icon, created_at
+                SELECT id as server_id, name, owner_id, member_count, created_at
                 FROM servers 
                 WHERE is_active = 1
                 ORDER BY member_count DESC, name
@@ -258,8 +258,8 @@ class ArsenalDatabase:
                     'name': row[1],
                     'owner_id': row[2],
                     'member_count': row[3],
-                    'icon': row[4],
-                    'created_at': row[5]
+                    'icon': None,  # Pas de colonne icon pour l'instant
+                    'created_at': row[4] if len(row) > 4 else None
                 })
             return servers
         except Exception as e:

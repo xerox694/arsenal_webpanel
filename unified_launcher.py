@@ -57,8 +57,27 @@ def start_discord_bot():
         # Changer vers le dossier du bot
         os.chdir(bot_dir)
         
-        # Importer et exécuter le main du bot
-        import main
+        print(f"🔍 Répertoire de travail: {os.getcwd()}")
+        print(f"🔍 Fichiers dans le répertoire: {os.listdir('.')[:10]}")  # Afficher les 10 premiers
+        
+        # Vérifier si main.py existe
+        if not os.path.exists('main.py'):
+            print("❌ main.py non trouvé!")
+            return
+        
+        print("📁 main.py trouvé, tentative d'import...")
+        
+        # Vérifier le token Discord
+        discord_token = os.getenv("DISCORD_TOKEN")
+        if not discord_token:
+            print("❌ DISCORD_TOKEN manquant - Bot non démarré")
+            return
+        
+        print("✅ Token Discord présent, lancement du bot...")
+        
+        # Exécuter main.py comme un script
+        print("🚀 Exécution de main.py...")
+        exec(open('main.py').read())
         
     except Exception as e:
         print(f"❌ Erreur Bot Discord: {e}")
@@ -85,18 +104,18 @@ def main():
     
     print("✅ Configuration vérifiée")
     
-    # Lancer le WebPanel dans un thread séparé
-    print("🌐 Lancement du WebPanel en arrière-plan...")
-    webpanel_thread = threading.Thread(target=start_webpanel, daemon=True)
-    webpanel_thread.start()
+    # Lancer le Bot Discord dans un thread séparé (en arrière-plan)
+    print("🤖 Lancement du Bot Discord en arrière-plan...")
+    bot_thread = threading.Thread(target=start_discord_bot, daemon=True)
+    bot_thread.start()
     
-    # Attendre que le WebPanel démarre
-    print("⏳ Attente du démarrage du WebPanel...")
-    time.sleep(5)
+    # Attendre que le bot démarre
+    print("⏳ Attente du démarrage du Bot...")
+    time.sleep(3)
     
-    # Lancer le bot Discord dans le thread principal
-    print("🤖 Lancement du Bot Discord...")
-    start_discord_bot()
+    # Lancer le WebPanel dans le thread principal (pour écouter sur PORT)
+    print("🌐 Lancement du WebPanel sur PORT...")
+    start_webpanel()
 
 if __name__ == "__main__":
     main()
