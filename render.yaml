@@ -6,7 +6,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements.txt
-    startCommand: python webpanel_advanced.py --start-bot --host=0.0.0.0 --port=$PORT
+    startCommand: python unified_launcher.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.18
