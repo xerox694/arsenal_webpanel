@@ -75,9 +75,14 @@ def start_discord_bot():
         
         print("✅ Token Discord présent, lancement du bot...")
         
-        # Exécuter main.py comme un script
+        # Exécuter main.py comme un script avec le bon contexte
         print("🚀 Exécution de main.py...")
-        exec(open('main.py').read())
+        with open('main.py', 'r', encoding='utf-8') as f:
+            code = f.read()
+        
+        # Créer le contexte d'exécution avec __name__ = "__main__"
+        exec_globals = {'__name__': '__main__', '__file__': 'main.py'}
+        exec(code, exec_globals)
         
     except Exception as e:
         print(f"❌ Erreur Bot Discord: {e}")
