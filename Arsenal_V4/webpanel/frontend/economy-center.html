@@ -1061,8 +1061,11 @@
             createFloatingCoins(event.target);
             
             // Update calendar
-            document.querySelector('.day-reward.available').classList.remove('available');
-            document.querySelector('.day-reward.available').classList.add('claimed');
+            const availableReward = document.querySelector('.day-reward.available');
+            if (availableReward) {
+                availableReward.classList.remove('available');
+                availableReward.classList.add('claimed');
+            }
         }
 
         // Quick actions
