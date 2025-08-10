@@ -1118,6 +1118,22 @@ try:
             print(f"❌ Erreur economy: {e}")
             return redirect('/dashboard')
 
+    @app.route('/crypto-wallet')
+    def crypto_wallet_page():
+        """Page Crypto Wallet séparée"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            crypto_wallet_path = os.path.join(os.path.dirname(__file__), 'crypto_wallet.html')
+            if os.path.exists(crypto_wallet_path):
+                return send_from_directory(os.path.dirname(__file__), 'crypto_wallet.html')
+            else:
+                return redirect('/dashboard#economy')
+        except Exception as e:
+            print(f"❌ Erreur crypto-wallet: {e}")
+            return redirect('/dashboard')
+
     @app.route('/settings')
     def settings_page():
         """Page Paramètres séparée"""
@@ -2375,6 +2391,174 @@ try:
         except Exception as e:
             print(f"❌ Erreur API activity: {e}")
             return jsonify([])
+
+    # ==================== CRYPTO WALLET SYSTEM APIS ====================
+    
+    @app.route('/api/crypto/wallets/<user_id>')
+    def get_user_crypto_wallets(user_id):
+        """Récupérer les wallets crypto d'un utilisateur"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            wallets = crypto_wallet.get_user_wallets(user_id)
+            
+            return jsonify({
+                "success": True,
+                "wallets": wallets
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur récupération wallets crypto {user_id}: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur",
+                "wallets": []
+            }), 500
+    
+    @app.route('/api/crypto/add-wallet', methods=['POST'])
+    def add_crypto_wallet():
+        """Ajouter un wallet crypto"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            data = request.get_json()
+            user_id = data.get('user_id')
+            wallet_address = data.get('wallet_address')
+            wallet_type = data.get('wallet_type', 'ETH')
+            nickname = data.get('nickname')
+            
+            if not user_id or not wallet_address:
+                return jsonify({
+                    "success": False,
+                    "error": "user_id et wallet_address requis"
+                }), 400
+            
+            result = crypto_wallet.add_crypto_wallet(
+                user_id=user_id,
+                wallet_address=wallet_address,
+                wallet_type=wallet_type,
+                nickname=nickname
+            )
+            
+            return jsonify(result)
+            
+        except Exception as e:
+            print(f"❌ Erreur ajout wallet crypto: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/crypto/convert', methods=['POST'])
+    def request_crypto_conversion():
+        """Demander une conversion ArsenalCoins -> Crypto/Fiat"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            data = request.get_json()
+            user_id = data.get('user_id')
+            arsenal_coins = data.get('arsenal_coins')
+            destination_wallet_id = data.get('destination_wallet_id')
+            
+            if not user_id or not arsenal_coins:
+                return jsonify({
+                    "success": False,
+                    "error": "user_id et arsenal_coins requis"
+                }), 400
+            
+            if arsenal_coins < 1:
+                return jsonify({
+                    "success": False,
+                    "error": "Minimum 1 ArsenalCoin requis"
+                }), 400
+            
+            result = crypto_wallet.request_conversion(
+                user_id=user_id,
+                arsenal_coins_amount=arsenal_coins,
+                destination_wallet_id=destination_wallet_id
+            )
+            
+            return jsonify(result)
+            
+        except Exception as e:
+            print(f"❌ Erreur demande conversion: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/crypto/calculate/<int:arsenal_coins>')
+    def calculate_crypto_conversion(arsenal_coins):
+        """Calculer une conversion ArsenalCoins -> Euro (preview)"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            if arsenal_coins < 1:
+                return jsonify({
+                    "error": "Minimum 1 ArsenalCoin requis"
+                }), 400
+            
+            calculation = crypto_wallet.calculate_conversion(arsenal_coins)
+            
+            if calculation:
+                return jsonify({
+                    "success": True,
+                    "calculation": calculation
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "Erreur de calcul"
+                }), 500
+            
+        except Exception as e:
+            print(f"❌ Erreur calcul conversion: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/crypto/history/<user_id>')
+    def get_conversion_history(user_id):
+        """Historique des conversions d'un utilisateur"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            limit = request.args.get('limit', 20, type=int)
+            history = crypto_wallet.get_conversion_history(user_id, limit)
+            
+            return jsonify({
+                "success": True,
+                "history": history
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur historique conversions {user_id}: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur",
+                "history": []
+            }), 500
+    
+    @app.route('/api/crypto/commission-stats')
+    def get_commission_stats():
+        """Statistiques des commissions collectées (Admin uniquement)"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            stats = crypto_wallet.get_commission_stats()
+            
+            return jsonify({
+                "success": True,
+                "stats": stats
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur stats commissions: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            }), 500
     
     @app.route('/api/servers/list')
     def get_servers_list():
