@@ -1,4 +1,3 @@
-# Discord + environnement
 import discord
 from discord.ext import commands, tasks
 import asyncio, os, sys, json, datetime, threading
@@ -27,6 +26,43 @@ except Exception as e:
     config_data = {}
     def load_config(): return {}
     def save_config(data): pass
+
+def update_bot_status():
+    """Met à jour le fichier de statut du bot pour l'API"""
+    try:
+        if hasattr(client, 'user') and client.user and client.is_ready():
+            uptime_seconds = (datetime.datetime.utcnow() - client.startup_time).total_seconds()
+            hours = int(uptime_seconds // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            uptime = f"{hours}h {minutes}m"
+            
+            status_data = {
+                "online": True,
+                "uptime": uptime,
+                "latency": round(client.latency * 1000) if client.latency else 0,
+                "servers_connected": len(client.guilds),
+                "users_connected": sum(guild.member_count or 0 for guild in client.guilds),
+                "status": "operational",
+                "last_restart": client.startup_time.strftime("%H:%M:%S"),
+                "last_update": datetime.datetime.utcnow().isoformat()
+            }
+        else:
+            status_data = {
+                "online": False,
+                "uptime": "0h 0m",
+                "latency": 0,
+                "servers_connected": 0,
+                "users_connected": 0,
+                "status": "offline",
+                "last_restart": "Jamais",
+                "last_update": datetime.datetime.utcnow().isoformat()
+            }
+        
+        with open('bot_status.json', 'w') as f:
+            json.dump(status_data, f, indent=2)
+        
+    except Exception as e:
+        print(f"❌ Erreur update_bot_status: {e}")
 
 # Système de rechargement de modules (NOUVEAU)
 try:
@@ -113,6 +149,12 @@ if not TOKEN:
 
 intents = discord.Intents.all()
 
+# Tâche de mise à jour du statut bot
+@tasks.loop(seconds=30)
+async def update_bot_status_task():
+    """Met à jour le fichier de statut toutes les 30 secondes"""
+    update_bot_status()
+
 from discord import Activity, ActivityType, Streaming
 
 async def cycle_status(bot):
@@ -188,6 +230,8 @@ async def on_ready():
         # Démarre le cycle de status ici
         if not hasattr(client, "status_task"):
             client.status_task = asyncio.create_task(cycle_status(client))
+        # Démarre la mise à jour du statut du bot
+        update_bot_status_task.start()
     except Exception as e:
         log.error(f"[SYNC ERROR] {e}")
 

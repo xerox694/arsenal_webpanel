@@ -1034,6 +1034,11 @@ try:
         print(f"🎰 Casino accédé par {session['user_info']['username']}")
         return send_from_directory('..', 'casino.html')
 
+    @app.route('/economy')
+    def economy_page():
+        """Page d'économie Arsenal avec VRAIES données"""
+        return send_from_directory('.', 'economy.html')
+
     @app.route('/calculator')
     def calculator_page():
         """Page Hunt Royal Calculator"""
@@ -2072,6 +2077,55 @@ try:
                 "average_transaction": 0,
                 "error": "Base de données économique inaccessible"
             })
+
+    @app.route('/api/economy/user/<user_id>')
+    def get_user_economy(user_id):
+        """📊 Données économiques d'un utilisateur spécifique"""
+        try:
+            from economy_system import EconomyDatabase
+            
+            eco_db = EconomyDatabase()
+            user_wallet = eco_db.get_user_wallet(user_id)
+            
+            if user_wallet:
+                # user_wallet = (discord_id, username, balance, total_earned, total_spent, last_hourly, last_daily, last_weekly, created_at, updated_at)
+                user_data = {
+                    "discord_id": user_wallet[0],
+                    "username": user_wallet[1] or f"User#{user_id}",
+                    "balance": user_wallet[2] or 0,
+                    "total_earned": user_wallet[3] or 0,
+                    "total_spent": user_wallet[4] or 0,
+                    "gems": 0,  # TODO: Ajouter les gems à la DB
+                    "xp": 0,    # TODO: Ajouter l'XP à la DB
+                    "level": max(1, (user_wallet[3] or 0) // 1000),  # 1 niveau par 1000 coins gagnés
+                    "rank": 1,  # TODO: Calculer le vrai rang
+                    "last_daily": user_wallet[6],
+                    "last_weekly": user_wallet[7]
+                }
+                
+                print(f"📊 Données utilisateur {user_id}: {user_data}")
+                return jsonify(user_data)
+            else:
+                # Nouvel utilisateur - créer avec 0
+                return jsonify({
+                    "discord_id": user_id,
+                    "username": f"User#{user_id}",
+                    "balance": 0,
+                    "total_earned": 0,
+                    "total_spent": 0,
+                    "gems": 0,
+                    "xp": 0,
+                    "level": 1,
+                    "rank": 999,
+                    "last_daily": None,
+                    "last_weekly": None
+                })
+                
+        except Exception as e:
+            print(f"❌ Erreur données utilisateur {user_id}: {e}")
+            return jsonify({
+                "error": f"Impossible de récupérer les données de {user_id}"
+            }), 500
             
             print(f"✅ Economy API OK: Total coins: {economy_stats['total_coins']}")
             return jsonify(economy_stats)
@@ -2209,49 +2263,39 @@ try:
 
     @app.route('/api/bot/status')
     def get_bot_status_dashboard():
-        """Status du bot en temps réel - VRAIES DONNÉES SEULEMENT"""
+        """Status du bot en temps réel - VRAIES DONNÉES depuis fichier JSON"""
         try:
-            # Vérifier si le bot Discord est vraiment connecté
-            bot_online = False
-            uptime = "0h 0m"
-            latency = 0
-            servers_count = 0
-            users_count = 0
-            last_restart = "Jamais"
-            
-            # Tenter de récupérer les vraies données du bot s'il existe
+            # Lire le fichier de statut créé par le bot
             try:
-                import main
-                if hasattr(main, 'client') and main.client.is_ready():
-                    bot_online = True
-                    latency = round(main.client.latency * 1000) if main.client.latency else 0
-                    servers_count = len(main.client.guilds)
-                    users_count = sum(guild.member_count for guild in main.client.guilds)
-                    
-                    # Calculer le vrai uptime si possible
-                    if hasattr(main.client, 'startup_time'):
-                        from datetime import datetime
-                        uptime_seconds = (datetime.utcnow() - main.client.startup_time).total_seconds()
-                        hours = int(uptime_seconds // 3600)
-                        minutes = int((uptime_seconds % 3600) // 60)
-                        uptime = f"{hours}h {minutes}m"
-                        
-            except Exception as e:
-                print(f"⚠️ Impossible de récupérer les données du bot: {e}")
-            
-            bot_status = {
-                "online": bot_online,
-                "uptime": uptime,
-                "latency": latency,
-                "servers_connected": servers_count,
-                "users_connected": users_count,
-                "status": "operational" if bot_online else "offline",
-                "last_restart": last_restart
-            }
-            
-            print(f"📊 VRAIES données bot/status: {bot_status}")
-            return jsonify(bot_status)
-            
+                with open('bot_status.json', 'r') as f:
+                    bot_status = json.load(f)
+                print(f"📊 VRAIES données bot/status (depuis fichier): {bot_status}")
+                return jsonify(bot_status)
+            except FileNotFoundError:
+                print("⚠️ Fichier bot_status.json non trouvé - bot probablement éteint")
+                return jsonify({
+                    "online": False,
+                    "uptime": "0h 0m",
+                    "latency": 0,
+                    "servers_connected": 0,
+                    "users_connected": 0,
+                    "status": "offline",
+                    "last_restart": "Jamais",
+                    "error": "Bot Discord non démarré"
+                })
+            except json.JSONDecodeError:
+                print("❌ Erreur lecture bot_status.json")
+                return jsonify({
+                    "online": False,
+                    "uptime": "0h 0m",
+                    "latency": 0,
+                    "servers_connected": 0,
+                    "users_connected": 0,
+                    "status": "error",
+                    "last_restart": "Erreur",
+                    "error": "Fichier de statut corrompu"
+                })
+                
         except Exception as e:
             print(f"❌ Erreur API bot/status: {e}")
             return jsonify({

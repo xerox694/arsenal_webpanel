@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Arsenal Economy - WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+            --gold-color: #ffd700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--gold-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--gold-color), var(--primary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 30px;
+        }
+
+        .economy-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .economy-sidebar {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .wallet-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .wallet-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--gold-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .currency-display {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .currency-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .currency-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .currency-name {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .arsenal-coins {
+            color: var(--gold-color);
+        }
+
+        .stats-section {
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .economy-main {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .main-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--gold-color), var(--primary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: var(--error-color);
+            text-align: center;
+        }
+
+        .success {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: var(--success-color);
+            text-align: center;
+        }
+
+        .leaderboard {
+            margin-top: 30px;
+        }
+
+        .leaderboard-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--gold-color);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .rank {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 30px;
+        }
+
+        .rank.first { color: var(--gold-color); }
+        .rank.second { color: #c0c0c0; }
+        .rank.third { color: #cd7f32; }
+
+        .user-info {
+            flex-grow: 1;
+            font-size: 0.9em;
+        }
+
+        .user-coins {
+            font-weight: bold;
+            color: var(--gold-color);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-coins"></i>
+            <span style="margin-left: 10px;">Arsenal Economy</span>
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <div class="economy-dashboard">
+            <!-- Sidebar -->
+            <div class="economy-sidebar">
+                <!-- Wallet -->
+                <div class="wallet-section">
+                    <h3 class="wallet-title">
+                        <i class="fas fa-wallet"></i>
+                        Mon Portefeuille
+                    </h3>
+                    
+                    <div class="currency-display arsenal-coins">
+                        <div class="currency-icon">🪙</div>
+                        <div class="currency-amount" id="userCoins">0</div>
+                        <div class="currency-name">Arsenal Coins</div>
+                    </div>
+
+                    <div class="currency-display" style="color: var(--primary-color);">
+                        <div class="currency-icon">💎</div>
+                        <div class="currency-amount" id="userGems">0</div>
+                        <div class="currency-name">Arsenal Gems</div>
+                    </div>
+
+                    <div class="currency-display" style="color: var(--success-color);">
+                        <div class="currency-icon">⭐</div>
+                        <div class="currency-amount" id="userXP">0</div>
+                        <div class="currency-name">Arsenal XP</div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-section">
+                    <h3 class="stats-title">Mes Statistiques</h3>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">Niveau</span>
+                        <span class="stat-value" id="userLevel">1</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Rang serveur</span>
+                        <span class="stat-value" id="userRank">#999</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Total gagné</span>
+                        <span class="stat-value" id="totalEarned">0🪙</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Total dépensé</span>
+                        <span class="stat-value" id="totalSpent">0🪙</span>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="leaderboard">
+                    <h3 class="leaderboard-title">🏆 Top Richesse</h3>
+                    <div id="leaderboardList">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            <p>Chargement du classement...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main -->
+            <div class="economy-main">
+                <h1 class="main-title">💰 Arsenal Economy Center</h1>
+                
+                <div id="economyStatus" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Chargement des données économiques...</p>
+                </div>
+
+                <div id="economyData" style="display: none;">
+                    <div class="stat-item">
+                        <span class="stat-label">💰 Total Arsenal Coins en circulation</span>
+                        <span class="stat-value" id="totalCoins">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">📊 Transactions aujourd'hui</span>
+                        <span class="stat-value" id="transactionsToday">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">📈 Transactions cette semaine</span>
+                        <span class="stat-value" id="transactionsWeek">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">👥 Traders actifs</span>
+                        <span class="stat-value" id="activeTraders">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">🎁 Récompenses quotidiennes distribuées</span>
+                        <span class="stat-value" id="dailyRewards">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">💵 Transaction moyenne</span>
+                        <span class="stat-value" id="avgTransaction">0🪙</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ID utilisateur Discord (normalement récupéré depuis la session)
+        const USER_ID = "431359112039890945"; // ID par défaut, à remplacer par la vraie authentification
+
+        // Charger les données économiques globales
+        async function loadEconomyStats() {
+            try {
+                const response = await fetch('/api/economy/stats');
+                if (!response.ok) throw new Error('Erreur réseau');
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('economyStatus').innerHTML = `
+                        <div class="error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erreur: ${data.error}</p>
+                            <small>La base de données économique n'est pas accessible</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Afficher les vraies données
+                document.getElementById('totalCoins').textContent = data.total_coins.toLocaleString();
+                document.getElementById('transactionsToday').textContent = data.transactions_today;
+                document.getElementById('transactionsWeek').textContent = data.transactions_week;
+                document.getElementById('activeTraders').textContent = data.active_traders;
+                document.getElementById('dailyRewards').textContent = data.daily_rewards_given;
+                document.getElementById('avgTransaction').textContent = data.average_transaction + '🪙';
+
+                // Afficher le leaderboard
+                const leaderboardHtml = data.top_holders.map((holder, index) => {
+                    const rankClass = index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : '';
+                    return `
+                        <div class="leaderboard-item">
+                            <span class="rank ${rankClass}">${holder.rank}</span>
+                            <div class="user-info">${holder.username}</div>
+                            <div class="user-coins">${holder.balance.toLocaleString()}🪙</div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('leaderboardList').innerHTML = leaderboardHtml || '<p style="text-align: center; color: var(--text-secondary);">Aucun utilisateur dans le classement</p>';
+
+                // Masquer le loading et afficher les données
+                document.getElementById('economyStatus').style.display = 'none';
+                document.getElementById('economyData').style.display = 'block';
+
+                console.log('✅ Données économiques chargées:', data);
+
+            } catch (error) {
+                console.error('❌ Erreur chargement économie:', error);
+                document.getElementById('economyStatus').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Impossible de charger les données économiques</p>
+                        <small>Vérifiez que le bot Discord est démarré</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Charger les données utilisateur
+        async function loadUserData() {
+            try {
+                const response = await fetch(`/api/economy/user/${USER_ID}`);
+                if (!response.ok) throw new Error('Erreur réseau');
+                
+                const userData = await response.json();
+                
+                if (userData.error) {
+                    console.error('Erreur données utilisateur:', userData.error);
+                    return;
+                }
+
+                // Mettre à jour l'interface avec les vraies données
+                document.getElementById('userCoins').textContent = userData.balance.toLocaleString();
+                document.getElementById('userGems').textContent = userData.gems.toLocaleString();
+                document.getElementById('userXP').textContent = userData.xp.toLocaleString();
+                document.getElementById('userLevel').textContent = userData.level;
+                document.getElementById('userRank').textContent = `#${userData.rank}`;
+                document.getElementById('totalEarned').textContent = userData.total_earned.toLocaleString() + '🪙';
+                document.getElementById('totalSpent').textContent = userData.total_spent.toLocaleString() + '🪙';
+
+                console.log('✅ Données utilisateur chargées:', userData);
+
+            } catch (error) {
+                console.error('❌ Erreur chargement utilisateur:', error);
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Arsenal Economy Center - Chargement des VRAIES données...');
+            
+            // Charger les données
+            loadEconomyStats();
+            loadUserData();
+            
+            // Actualisation automatique toutes les 30 secondes
+            setInterval(() => {
+                loadEconomyStats();
+                loadUserData();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
