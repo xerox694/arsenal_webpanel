@@ -3024,9 +3024,9 @@ try:
     # ==================== LANCEMENT SERVEUR ====================
 
     if __name__ == '__main__':
-        print("🌐 Serveur Flask Arsenal_V4 démarré sur http://localhost:8080")
+        print("🌐 Serveur Flask Arsenal_V4 démarré")
         print("📡 API complète avec authentification Discord")
-        print("💾 Base de données MySQL connectée")
+        print("💾 Base de données SQLite connectée")
         print("🔐 Système de sessions sécurisé")
         print("📊 Dashboard avancé disponible")
         
@@ -3035,7 +3035,57 @@ try:
         host = '0.0.0.0' if 'PORT' in os.environ else '127.0.0.1'
         debug = 'PORT' not in os.environ  # Debug seulement en local
         
-        print(f"🌐 Serveur démarré sur {host}:{port} (Debug: {debug})")
+        print(f"🌐 Serveur configuré sur {host}:{port} (Debug: {debug})")
+        
+        # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
+        discord_token = os.environ.get('DISCORD_TOKEN')
+        if discord_token:
+            print("🤖 Token Discord trouvé - Démarrage du bot en arrière-plan...")
+            
+            import threading
+            import time
+            
+            def start_discord_bot():
+                """Lance le bot Discord"""
+                print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
+                try:
+                    # Vérifier si main.py existe
+                    if not os.path.exists('main.py'):
+                        print("❌ [BOT-THREAD] main.py non trouvé!")
+                        return
+                    
+                    print("✅ [BOT-THREAD] main.py trouvé, lancement...")
+                    
+                    # Exécuter main.py
+                    with open('main.py', 'r', encoding='utf-8') as f:
+                        code = f.read()
+                    
+                    exec_globals = {
+                        '__name__': '__main__', 
+                        '__file__': os.path.abspath('main.py'),
+                        '__builtins__': __builtins__
+                    }
+                    
+                    exec(code, exec_globals)
+                    
+                except Exception as e:
+                    print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
+                    import traceback
+                    traceback.print_exc()
+            
+            # Démarrer le bot dans un thread séparé
+            bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
+            bot_thread.start()
+            print(f"✅ Thread bot créé: {bot_thread.name}")
+            
+            # Attendre un peu pour voir si le bot démarre
+            time.sleep(2)
+            print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
+        else:
+            print("❌ DISCORD_TOKEN manquant - Bot non démarré")
+            print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
+        
+        print(f"🚀 Démarrage du serveur Flask...")
         
         try:
             app.run(host=host, port=port, debug=debug)
