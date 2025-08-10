@@ -3568,117 +3568,128 @@ try:
 
     # ==================== LANCEMENT SERVEUR ====================
 
-    if __name__ == '__main__':
-        print("🌐 Serveur Flask Arsenal_V4 démarré")
-        print("📡 API complète avec authentification Discord")
-        print("💾 Base de données SQLite connectée")
-        print("🔐 Système de sessions sécurisé")
-        print("📊 Dashboard avancé disponible")
-        
-        # Configuration pour le déploiement
-        port = int(os.environ.get('PORT', 8080))
-        host = '0.0.0.0' if 'PORT' in os.environ else '127.0.0.1'
-        debug = 'PORT' not in os.environ  # Debug seulement en local
-        
-        print(f"🌐 Serveur configuré sur {host}:{port} (Debug: {debug})")
-        
-        # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
-        discord_token = os.environ.get('DISCORD_TOKEN')
-        print(f"🔍 [DEBUG] DISCORD_TOKEN present: {'✅ Yes' if discord_token else '❌ No'}")
-        
-        if discord_token:
-            print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
-            
-            import threading
-            import time
-            import subprocess
-            import sys
-            
-            def start_discord_bot():
-                """Lance le bot Discord via subprocess"""
-                print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
-                try:
-                    # Chemin absolu vers main.py
-                    script_dir = os.path.dirname(os.path.abspath(__file__))
-                    main_py_path = os.path.join(script_dir, 'main.py')
-                    
-                    print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
-                    print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
-                    
-                    # Vérifier si main.py existe
-                    if not os.path.exists(main_py_path):
-                        print("❌ [BOT-THREAD] main.py non trouvé!")
-                        print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
-                        return
-                    
-                    print("✅ [BOT-THREAD] main.py trouvé")
-                    print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
-                    print(f"🔍 [BOT-THREAD] Working directory: {script_dir}")
-                    
-                    # Créer environnement avec token
-                    bot_env = os.environ.copy()
-                    bot_env['DISCORD_TOKEN'] = discord_token
-                    
-                    print("🚀 [BOT-THREAD] Lancement subprocess...")
-                    
-                    # Lancer le bot comme processus séparé NON-BLOQUANT
-                    process = subprocess.Popen(
-                        [sys.executable, main_py_path],
-                        env=bot_env,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        text=True,
-                        cwd=script_dir
-                    )
-                    
-                    print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
-                    
-                    # Monitorer les premiers logs (non-bloquant)
-                    import select
-                    import time
-                    
-                    for i in range(10):  # 10 secondes max
-                        if process.poll() is not None:
-                            print(f"❌ [BOT-THREAD] Process terminé prématurément: {process.returncode}")
-                            stdout, stderr = process.communicate()
-                            print(f"📤 [BOT-THREAD] stdout: {stdout}")
-                            print(f"📤 [BOT-THREAD] stderr: {stderr}")
-                            break
-                        
-                        time.sleep(1)
-                        print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
-                    
-                    if process.poll() is None:
-                        print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
-                    
-                except Exception as e:
-                    print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
-                    import traceback
-                    traceback.print_exc()
-            
-            # Démarrer le bot dans un thread séparé
-            bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
-            bot_thread.start()
-            print(f"✅ Thread bot créé: {bot_thread.name}")
-            
-            # Attendre un peu pour voir si le bot démarre
-            time.sleep(3)
-            print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
-        else:
-            print("❌ DISCORD_TOKEN manquant - Bot non démarré")
-            print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
-        
-        print(f"🚀 Démarrage du serveur Flask...")
-        
-        try:
-            app.run(host=host, port=port, debug=debug)
-        except KeyboardInterrupt:
-            print("\n🛑 Arrêt du serveur...")
-        finally:
-            db.close()
-        
-except Exception as e:
-    print(f"❌ Erreur critique: {e}")
+    print("🚀 Application Flask prête pour Gunicorn/Production")
+
+except Exception as init_error:
+    print(f"❌ Erreur critique lors de l'importation/initialisation: {init_error}")
     import traceback
     traceback.print_exc()
-    # Removed input() for production deployment
+    raise
+
+# ===== INITIALISATION AUTOMATIQUE (GUNICORN COMPATIBLE) =====
+try:
+    print("🌐 Serveur Flask Arsenal_V4 démarré")
+    print("📡 API complète avec authentification Discord")
+    print("💾 Base de données SQLite connectée")
+    print("🔐 Système de sessions sécurisé")
+    print("📊 Dashboard avancé disponible")
+
+    # Configuration pour le déploiement
+    port = int(os.environ.get('PORT', 8080))
+    host = '0.0.0.0' if 'PORT' in os.environ else '127.0.0.1'
+    debug = 'PORT' not in os.environ  # Debug seulement en local
+
+    print(f"🌐 Serveur configuré sur {host}:{port} (Debug: {debug})")
+
+    # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
+    discord_token = os.environ.get('DISCORD_TOKEN')
+    print(f"🔍 [DEBUG] DISCORD_TOKEN present: {'✅ Yes' if discord_token else '❌ No'}")
+
+    if discord_token:
+        print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
+        
+        import threading
+        import time
+        import subprocess
+        import sys
+        
+        def start_discord_bot():
+            """Lance le bot Discord via subprocess"""
+            print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
+            try:
+                # Chemin absolu vers main.py
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                main_py_path = os.path.join(script_dir, 'main.py')
+                
+                print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
+                print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
+                
+                # Vérifier si main.py existe
+                if not os.path.exists(main_py_path):
+                    print("❌ [BOT-THREAD] main.py non trouvé!")
+                    print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
+                    return
+                
+                print("✅ [BOT-THREAD] main.py trouvé")
+                print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
+                print(f"🔍 [BOT-THREAD] Working directory: {script_dir}")
+                
+                # Créer environnement avec token
+                bot_env = os.environ.copy()
+                bot_env['DISCORD_TOKEN'] = discord_token
+                
+                print("🚀 [BOT-THREAD] Lancement subprocess...")
+                
+                # Lancer le bot comme processus séparé NON-BLOQUANT
+                process = subprocess.Popen(
+                    [sys.executable, main_py_path],
+                    env=bot_env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    cwd=script_dir
+                )
+                
+                print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
+                
+                # Monitorer les premiers logs (non-bloquant)
+                import time
+                
+                for i in range(10):  # 10 secondes max
+                    if process.poll() is not None:
+                        print(f"❌ [BOT-THREAD] Process terminé prématurément: {process.returncode}")
+                        stdout, stderr = process.communicate()
+                        print(f"📤 [BOT-THREAD] stdout: {stdout}")
+                        print(f"📤 [BOT-THREAD] stderr: {stderr}")
+                        break
+                    
+                    time.sleep(1)
+                    print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
+                
+                if process.poll() is None:
+                    print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
+                
+            except Exception as e:
+                print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        # Démarrer le bot dans un thread séparé
+        bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
+        bot_thread.start()
+        print(f"✅ Thread bot créé: {bot_thread.name}")
+        
+        # Attendre un peu pour voir si le bot démarre
+        time.sleep(3)
+        print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
+    else:
+        print("❌ DISCORD_TOKEN manquant - Bot non démarré")
+        print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
+
+# ===== MODE DÉVELOPPEMENT LOCAL =====
+if __name__ == '__main__':
+    print("🔧 Mode développement local activé")
+    
+    print(f"🚀 Démarrage du serveur Flask...")
+    
+    try:
+        app.run(host=host, port=port, debug=debug)
+    except KeyboardInterrupt:
+        print("\n🛑 Arrêt du serveur...")
+    finally:
+        db.close()
+
+except Exception as runtime_error:
+    print(f"❌ Erreur critique lors de l'exécution: {runtime_error}")
+    import traceback
+    traceback.print_exc()
