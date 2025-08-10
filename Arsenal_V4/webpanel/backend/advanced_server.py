@@ -3681,10 +3681,9 @@ if __name__ == '__main__':
         app.run(host=host, port=port, debug=debug)
     except KeyboardInterrupt:
         print("\n🛑 Arrêt du serveur...")
+    except Exception as runtime_error:
+        print(f"❌ Erreur critique lors de l'exécution: {runtime_error}")
+        import traceback
+        traceback.print_exc()
     finally:
         db.close()
-
-except Exception as runtime_error:
-    print(f"❌ Erreur critique lors de l'exécution: {runtime_error}")
-    import traceback
-    traceback.print_exc()
