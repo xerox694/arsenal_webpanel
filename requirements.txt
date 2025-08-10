@@ -51,6 +51,6 @@ colorama==0.4.6
 
 # Crypto & QR Codes
 qrcode[pil]==7.4.2
-coinbase-wallet-sdk==1.4.0
+coinbase==2.1.0
 python-dateutil==2.8.2
 pytz==2023.3
