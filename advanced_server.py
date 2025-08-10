@@ -3580,6 +3580,8 @@ try:
         
         # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
         discord_token = os.environ.get('DISCORD_TOKEN')
+        print(f"🔍 [DEBUG] DISCORD_TOKEN present: {'✅ Yes' if discord_token else '❌ No'}")
+        
         if discord_token:
             print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
             
