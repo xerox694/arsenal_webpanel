@@ -4,7 +4,7 @@
 print("🚀 Démarrage du serveur Arsenal_V4 Advanced...")
 
 try:
-    from flask import Flask, jsonify, request, session, send_from_directory, redirect, url_for
+    from flask import Flask, jsonify, request, session, send_from_directory, redirect, url_for, render_template_string
     from flask_cors import CORS
     from datetime import datetime, timedelta
     import secrets
@@ -1417,17 +1417,21 @@ try:
     def crypto_wallet_page():
         """Page Crypto Wallet séparée"""
         try:
-            if 'user_info' not in session:
-                return redirect('/login?error=session_expired')
-            
+            # Permettre l'accès sans session pour tester
             crypto_wallet_path = os.path.join(os.path.dirname(__file__), 'crypto_wallet.html')
             if os.path.exists(crypto_wallet_path):
+                print("✅ [CRYPTO] Chargement crypto_wallet.html")
                 return send_from_directory(os.path.dirname(__file__), 'crypto_wallet.html')
             else:
-                return redirect('/dashboard#economy')
+                print("❌ [CRYPTO] crypto_wallet.html introuvable")
+                return render_template_string("""
+                <h1>🚧 Crypto Wallet</h1>
+                <p>Module crypto en développement</p>
+                <a href="/dashboard">← Retour Dashboard</a>
+                """)
         except Exception as e:
             print(f"❌ Erreur crypto-wallet: {e}")
-            return redirect('/dashboard')
+            return f"Erreur: {e}"
 
     @app.route('/settings')
     def settings_page():
@@ -3594,14 +3598,22 @@ try:
                 """Lance le bot Discord via subprocess"""
                 print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
                 try:
+                    # Chemin absolu vers main.py
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
+                    main_py_path = os.path.join(script_dir, 'main.py')
+                    
+                    print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
+                    print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
+                    
                     # Vérifier si main.py existe
-                    if not os.path.exists('main.py'):
+                    if not os.path.exists(main_py_path):
                         print("❌ [BOT-THREAD] main.py non trouvé!")
+                        print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
                         return
                     
                     print("✅ [BOT-THREAD] main.py trouvé")
                     print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
-                    print(f"🔍 [BOT-THREAD] Working directory: {os.getcwd()}")
+                    print(f"🔍 [BOT-THREAD] Working directory: {script_dir}")
                     
                     # Créer environnement avec token
                     bot_env = os.environ.copy()
@@ -3611,12 +3623,12 @@ try:
                     
                     # Lancer le bot comme processus séparé NON-BLOQUANT
                     process = subprocess.Popen(
-                        [sys.executable, 'main.py'],
+                        [sys.executable, main_py_path],
                         env=bot_env,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         text=True,
-                        cwd=os.getcwd()
+                        cwd=script_dir
                     )
                     
                     print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
