@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 print("🚀 Démarrage du serveur Arsenal_V4 Advanced - v4.2.1...")
@@ -3687,5 +3687,5 @@ if __name__ == '__main__':
         traceback.print_exc()
     finally:
         db.close()
-#   F o r c e   r e b u i l d   -   0 8 / 1 0 / 2 0 2 5   2 2 : 5 1 : 4 3  
+#   C l e a n   r e b u i l d   -   0 8 / 1 0 / 2 0 2 5   2 2 : 5 5 : 3 4  
  
