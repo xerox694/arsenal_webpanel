@@ -139,7 +139,11 @@ try:
     
     @app.route('/')
     def home():
-        """Page d'accueil - Redirection vers login"""
+        """Page d'accueil - Redirection intelligente"""
+        # Si l'utilisateur est connecté, aller au dashboard
+        if 'user_info' in session:
+            return redirect('/dashboard')
+        # Sinon, aller au login
         return redirect('/login')
     
     @app.route('/login')
@@ -222,14 +226,10 @@ try:
             
             print(f"✅ Utilisateur connecté: {session['user_info'].get('username', 'Inconnu')}")
             
-            # Servir le fichier index.html (dashboard) depuis frontend
-            dashboard_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html')
-            if os.path.exists(dashboard_path):
-                print(f"📄 Fichier dashboard trouvé: {dashboard_path}")
-                return send_from_directory(os.path.dirname(dashboard_path), 'index.html')
-            else:
-                print(f"❌ Fichier dashboard non trouvé: {dashboard_path}")
-                return jsonify({"error": "Page dashboard non trouvée"}), 404
+            # Servir le dashboard corrigé au lieu de l'ancien index.html
+            print(f"📄 Redirection vers dashboard corrigé")
+            return send_from_directory('templates', 'dashboard_fixed.html')
+            
         except Exception as e:
             print(f"❌ Erreur page dashboard: {e}")
             import traceback
@@ -4055,6 +4055,57 @@ try:
     def dashboard_fixed():
         """Dashboard corrigé sans erreurs JavaScript"""
         return send_from_directory('templates', 'dashboard_fixed.html')
+
+    @app.route('/dashboard-old')  
+    def dashboard_old_redirect():
+        """Redirection de l'ancien dashboard vers le nouveau"""
+        return redirect('/dashboard')
+
+    @app.route('/test-login')
+    def test_login():
+        """Route de test pour créer une session utilisateur temporaire"""
+        try:
+            # Créer une session utilisateur test
+            session.permanent = True
+            session['user_info'] = {
+                'user_id': '431359112039890945',  # ID de test
+                'discord_id': '431359112039890945',
+                'username': 'xero3elite',
+                'discriminator': '0',
+                'avatar': 'https://cdn.discordapp.com/avatars/431359112039890945/test.png',
+                'session_token': 'test_session_123',
+                'permission_level': 'super_admin',
+                'accessible_servers': [],
+                'guilds_count': 1
+            }
+            session.modified = True
+            
+            # Créer/mettre à jour l'utilisateur dans la base de données
+            cursor = get_db_connection().cursor()
+            cursor.execute("""
+                INSERT OR REPLACE INTO users 
+                (discord_id, username, avatar, arsenal_coins, arsenal_gems, arsenal_xp, is_vip, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                '431359112039890945',
+                'xero3elite', 
+                'https://cdn.discordapp.com/avatars/431359112039890945/test.png',
+                1000,  # Arsenal Coins de base
+                500,   # Arsenal Gems de base  
+                750,   # Arsenal XP de base
+                1,     # VIP
+                datetime.now().isoformat()
+            ))
+            get_db_connection().commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "Session test créée avec succès",
+                "redirect": "/dashboard"
+            })
+            
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500
 
 except Exception as server_init_error:
     print(f"❌ Erreur lors de l'initialisation du serveur: {server_init_error}")
