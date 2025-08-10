@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-print("🚀 Démarrage du serveur Arsenal_V4 Advanced...")
+print("🚀 Démarrage du serveur Arsenal_V4 Advanced - v4.2.1...")
 
 try:
     from flask import Flask, jsonify, request, session, send_from_directory, redirect, url_for, render_template_string
