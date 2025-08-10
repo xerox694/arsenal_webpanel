@@ -6,7 +6,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements.txt
-    startCommand: python advanced_server.py
+    startCommand: python simple_start.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.18

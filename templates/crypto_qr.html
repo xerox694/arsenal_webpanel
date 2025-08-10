@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 Arsenal V4 - QR Codes Crypto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --arsenal-green: #00ff88;
+            --arsenal-dark: #0a0a0a;
+            --arsenal-gray: #1a1a1a;
+            --arsenal-blue: #00aaff;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--arsenal-dark) 0%, var(--arsenal-gray) 100%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--arsenal-green);
+        }
+
+        .navbar-brand {
+            color: var(--arsenal-green) !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .card {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--arsenal-green);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-arsenal {
+            background: linear-gradient(45deg, var(--arsenal-green), var(--arsenal-blue));
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-arsenal:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+            color: white;
+        }
+
+        .qr-code-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .qr-code-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .crypto-stats {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid var(--arsenal-green);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .transfer-item {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .transfer-item:hover {
+            border-color: var(--arsenal-green);
+            background: rgba(26, 26, 26, 0.95);
+        }
+
+        .spinner-border-arsenal {
+            color: var(--arsenal-green);
+        }
+
+        .modal-content {
+            background: var(--arsenal-gray);
+            border: 1px solid var(--arsenal-green);
+        }
+
+        .form-control {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .form-control:focus {
+            background: rgba(26, 26, 26, 0.9);
+            border-color: var(--arsenal-green);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            color: white;
+        }
+
+        .alert-arsenal {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--arsenal-green);
+            color: var(--arsenal-green);
+        }
+
+        .crypto-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .crypto-option {
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crypto-option:hover, .crypto-option.selected {
+            border-color: var(--arsenal-green);
+            background: rgba(0, 255, 136, 0.1);
+            transform: scale(1.05);
+        }
+
+        .crypto-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-bolt"></i> Arsenal V4 - QR Codes Crypto
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-coins"></i> <span id="user-balance">0</span> AC
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Statistiques rapides -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-wallet fa-2x text-success mb-2"></i>
+                        <h5>Portefeuilles</h5>
+                        <h3 id="wallet-count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-qrcode fa-2x text-primary mb-2"></i>
+                        <h5>QR Codes</h5>
+                        <h3 id="qr-count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-exchange-alt fa-2x text-warning mb-2"></i>
+                        <h5>Transferts</h5>
+                        <h3 id="transfer-count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                        <h5>Conversions</h5>
+                        <h3 id="conversion-count">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions principales -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-paper-plane"></i> Envoyer des ArsenalCoins</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Créez un QR code pour envoyer instantanément des ArsenalCoins</p>
+                        <button class="btn btn-arsenal w-100" onclick="showSendModal()">
+                            <i class="fas fa-qrcode"></i> Créer QR de Transfert
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-camera"></i> Scanner un QR Code</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Scannez un QR code Arsenal pour recevoir des ArsenalCoins</p>
+                        <button class="btn btn-arsenal w-100" onclick="showScanModal()">
+                            <i class="fas fa-search"></i> Scanner QR Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion des portefeuilles -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-wallet"></i> Mes Portefeuilles Crypto</h5>
+                        <button class="btn btn-arsenal btn-sm" onclick="showAddWalletModal()">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="wallets-list">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                <p class="mt-2">Chargement des portefeuilles...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des transferts -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Historique des Transferts</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="transfers-list">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                <p class="mt-2">Chargement de l'historique...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Envoyer -->
+    <div class="modal fade" id="sendModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">💸 Créer un Transfert Instantané</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sendForm">
+                        <div class="mb-3">
+                            <label class="form-label">Montant (ArsenalCoins)</label>
+                            <input type="number" class="form-control" id="sendAmount" min="10" required>
+                            <div class="form-text">Minimum: 10 AC</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note (optionnelle)</label>
+                            <input type="text" class="form-control" id="sendNote" placeholder="Merci pour...">
+                        </div>
+                    </form>
+                    <div id="qr-result" class="d-none">
+                        <div class="qr-code-container">
+                            <img id="qr-image" src="" alt="QR Code">
+                            <p class="mt-2"><strong>QR Code généré avec succès !</strong></p>
+                            <p class="text-muted">Partagez ce QR code avec la personne qui doit recevoir les ArsenalCoins</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-arsenal" onclick="createTransferQR()" id="createQRBtn">
+                        <i class="fas fa-qrcode"></i> Créer QR Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Scanner -->
+    <div class="modal fade" id="scanModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">📱 Scanner un QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="scanForm">
+                        <div class="mb-3">
+                            <label class="form-label">ID du QR Code</label>
+                            <input type="text" class="form-control" id="qrId" placeholder="transfer_123456789..." required>
+                            <div class="form-text">Copiez l'ID du QR code Arsenal</div>
+                        </div>
+                    </form>
+                    <div id="scan-result" class="d-none">
+                        <!-- Résultat du scan sera affiché ici -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-arsenal" onclick="scanQRCode()" id="scanQRBtn">
+                        <i class="fas fa-search"></i> Scanner
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter Portefeuille -->
+    <div class="modal fade" id="addWalletModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">💎 Ajouter un Portefeuille</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="crypto-selector">
+                        <div class="crypto-option" data-crypto="ETH">
+                            <i class="fab fa-ethereum" style="color: #627EEA;"></i>
+                            <strong>Ethereum</strong>
+                        </div>
+                        <div class="crypto-option" data-crypto="BTC">
+                            <i class="fab fa-bitcoin" style="color: #F7931A;"></i>
+                            <strong>Bitcoin</strong>
+                        </div>
+                        <div class="crypto-option" data-crypto="BNB">
+                            <i class="fas fa-coins" style="color: #F3BA2F;"></i>
+                            <strong>BNB</strong>
+                        </div>
+                        <div class="crypto-option" data-crypto="MATIC">
+                            <i class="fas fa-hexagon" style="color: #8247E5;"></i>
+                            <strong>Polygon</strong>
+                        </div>
+                    </div>
+                    <form id="addWalletForm" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label">Type de Crypto</label>
+                            <input type="text" class="form-control" id="walletCrypto" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adresse du Portefeuille</label>
+                            <input type="text" class="form-control" id="walletAddress" placeholder="0x..." required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-arsenal" onclick="addWallet()" id="addWalletBtn" disabled>
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let selectedCrypto = null;
+        let userBalance = 0;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserStats();
+            loadWallets();
+            loadTransfers();
+            
+            // Actualiser toutes les 30 secondes
+            setInterval(() => {
+                loadUserStats();
+                loadTransfers();
+            }, 30000);
+        });
+
+        // Modals
+        function showSendModal() {
+            new bootstrap.Modal(document.getElementById('sendModal')).show();
+        }
+
+        function showScanModal() {
+            new bootstrap.Modal(document.getElementById('scanModal')).show();
+        }
+
+        function showAddWalletModal() {
+            new bootstrap.Modal(document.getElementById('addWalletModal')).show();
+        }
+
+        // Gestion crypto selector
+        document.querySelectorAll('.crypto-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Désélectionner tous
+                document.querySelectorAll('.crypto-option').forEach(opt => opt.classList.remove('selected'));
+                
+                // Sélectionner celui-ci
+                this.classList.add('selected');
+                selectedCrypto = this.dataset.crypto;
+                
+                // Afficher le formulaire
+                document.getElementById('addWalletForm').classList.remove('d-none');
+                document.getElementById('walletCrypto').value = selectedCrypto;
+                document.getElementById('addWalletBtn').disabled = false;
+            });
+        });
+
+        // Fonctions API
+        async function loadUserStats() {
+            try {
+                const response = await fetch('/api/crypto/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateStatsDisplay(stats);
+                }
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+            }
+        }
+
+        async function loadWallets() {
+            try {
+                const response = await fetch('/api/crypto/wallets');
+                if (response.ok) {
+                    const wallets = await response.json();
+                    displayWallets(wallets);
+                }
+            } catch (error) {
+                console.error('Erreur chargement wallets:', error);
+                document.getElementById('wallets-list').innerHTML = 
+                    '<div class="alert alert-danger">Erreur de chargement</div>';
+            }
+        }
+
+        async function loadTransfers() {
+            try {
+                const response = await fetch('/api/crypto/transfers');
+                if (response.ok) {
+                    const transfers = await response.json();
+                    displayTransfers(transfers);
+                }
+            } catch (error) {
+                console.error('Erreur chargement transferts:', error);
+                document.getElementById('transfers-list').innerHTML = 
+                    '<div class="alert alert-danger">Erreur de chargement</div>';
+            }
+        }
+
+        async function createTransferQR() {
+            const amount = document.getElementById('sendAmount').value;
+            const note = document.getElementById('sendNote').value;
+            
+            if (!amount || amount < 10) {
+                alert('Montant minimum: 10 AC');
+                return;
+            }
+            
+            if (amount > userBalance) {
+                alert('Solde insuffisant');
+                return;
+            }
+            
+            const btn = document.getElementById('createQRBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/crypto/create_transfer_qr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: parseInt(amount), note: note })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('qr-image').src = 'data:image/png;base64,' + result.qr_image;
+                    document.getElementById('qr-result').classList.remove('d-none');
+                    document.getElementById('sendForm').style.display = 'none';
+                    btn.style.display = 'none';
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur création QR:', error);
+                alert('Erreur de connexion');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> Créer QR Code';
+                btn.disabled = false;
+            }
+        }
+
+        async function scanQRCode() {
+            const qrId = document.getElementById('qrId').value;
+            
+            if (!qrId) {
+                alert('Veuillez entrer un ID de QR code');
+                return;
+            }
+            
+            const btn = document.getElementById('scanQRBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scan...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/crypto/scan_qr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qr_id: qrId })
+                });
+                
+                const result = await response.json();
+                displayScanResult(result);
+                
+            } catch (error) {
+                console.error('Erreur scan QR:', error);
+                alert('Erreur de connexion');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-search"></i> Scanner';
+                btn.disabled = false;
+            }
+        }
+
+        async function addWallet() {
+            const crypto = document.getElementById('walletCrypto').value;
+            const address = document.getElementById('walletAddress').value;
+            
+            if (!crypto || !address) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+            
+            const btn = document.getElementById('addWalletBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/crypto/add_wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ crypto: crypto, address: address })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('addWalletModal')).hide();
+                    loadWallets();
+                    alert('Portefeuille ajouté avec succès !');
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur ajout wallet:', error);
+                alert('Erreur de connexion');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-plus"></i> Ajouter';
+                btn.disabled = false;
+            }
+        }
+
+        // Fonctions d'affichage
+        function updateStatsDisplay(stats) {
+            document.getElementById('user-balance').textContent = stats.balance.toLocaleString();
+            document.getElementById('wallet-count').textContent = stats.wallet_count;
+            document.getElementById('qr-count').textContent = stats.qr_count;
+            document.getElementById('transfer-count').textContent = stats.transfer_count;
+            document.getElementById('conversion-count').textContent = stats.conversion_count;
+            userBalance = stats.balance;
+        }
+
+        function displayWallets(wallets) {
+            const container = document.getElementById('wallets-list');
+            
+            if (wallets.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-wallet fa-3x mb-3"></i>
+                        <p>Aucun portefeuille configuré</p>
+                        <button class="btn btn-arsenal" onclick="showAddWalletModal()">
+                            <i class="fas fa-plus"></i> Ajouter votre premier portefeuille
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="row">';
+            
+            wallets.forEach(wallet => {
+                const cryptoEmojis = {
+                    'ETH': '🔷',
+                    'BTC': '🟠', 
+                    'BNB': '🟡',
+                    'MATIC': '🟣'
+                };
+                
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="transfer-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>${cryptoEmojis[wallet.crypto] || '💎'} ${wallet.crypto}</h6>
+                                    <small class="text-muted">${wallet.address.substring(0, 10)}...${wallet.address.substring(wallet.address.length - 6)}</small>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-success me-2" onclick="generateWalletQR('${wallet.crypto}', '${wallet.address}')">
+                                        <i class="fas fa-qrcode"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="removeWallet('${wallet.crypto}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function displayTransfers(transfers) {
+            const container = document.getElementById('transfers-list');
+            
+            if (transfers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-exchange-alt fa-3x mb-3"></i>
+                        <p>Aucun transfert pour le moment</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            transfers.forEach(transfer => {
+                const statusClass = {
+                    'pending': 'warning',
+                    'claimed': 'success',
+                    'expired': 'danger'
+                };
+                
+                const statusText = {
+                    'pending': 'En attente',
+                    'claimed': 'Réclamé',
+                    'expired': 'Expiré'
+                };
+                
+                html += `
+                    <div class="transfer-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <span class="badge bg-${statusClass[transfer.status] || 'secondary'}">
+                                    ${statusText[transfer.status] || transfer.status}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>${transfer.amount.toLocaleString()} AC</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">${new Date(transfer.created_at).toLocaleString()}</small>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                ${transfer.status === 'pending' ? 
+                                    `<button class="btn btn-sm btn-outline-info" onclick="showQRDetails('${transfer.qr_code_id}')">
+                                        <i class="fas fa-eye"></i> Voir QR
+                                    </button>` : ''
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function displayScanResult(result) {
+            const container = document.getElementById('scan-result');
+            container.classList.remove('d-none');
+            
+            if (!result.success) {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${result.error}
+                    </div>
+                `;
+                return;
+            }
+            
+            if (result.type === 'instant_transfer') {
+                container.innerHTML = `
+                    <div class="alert alert-arsenal">
+                        <h5><i class="fas fa-gift"></i> Transfert Détecté !</h5>
+                        <p><strong>${result.amount_ac.toLocaleString()} ArsenalCoins</strong> vous attendent</p>
+                        <button class="btn btn-arsenal pulse-animation" onclick="claimTransfer(${result.transfer_id})">
+                            <i class="fas fa-hand-holding-heart"></i> Réclamer les ArsenalCoins
+                        </button>
+                    </div>
+                `;
+            } else if (result.type === 'wallet_address') {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-wallet"></i> Adresse de Portefeuille</h5>
+                        <p><strong>${result.crypto}</strong>: <code>${result.address}</code></p>
+                        <small class="text-muted">Propriétaire: User ${result.owner_id}</small>
+                    </div>
+                `;
+            }
+        }
+
+        async function claimTransfer(transferId) {
+            try {
+                const response = await fetch('/api/crypto/claim_transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transfer_id: transferId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ Vous avez reçu ${result.amount_ac.toLocaleString()} ArsenalCoins !`);
+                    bootstrap.Modal.getInstance(document.getElementById('scanModal')).hide();
+                    loadUserStats();
+                    loadTransfers();
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Erreur réclamation:', error);
+                alert('Erreur de connexion');
+            }
+        }
+
+        // Fonctions utilitaires
+        function generateWalletQR(crypto, address) {
+            // TODO: Implémenter la génération de QR pour portefeuille
+            alert('🚧 Fonction en développement');
+        }
+
+        function removeWallet(crypto) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le portefeuille ${crypto} ?`)) {
+                // TODO: Implémenter la suppression
+                alert('🚧 Fonction en développement');
+            }
+        }
+
+        function showQRDetails(qrId) {
+            // TODO: Afficher les détails du QR code
+            alert('🚧 Fonction en développement');
+        }
+    </script>
+</body>
+</html>

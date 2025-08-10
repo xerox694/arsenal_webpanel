@@ -790,6 +790,301 @@ try:
             print(f"❌ Erreur OAuth callback: {e}")
             return redirect('/login?error=oauth_failed')
 
+    # ==================== NOUVELLES APIS CRYPTO QR CODES ====================
+    
+    @app.route('/api/crypto/stats')
+    def get_crypto_stats():
+        """Statistiques crypto et QR codes"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            
+            # Importer le système crypto
+            from modules.crypto_system import CryptoSystem
+            crypto_system = CryptoSystem(None)
+            
+            # Récupérer les stats utilisateur
+            stats = crypto_system.get_user_crypto_stats(user_id)
+            
+            if stats:
+                # Ajouter le solde ArsenalCoins depuis l'économie
+                try:
+                    from modules.economy_system import EconomySystem
+                    economy = EconomySystem(None)
+                    balance = economy.get_user_money(user_id) if hasattr(economy, 'get_user_money') else 0
+                except:
+                    balance = 0
+                
+                return jsonify({
+                    "success": True,
+                    "balance": balance,
+                    "wallet_count": 1 if stats["has_wallet"] else 0,
+                    "qr_count": 0,  # TODO: Compter les QR codes actifs
+                    "transfer_count": stats["transfers"]["sent_count"] + stats["transfers"]["received_count"],
+                    "conversion_count": stats["conversions"]["total"]
+                })
+            else:
+                return jsonify({
+                    "success": True,
+                    "balance": 0,
+                    "wallet_count": 0,
+                    "qr_count": 0,
+                    "transfer_count": 0,
+                    "conversion_count": 0
+                })
+                
+        except Exception as e:
+            print(f"❌ Erreur stats crypto: {e}")
+            return jsonify({
+                "success": True,
+                "balance": 0,
+                "wallet_count": 0,
+                "qr_count": 0,
+                "transfer_count": 0,
+                "conversion_count": 0
+            })
+    
+    @app.route('/api/crypto/wallets')
+    def get_crypto_wallets():
+        """Liste des portefeuilles crypto de l'utilisateur"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            
+            # Simuler des portefeuilles pour l'instant
+            wallets = [
+                {
+                    "crypto": "ETH",
+                    "address": "0x742f54650DC4C14172b5aEb90B1e4e6a7D3eF1b2"
+                },
+                {
+                    "crypto": "BTC", 
+                    "address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                }
+            ]
+            
+            return jsonify(wallets)
+            
+        except Exception as e:
+            print(f"❌ Erreur wallets crypto: {e}")
+            return jsonify([])
+    
+    @app.route('/api/crypto/transfers')
+    def get_crypto_transfers():
+        """Historique des transferts crypto"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            
+            # Simuler des transferts pour l'instant
+            transfers = [
+                {
+                    "id": 1,
+                    "amount": 100,
+                    "status": "claimed",
+                    "created_at": "2025-01-08T10:30:00Z",
+                    "qr_code_id": "transfer_123456"
+                },
+                {
+                    "id": 2,
+                    "amount": 50,
+                    "status": "pending",
+                    "created_at": "2025-01-08T11:00:00Z",
+                    "qr_code_id": "transfer_789012"
+                }
+            ]
+            
+            return jsonify(transfers)
+            
+        except Exception as e:
+            print(f"❌ Erreur transferts crypto: {e}")
+            return jsonify([])
+    
+    @app.route('/api/crypto/create_transfer_qr', methods=['POST'])
+    def create_transfer_qr():
+        """Créer un QR code de transfert instantané"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            data = request.get_json()
+            amount = data.get('amount', 0)
+            note = data.get('note', '')
+            
+            if amount < 10:
+                return jsonify({
+                    "success": False,
+                    "error": "Montant minimum: 10 ArsenalCoins"
+                })
+            
+            # Importer le système crypto
+            from modules.crypto_system import CryptoSystem
+            crypto_system = CryptoSystem(None)
+            
+            # Créer le QR code
+            qr_id = crypto_system.create_instant_transfer_qr(user_id, amount)
+            
+            if qr_id:
+                # Générer l'image QR
+                qr_data = f"arsenal://transfer/{qr_id}"
+                qr_image = crypto_system.generate_qr_code(qr_data, "instant_transfer")
+                
+                if qr_image:
+                    # Convertir en base64 pour l'envoi
+                    import base64
+                    qr_image.seek(0)
+                    qr_base64 = base64.b64encode(qr_image.read()).decode('utf-8')
+                    
+                    return jsonify({
+                        "success": True,
+                        "qr_id": qr_id,
+                        "qr_image": qr_base64,
+                        "amount": amount,
+                        "expires_in": "1 heure"
+                    })
+            
+            return jsonify({
+                "success": False,
+                "error": "Erreur lors de la création du QR code"
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur création QR transfert: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            })
+    
+    @app.route('/api/crypto/scan_qr', methods=['POST'])
+    def scan_qr_code():
+        """Scanner un QR code Arsenal"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            data = request.get_json()
+            qr_id = data.get('qr_id', '')
+            
+            if not qr_id:
+                return jsonify({
+                    "success": False,
+                    "error": "ID de QR code requis"
+                })
+            
+            # Importer le système crypto
+            from modules.crypto_system import CryptoSystem
+            crypto_system = CryptoSystem(None)
+            
+            # Scanner le QR code
+            result = crypto_system.scan_qr_code(qr_id, user_id)
+            
+            return jsonify(result)
+            
+        except Exception as e:
+            print(f"❌ Erreur scan QR: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            })
+    
+    @app.route('/api/crypto/claim_transfer', methods=['POST'])
+    def claim_transfer():
+        """Réclamer un transfert instantané"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            data = request.get_json()
+            transfer_id = data.get('transfer_id', 0)
+            
+            if not transfer_id:
+                return jsonify({
+                    "success": False,
+                    "error": "ID de transfert requis"
+                })
+            
+            # Importer le système crypto
+            from modules.crypto_system import CryptoSystem
+            crypto_system = CryptoSystem(None)
+            
+            # Réclamer le transfert
+            result = crypto_system.claim_instant_transfer(transfer_id, user_id)
+            
+            return jsonify(result)
+            
+        except Exception as e:
+            print(f"❌ Erreur réclamation transfert: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            })
+    
+    @app.route('/api/crypto/add_wallet', methods=['POST'])
+    def add_crypto_wallet_api():
+        """Ajouter un portefeuille crypto"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"error": "Non connecté"}), 401
+            
+            user_id = session['user_info']['user_id']
+            data = request.get_json()
+            crypto = data.get('crypto', '').upper()
+            address = data.get('address', '').strip()
+            
+            if not crypto or not address:
+                return jsonify({
+                    "success": False,
+                    "error": "Type de crypto et adresse requis"
+                })
+            
+            if crypto not in ["ETH", "BTC", "BNB", "MATIC"]:
+                return jsonify({
+                    "success": False,
+                    "error": "Type de crypto non supporté"
+                })
+            
+            if len(address) < 10:
+                return jsonify({
+                    "success": False,
+                    "error": "Adresse trop courte"
+                })
+            
+            # TODO: Ajouter en base de données
+            return jsonify({
+                "success": True,
+                "message": f"Portefeuille {crypto} ajouté avec succès"
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur ajout wallet: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            })
+    
+    @app.route('/crypto-qr')
+    def crypto_qr_page():
+        """Page QR Codes Crypto"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            return send_from_directory('templates', 'crypto_qr.html')
+        except Exception as e:
+            print(f"❌ Erreur page crypto QR: {e}")
+            return redirect('/dashboard')
+
+    # ==================== FIN APIS CRYPTO QR CODES ====================
+
     # ==================== ROUTES API PRINCIPALES ====================
     
     # ==================== NOUVELLES APIS SUPRÊMES ====================
@@ -2459,6 +2754,7 @@ try:
             user_id = data.get('user_id')
             arsenal_coins = data.get('arsenal_coins')
             destination_wallet_id = data.get('destination_wallet_id')
+            use_coinbase = data.get('use_coinbase', False)
             
             if not user_id or not arsenal_coins:
                 return jsonify({
@@ -2472,10 +2768,12 @@ try:
                     "error": "Minimum 1 ArsenalCoin requis"
                 }), 400
             
+            # Utiliser la nouvelle méthode avec support Coinbase
             result = crypto_wallet.request_conversion(
                 user_id=user_id,
                 arsenal_coins_amount=arsenal_coins,
-                destination_wallet_id=destination_wallet_id
+                destination_wallet_id=destination_wallet_id,
+                use_coinbase=use_coinbase
             )
             
             return jsonify(result)
@@ -2485,6 +2783,65 @@ try:
             return jsonify({
                 "success": False,
                 "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/crypto/coinbase-convert', methods=['POST'])
+    def request_coinbase_conversion():
+        """Conversion directe vers Coinbase (raccourci)"""
+        try:
+            from crypto_wallet_system import crypto_wallet
+            
+            data = request.get_json()
+            user_id = data.get('user_id')
+            arsenal_coins = data.get('arsenal_coins')
+            
+            if not user_id or not arsenal_coins:
+                return jsonify({
+                    "success": False,
+                    "error": "user_id et arsenal_coins requis"
+                }), 400
+            
+            if arsenal_coins < 1:
+                return jsonify({
+                    "success": False,
+                    "error": "Minimum 1 ArsenalCoin requis"
+                }), 400
+            
+            result = crypto_wallet.request_coinbase_conversion(user_id, arsenal_coins)
+            
+            return jsonify(result)
+            
+        except Exception as e:
+            print(f"❌ Erreur conversion Coinbase: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/crypto/coinbase-status')
+    def get_coinbase_status():
+        """Vérifier le statut de l'intégration Coinbase"""
+        try:
+            from coinbase_integration import coinbase_integration
+            
+            status = coinbase_integration.test_connection()
+            accounts = coinbase_integration.get_accounts() if status["success"] else {"success": False}
+            payment_methods = coinbase_integration.get_payment_methods() if status["success"] else {"success": False}
+            
+            return jsonify({
+                "success": True,
+                "coinbase_status": status,
+                "accounts": accounts.get("accounts", []) if accounts["success"] else [],
+                "payment_methods": payment_methods.get("methods", []) if payment_methods["success"] else [],
+                "available": status["success"]
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur statut Coinbase: {e}")
+            return jsonify({
+                "success": False,
+                "error": "Erreur serveur",
+                "available": False
             }), 500
     
     @app.route('/api/crypto/calculate/<int:arsenal_coins>')
@@ -3224,13 +3581,15 @@ try:
         # 🤖 DÉMARRER LE BOT DISCORD EN ARRIÈRE-PLAN
         discord_token = os.environ.get('DISCORD_TOKEN')
         if discord_token:
-            print("🤖 Token Discord trouvé - Démarrage du bot en arrière-plan...")
+            print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
             
             import threading
             import time
+            import subprocess
+            import sys
             
             def start_discord_bot():
-                """Lance le bot Discord"""
+                """Lance le bot Discord via subprocess"""
                 print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
                 try:
                     # Vérifier si main.py existe
@@ -3238,19 +3597,45 @@ try:
                         print("❌ [BOT-THREAD] main.py non trouvé!")
                         return
                     
-                    print("✅ [BOT-THREAD] main.py trouvé, lancement...")
+                    print("✅ [BOT-THREAD] main.py trouvé")
+                    print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
+                    print(f"🔍 [BOT-THREAD] Working directory: {os.getcwd()}")
                     
-                    # Exécuter main.py
-                    with open('main.py', 'r', encoding='utf-8') as f:
-                        code = f.read()
+                    # Créer environnement avec token
+                    bot_env = os.environ.copy()
+                    bot_env['DISCORD_TOKEN'] = discord_token
                     
-                    exec_globals = {
-                        '__name__': '__main__', 
-                        '__file__': os.path.abspath('main.py'),
-                        '__builtins__': __builtins__
-                    }
+                    print("🚀 [BOT-THREAD] Lancement subprocess...")
                     
-                    exec(code, exec_globals)
+                    # Lancer le bot comme processus séparé NON-BLOQUANT
+                    process = subprocess.Popen(
+                        [sys.executable, 'main.py'],
+                        env=bot_env,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        cwd=os.getcwd()
+                    )
+                    
+                    print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
+                    
+                    # Monitorer les premiers logs (non-bloquant)
+                    import select
+                    import time
+                    
+                    for i in range(10):  # 10 secondes max
+                        if process.poll() is not None:
+                            print(f"❌ [BOT-THREAD] Process terminé prématurément: {process.returncode}")
+                            stdout, stderr = process.communicate()
+                            print(f"📤 [BOT-THREAD] stdout: {stdout}")
+                            print(f"📤 [BOT-THREAD] stderr: {stderr}")
+                            break
+                        
+                        time.sleep(1)
+                        print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
+                    
+                    if process.poll() is None:
+                        print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
                     
                 except Exception as e:
                     print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
@@ -3263,7 +3648,7 @@ try:
             print(f"✅ Thread bot créé: {bot_thread.name}")
             
             # Attendre un peu pour voir si le bot démarre
-            time.sleep(2)
+            time.sleep(3)
             print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
         else:
             print("❌ DISCORD_TOKEN manquant - Bot non démarré")

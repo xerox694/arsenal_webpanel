@@ -48,5 +48,9 @@ bcrypt==4.0.1
 
 # Arsenal Bot Core
 colorama==0.4.6
+
+# Crypto & QR Codes
+qrcode[pil]==7.4.2
+coinbase-wallet-sdk==1.4.0
 python-dateutil==2.8.2
 pytz==2023.3

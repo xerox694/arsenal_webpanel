@@ -128,6 +128,15 @@ except Exception as e:
     HUNT_INTEGRATION_AVAILABLE = False
     print(f"[WARNING] Hunt Royal Integration non disponible: {e}")
 
+# Crypto System Integration (NOUVEAU V4.2)
+try:
+    from crypto_bot_integration import setup_crypto_integration
+    CRYPTO_INTEGRATION_AVAILABLE = True
+    print("[OK] Crypto System Integration chargé")
+except Exception as e:
+    CRYPTO_INTEGRATION_AVAILABLE = False
+    print(f"[WARNING] Crypto System Integration non disponible: {e}")
+
 # Panneau Creator GUI (Tkinter)
 from gui.ArsenalCreatorStudio import lancer_creator_interface
 
@@ -210,6 +219,14 @@ class ArsenalBot(commands.Bot):
                 log.info("[OK] Module Hunt Royal Integration chargé")
             except Exception as e:
                 log.error(f"[ERROR] Erreur chargement Hunt Royal Integration: {e}")
+        
+        # Charger Crypto System Integration
+        if CRYPTO_INTEGRATION_AVAILABLE:
+            try:
+                self.crypto_integration = setup_crypto_integration(self)
+                log.info("[OK] Module Crypto System Integration chargé")
+            except Exception as e:
+                log.error(f"[ERROR] Erreur chargement Crypto System Integration: {e}")
 
 client = ArsenalBot(command_prefix=PREFIX, intents=intents)
 client.startup_time = datetime.datetime.utcnow()

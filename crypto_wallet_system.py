@@ -1,6 +1,7 @@
 """
 💳 Arsenal V4 - Système Wallet Crypto 
 Conversion ArsenalCoins vers crypto/fiat avec commission 1%
+Intégration Coinbase pour retraits automatiques
 """
 
 import sqlite3
@@ -19,6 +20,17 @@ class CryptoWalletSystem:
         self.ARSENAL_COIN_VALUE = Decimal('0.01')  # 1 ArsenalCoin = 0.01€
         self.COMMISSION_RATE = Decimal('0.01')     # 1% commission
         self.OWNER_WALLET_ID = "XEROX_COMMISSION"  # Wallet des commissions
+        
+        # Intégration Coinbase
+        try:
+            from coinbase_integration import coinbase_integration
+            self.coinbase = coinbase_integration
+            self.coinbase_available = True
+            print("✅ Intégration Coinbase chargée")
+        except Exception as e:
+            self.coinbase = None
+            self.coinbase_available = False
+            print(f"❌ Coinbase non disponible: {e}")
         
     def init_database(self):
         """Initialise la base de données des wallets crypto"""
@@ -167,7 +179,7 @@ class CryptoWalletSystem:
             print(f"❌ Erreur calcul conversion: {e}")
             return None
 
-    def request_conversion(self, user_id, arsenal_coins_amount, destination_wallet_id=None):
+    def request_conversion(self, user_id, arsenal_coins_amount, destination_wallet_id=None, use_coinbase=False):
         """Demander une conversion ArsenalCoins -> Crypto/Fiat"""
         try:
             # Importer et vérifier le solde ArsenalCoins
@@ -192,7 +204,9 @@ class CryptoWalletSystem:
             
             # Récupérer l'adresse wallet de destination
             destination_wallet = None
-            if destination_wallet_id:
+            conversion_type = "COINBASE" if use_coinbase else "MANUAL"
+            
+            if destination_wallet_id and not use_coinbase:
                 user_wallets = self.get_user_wallets(user_id)
                 wallet_found = next((w for w in user_wallets if w["id"] == destination_wallet_id), None)
                 if wallet_found:
@@ -205,12 +219,12 @@ class CryptoWalletSystem:
             cursor.execute('''
                 INSERT INTO coin_conversions 
                 (transaction_id, user_id, arsenal_coins_amount, euro_value, 
-                 commission_euro, final_amount, destination_wallet, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING')
+                 commission_euro, final_amount, destination_wallet, conversion_type, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')
             ''', (
                 transaction_id, str(user_id), conversion["arsenal_coins"],
                 conversion["euro_value"], conversion["commission"], 
-                conversion["final_amount"], destination_wallet
+                conversion["final_amount"], destination_wallet, conversion_type
             ))
             
             # Débiter les ArsenalCoins immédiatement
@@ -218,7 +232,7 @@ class CryptoWalletSystem:
                 user_id, 
                 -arsenal_coins_amount, 
                 "CRYPTO_CONVERSION", 
-                f"Conversion vers crypto - Transaction {transaction_id}"
+                f"Conversion vers {conversion_type} - Transaction {transaction_id}"
             )
             
             # Enregistrer la commission
@@ -229,21 +243,64 @@ class CryptoWalletSystem:
             ''', (transaction_id, conversion["commission"], str(user_id)))
             
             conn.commit()
+            
+            # Si Coinbase activé, traiter automatiquement
+            coinbase_result = None
+            if use_coinbase and self.coinbase_available:
+                print(f"🏦 Traitement Coinbase pour {transaction_id}")
+                coinbase_result = self.coinbase.process_arsenal_conversion(
+                    transaction_id, 
+                    conversion["final_amount"]
+                )
+                
+                # Mettre à jour le statut selon le résultat Coinbase
+                if coinbase_result["success"]:
+                    new_status = "COMPLETED" if coinbase_result.get("status") == "completed" else "PROCESSING"
+                    cursor.execute('''
+                        UPDATE coin_conversions 
+                        SET status = ?, processed_at = CURRENT_TIMESTAMP, 
+                            notes = ? 
+                        WHERE transaction_id = ?
+                    ''', (new_status, json.dumps(coinbase_result), transaction_id))
+                else:
+                    cursor.execute('''
+                        UPDATE coin_conversions 
+                        SET status = 'FAILED', processed_at = CURRENT_TIMESTAMP,
+                            notes = ?
+                        WHERE transaction_id = ?
+                    ''', (json.dumps(coinbase_result), transaction_id))
+                
+                conn.commit()
+            
             conn.close()
             
             print(f"✅ Conversion demandée: {user_id} -> {arsenal_coins_amount} AC = {conversion['final_amount']}€")
             
-            return {
+            result = {
                 "success": True,
                 "transaction_id": transaction_id,
                 "conversion": conversion,
                 "destination_wallet": destination_wallet,
+                "conversion_type": conversion_type,
                 "message": f"Conversion de {arsenal_coins_amount} ArsenalCoins demandée avec succès"
             }
+            
+            if coinbase_result:
+                result["coinbase_result"] = coinbase_result
+                if coinbase_result["success"]:
+                    result["message"] += f" - {('Traitement automatique Coinbase réussi' if coinbase_result.get('status') == 'completed' else 'En cours de traitement Coinbase')}"
+                else:
+                    result["message"] += " - Erreur traitement Coinbase (traitement manuel requis)"
+            
+            return result
             
         except Exception as e:
             print(f"❌ Erreur demande conversion: {e}")
             return {"success": False, "error": str(e)}
+
+    def request_coinbase_conversion(self, user_id, arsenal_coins_amount):
+        """Conversion directe vers Coinbase (raccourci)"""
+        return self.request_conversion(user_id, arsenal_coins_amount, use_coinbase=True)
 
     def get_conversion_history(self, user_id, limit=20):
         """Récupérer l'historique des conversions d'un utilisateur"""
