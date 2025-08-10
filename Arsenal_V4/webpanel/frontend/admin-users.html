@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Administration Utilisateurs - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/arsenal-styles.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+            --gold-color: #ffd700;
+            --admin-color: #ff1744;
+            --vip-color: #9c27b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--admin-color), var(--secondary-color));
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 23, 68, 0.3);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .admin-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .control-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 247, 0.3);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .users-table-container {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            padding: 20px;
+            color: var(--bg-primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .users-table th {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .users-table tr:hover {
+            background: var(--hover-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .user-id {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 10px;
+        }
+
+        .coins-amount {
+            font-weight: bold;
+            color: var(--gold-color);
+            font-size: 1.1rem;
+        }
+
+        .gems-amount {
+            font-weight: bold;
+            color: var(--vip-color);
+            font-size: 1.1rem;
+        }
+
+        .xp-amount {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+        }
+
+        .btn-ban {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .btn-vip {
+            background: var(--vip-color);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 255, 247, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateX(-5px);
+        }
+
+        .total-wealth {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--gold-color), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-online { background: var(--success-color); color: black; }
+        .status-offline { background: var(--text-secondary); color: white; }
+        .status-banned { background: var(--error-color); color: white; }
+        .status-vip { background: var(--vip-color); color: white; }
+
+        /* Styles pour les quick actions */
+        .quick-actions {
+            margin: 20px 0;
+        }
+
+        .quick-action-card {
+            background: linear-gradient(135deg, var(--success-color), var(--accent-color));
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(57, 255, 20, 0.3);
+        }
+
+        .quick-action-card h3 {
+            color: var(--bg-primary);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .quick-action-card p {
+            color: var(--bg-primary);
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .mega-coins-btn {
+            background: linear-gradient(135deg, var(--gold-color), var(--warning-color));
+            color: var(--bg-primary);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .mega-coins-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .mega-coins-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .users-table {
+                font-size: 0.8rem;
+            }
+            
+            .users-table th,
+            .users-table td {
+                padding: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/dashboard" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Retour Dashboard
+    </a>
+
+    <div class="admin-header">
+        <div class="admin-title">
+            <i class="fas fa-crown"></i> Administration Utilisateurs
+        </div>
+        <div class="admin-subtitle">
+            Gestion complète des Arsenal Coins, Gems et XP
+        </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalUsers">-</div>
+            <div class="stat-label">Utilisateurs Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value total-wealth" id="totalCoins">-</div>
+            <div class="stat-label">Arsenal Coins Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalGems">-</div>
+            <div class="stat-label">Arsenal Gems Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalXP">-</div>
+            <div class="stat-label">Arsenal XP Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="onlineUsers">-</div>
+            <div class="stat-label">En Ligne</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="richestUser">-</div>
+            <div class="stat-label">Plus Riche</div>
+        </div>
+    </div>
+
+    <!-- Bouton pour les coins de test -->
+    <div class="quick-actions">
+        <div class="quick-action-card">
+            <h3>🚀 Tests Admin</h3>
+            <p>Donnez-vous 99,999,999,999,999 Arsenal Coins pour tester le système</p>
+            <button class="mega-coins-btn" onclick="giveMegaCoins()">
+                💰 Donner Mega Coins
+            </button>
+        </div>
+    </div>
+
+    <div class="controls-section">
+        <div class="control-card">
+            <div class="control-title">
+                <i class="fas fa-search"></i> Recherche Utilisateur
+            </div>
+            <input type="text" class="search-box" id="searchInput" placeholder="🔍 Rechercher par nom, ID ou Discord...">
+        </div>
+        
+        <div class="control-card">
+            <div class="control-title">
+                <i class="fas fa-filter"></i> Filtres
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="rich">💰 Riches</button>
+                <button class="filter-btn" data-filter="vip">👑 VIP</button>
+                <button class="filter-btn" data-filter="online">🟢 En ligne</button>
+                <button class="filter-btn" data-filter="new">🆕 Nouveaux</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="users-table-container">
+        <div class="table-header">
+            <i class="fas fa-users"></i> Base de Données Utilisateurs Arsenal
+        </div>
+        
+        <div id="loadingIndicator" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Chargement des données utilisateurs...</p>
+        </div>
+
+        <table class="users-table" id="usersTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user"></i> Utilisateur</th>
+                    <th><i class="fas fa-coins"></i> Arsenal Coins</th>
+                    <th><i class="fas fa-gem"></i> Arsenal Gems</th>
+                    <th><i class="fas fa-star"></i> Arsenal XP</th>
+                    <th><i class="fas fa-chart-line"></i> Niveau</th>
+                    <th><i class="fas fa-clock"></i> Dernière Connexion</th>
+                    <th><i class="fas fa-circle"></i> Statut</th>
+                    <th><i class="fas fa-cogs"></i> Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <!-- Les données seront chargées ici -->
+            </tbody>
+        </table>
+    </div>
+
+    <button class="refresh-btn" onclick="loadUsersData()">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <!-- Modal d'édition -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Éditer Utilisateur</h2>
+            <form id="editForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label>Arsenal Coins:</label>
+                    <input type="number" id="editCoins" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Arsenal Gems:</label>
+                    <input type="number" id="editGems" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Arsenal XP:</label>
+                    <input type="number" id="editXP" min="0">
+                </div>
+                <button type="submit">Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let usersData = [];
+        let filteredUsers = [];
+        
+        // Charger les données au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsersData();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Recherche en temps réel
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                filterUsers();
+            });
+
+            // Filtres
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterUsers();
+                });
+            });
+        }
+
+        async function loadUsersData() {
+            try {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('usersTable').style.display = 'none';
+
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+
+                if (data.success) {
+                    usersData = data.users;
+                    updateStats(data.stats);
+                    filterUsers();
+                    document.getElementById('usersTable').style.display = 'table';
+                } else {
+                    throw new Error(data.message || 'Erreur lors du chargement');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des données', 'error');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalUsers').textContent = stats.total_users.toLocaleString();
+            document.getElementById('totalCoins').textContent = formatNumber(stats.total_coins) + ' 🪙';
+            document.getElementById('totalGems').textContent = formatNumber(stats.total_gems) + ' 💎';
+            document.getElementById('totalXP').textContent = formatNumber(stats.total_xp) + ' ⭐';
+            document.getElementById('onlineUsers').textContent = stats.online_users;
+            document.getElementById('richestUser').textContent = stats.richest_user || 'N/A';
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+            filteredUsers = usersData.filter(user => {
+                // Filtre de recherche
+                const matchesSearch = 
+                    user.username.toLowerCase().includes(searchTerm) ||
+                    user.discord_id.includes(searchTerm) ||
+                    user.user_id.toString().includes(searchTerm);
+
+                // Filtre par catégorie
+                let matchesFilter = true;
+                switch(activeFilter) {
+                    case 'rich':
+                        matchesFilter = user.arsenal_coins > 100000;
+                        break;
+                    case 'vip':
+                        matchesFilter = user.is_vip || user.arsenal_gems > 1000;
+                        break;
+                    case 'online':
+                        matchesFilter = user.is_online;
+                        break;
+                    case 'new':
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        matchesFilter = new Date(user.created_at) > weekAgo;
+                        break;
+                }
+
+                return matchesSearch && matchesFilter;
+            });
+
+            renderUsersTable();
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            filteredUsers.forEach(user => {
+                const row = createUserRow(user);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createUserRow(user) {
+            const row = document.createElement('tr');
+            
+            // Calculer le niveau basé sur l'XP
+            const level = Math.floor(user.arsenal_xp / 1000) + 1;
+            
+            // Statut
+            let statusClass = 'status-offline';
+            let statusText = 'Hors ligne';
+            if (user.is_banned) {
+                statusClass = 'status-banned';
+                statusText = 'Banni';
+            } else if (user.is_online) {
+                statusClass = 'status-online';
+                statusText = 'En ligne';
+            } else if (user.is_vip) {
+                statusClass = 'status-vip';
+                statusText = 'VIP';
+            }
+
+            row.innerHTML = `
+                <td>
+                    <div class="user-info">
+                        <img src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar || 'default'}.png" 
+                             class="user-avatar" alt="Avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div>
+                            <div class="user-name">${user.username}</div>
+                            <div class="user-id">#${user.user_id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="coins-amount">${formatNumber(user.arsenal_coins)} 🪙</span></td>
+                <td><span class="gems-amount">${formatNumber(user.arsenal_gems)} 💎</span></td>
+                <td><span class="xp-amount">${formatNumber(user.arsenal_xp)} ⭐</span></td>
+                <td><strong>Niveau ${level}</strong></td>
+                <td>${formatDate(user.last_activity)}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <div class="user-actions">
+                        <button class="action-btn btn-edit" onclick="editUser('${user.user_id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-vip" onclick="toggleVIP('${user.user_id}')">
+                            <i class="fas fa-crown"></i>
+                        </button>
+                        <button class="action-btn btn-ban" onclick="banUser('${user.user_id}')">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            return row;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(1) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return num.toLocaleString();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Jamais';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        async function editUser(userId) {
+            const user = usersData.find(u => u.user_id == userId);
+            if (!user) return;
+
+            // Remplir le modal d'édition
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editCoins').value = user.arsenal_coins;
+            document.getElementById('editGems').value = user.arsenal_gems;
+            document.getElementById('editXP').value = user.arsenal_xp;
+            
+            // Afficher le modal (vous devrez implémenter le CSS du modal)
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        async function toggleVIP(userId) {
+            try {
+                const response = await fetch(`/api/admin/user/${userId}/vip`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('Statut VIP modifié !', 'success');
+                    loadUsersData();
+                }
+            } catch (error) {
+                console.error('Erreur VIP:', error);
+                showNotification('Erreur lors de la modification VIP', 'error');
+            }
+        }
+
+        async function banUser(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir bannir cet utilisateur ?')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/user/${userId}/ban`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('Utilisateur banni !', 'success');
+                    loadUsersData();
+                }
+            } catch (error) {
+                console.error('Erreur ban:', error);
+                showNotification('Erreur lors du bannissement', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? 'var(--success-color)' : type === 'error' ? 'var(--error-color)' : 'var(--primary-color)'};
+                color: white;
+                border-radius: 10px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Auto-refresh toutes les 30 secondes
+        setInterval(loadUsersData, 30000);
+
+        // Fonction pour donner les mega coins
+        async function giveMegaCoins() {
+            try {
+                showNotification('🚀 Attribution des Mega Coins en cours...', 'info');
+                
+                const response = await fetch('/api/admin/mega-coins', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`✅ ${data.message}`, 'success');
+                    // Rafraîchir les données après ajout
+                    setTimeout(() => {
+                        loadUsersData();
+                    }, 1000);
+                } else {
+                    showNotification(`❌ Erreur: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'attribution des mega coins:', error);
+                showNotification('❌ Erreur de connexion', 'error');
+            }
+        }
+    </script>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+        }
+
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        #editForm button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #editForm button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 247, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</body>
+</html>

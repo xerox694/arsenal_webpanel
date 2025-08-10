@@ -1640,6 +1640,30 @@ try:
             print(f"❌ Erreur economy-page: {e}")
             return redirect('/dashboard')
 
+    # ==================== ADMINISTRATION ====================
+    
+    @app.route('/admin-users')
+    def admin_users_page():
+        """Page Administration Utilisateurs"""
+        try:
+            if 'user_info' not in session:
+                return redirect('/login?error=session_expired')
+            
+            # Vérifier si l'utilisateur est admin (vous pouvez adapter cette logique)
+            user_info = session.get('user_info', {})
+            if user_info.get('discord_id') != '1234567890':  # Remplacez par votre Discord ID
+                return redirect('/dashboard?error=access_denied')
+            
+            admin_users_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'admin-users.html')
+            if os.path.exists(admin_users_path):
+                return send_from_directory(os.path.dirname(admin_users_path), 'admin-users.html')
+            else:
+                return "Page d'administration non trouvée", 404
+                
+        except Exception as e:
+            print(f"❌ Erreur admin-users: {e}")
+            return redirect('/dashboard')
+
     # ==================== FIN PAGES SPÉCIALISÉES ====================
 
     @app.route('/backup')
@@ -3670,6 +3694,372 @@ try:
     else:
         print("❌ DISCORD_TOKEN manquant - Bot non démarré")
         print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
+
+    # ==================== API ADMINISTRATION ====================
+
+    @app.route('/api/admin/users')
+    def api_admin_users():
+        """API pour récupérer tous les utilisateurs avec leurs données"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            # Vérification admin (adaptez selon votre logique)
+            user_info = session.get('user_info', {})
+            admin_discord_ids = ['1234567890']  # Ajoutez vos IDs Discord admin ici
+            
+            if user_info.get('discord_id') not in admin_discord_ids:
+                return jsonify({"success": False, "message": "Accès refusé"}), 403
+            
+            # Récupérer tous les utilisateurs depuis la base de données
+            cursor = get_db_connection().cursor()
+            
+            # Requête pour récupérer tous les utilisateurs avec leurs données
+            cursor.execute("""
+                SELECT 
+                    id as user_id,
+                    discord_id,
+                    username,
+                    avatar,
+                    created_at,
+                    last_activity,
+                    arsenal_coins,
+                    arsenal_gems,
+                    arsenal_xp,
+                    is_vip,
+                    is_banned,
+                    is_online
+                FROM users 
+                ORDER BY arsenal_coins DESC
+            """)
+            
+            users = []
+            for row in cursor.fetchall():
+                user_data = {
+                    'user_id': row[0],
+                    'discord_id': row[1],
+                    'username': row[2] or f"User_{row[1][-4:]}",
+                    'avatar': row[3],
+                    'created_at': row[4],
+                    'last_activity': row[5],
+                    'arsenal_coins': row[6] or 0,
+                    'arsenal_gems': row[7] or 0,
+                    'arsenal_xp': row[8] or 0,
+                    'is_vip': bool(row[9]),
+                    'is_banned': bool(row[10]),
+                    'is_online': bool(row[11])
+                }
+                users.append(user_data)
+            
+            # Calculer les statistiques
+            total_users = len(users)
+            total_coins = sum(user['arsenal_coins'] for user in users)
+            total_gems = sum(user['arsenal_gems'] for user in users)
+            total_xp = sum(user['arsenal_xp'] for user in users)
+            online_users = sum(1 for user in users if user['is_online'])
+            richest_user = users[0]['username'] if users else None
+            
+            stats = {
+                'total_users': total_users,
+                'total_coins': total_coins,
+                'total_gems': total_gems,
+                'total_xp': total_xp,
+                'online_users': online_users,
+                'richest_user': richest_user
+            }
+            
+            return jsonify({
+                "success": True,
+                "users": users,
+                "stats": stats
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur API admin users: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/admin/user/<user_id>/edit', methods=['POST'])
+    def api_admin_edit_user(user_id):
+        """API pour éditer un utilisateur"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            admin_discord_ids = ['1234567890']  # Ajoutez vos IDs Discord admin ici
+            
+            if user_info.get('discord_id') not in admin_discord_ids:
+                return jsonify({"success": False, "message": "Accès refusé"}), 403
+            
+            data = request.get_json()
+            arsenal_coins = int(data.get('arsenal_coins', 0))
+            arsenal_gems = int(data.get('arsenal_gems', 0))
+            arsenal_xp = int(data.get('arsenal_xp', 0))
+            
+            # Mettre à jour l'utilisateur
+            cursor = get_db_connection().cursor()
+            cursor.execute("""
+                UPDATE users 
+                SET arsenal_coins = ?, arsenal_gems = ?, arsenal_xp = ?
+                WHERE id = ?
+            """, (arsenal_coins, arsenal_gems, arsenal_xp, user_id))
+            
+            get_db_connection().commit()
+            
+            return jsonify({"success": True, "message": "Utilisateur mis à jour"})
+            
+        except Exception as e:
+            print(f"❌ Erreur API edit user: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/admin/user/<user_id>/vip', methods=['POST'])
+    def api_admin_toggle_vip(user_id):
+        """API pour toggle le statut VIP"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            admin_discord_ids = ['1234567890']  # Ajoutez vos IDs Discord admin ici
+            
+            if user_info.get('discord_id') not in admin_discord_ids:
+                return jsonify({"success": False, "message": "Accès refusé"}), 403
+            
+            cursor = get_db_connection().cursor()
+            
+            # Toggle VIP status
+            cursor.execute("SELECT is_vip FROM users WHERE id = ?", (user_id,))
+            current_vip = cursor.fetchone()[0]
+            new_vip = not bool(current_vip)
+            
+            cursor.execute("UPDATE users SET is_vip = ? WHERE id = ?", (new_vip, user_id))
+            get_db_connection().commit()
+            
+            return jsonify({"success": True, "message": f"VIP {'activé' if new_vip else 'désactivé'}"})
+            
+        except Exception as e:
+            print(f"❌ Erreur API toggle VIP: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/admin/user/<user_id>/ban', methods=['POST'])
+    def api_admin_ban_user(user_id):
+        """API pour banner un utilisateur"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            admin_discord_ids = ['1234567890']  # Ajoutez vos IDs Discord admin ici
+            
+            if user_info.get('discord_id') not in admin_discord_ids:
+                return jsonify({"success": False, "message": "Accès refusé"}), 403
+            
+            cursor = get_db_connection().cursor()
+            
+            # Toggle ban status
+            cursor.execute("SELECT is_banned FROM users WHERE id = ?", (user_id,))
+            current_ban = cursor.fetchone()[0]
+            new_ban = not bool(current_ban)
+            
+            cursor.execute("UPDATE users SET is_banned = ? WHERE id = ?", (new_ban, user_id))
+            get_db_connection().commit()
+            
+            return jsonify({"success": True, "message": f"Utilisateur {'banni' if new_ban else 'débanni'}"})
+            
+        except Exception as e:
+            print(f"❌ Erreur API ban user: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/admin/give-coins', methods=['POST'])
+    def api_admin_give_coins():
+        """API pour donner des coins à un utilisateur"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            admin_discord_ids = ['1234567890']  # Ajoutez vos IDs Discord admin ici
+            
+            if user_info.get('discord_id') not in admin_discord_ids:
+                return jsonify({"success": False, "message": "Accès refusé"}), 403
+            
+            data = request.get_json()
+            discord_id = data.get('discord_id')
+            amount = int(data.get('amount', 0))
+            
+            if not discord_id or amount <= 0:
+                return jsonify({"success": False, "message": "Discord ID et montant requis"}), 400
+            
+            cursor = get_db_connection().cursor()
+            
+            # Vérifier si l'utilisateur existe
+            cursor.execute("SELECT id, arsenal_coins FROM users WHERE discord_id = ?", (discord_id,))
+            user = cursor.fetchone()
+            
+            if not user:
+                return jsonify({"success": False, "message": "Utilisateur non trouvé"}), 404
+            
+            # Ajouter les coins
+            new_amount = (user[1] or 0) + amount
+            cursor.execute("UPDATE users SET arsenal_coins = ? WHERE discord_id = ?", (new_amount, discord_id))
+            get_db_connection().commit()
+            
+            return jsonify({
+                "success": True, 
+                "message": f"{amount:,} Arsenal Coins ajoutés !",
+                "new_total": new_amount
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur API give coins: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/admin/mega-coins', methods=['POST'])
+    def api_admin_mega_coins():
+        """API pour donner 99,999,999,999,999 Arsenal Coins pour les tests"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            # Récupérer le Discord ID de l'utilisateur connecté
+            discord_id = user_info.get('discord_id')
+            
+            if not discord_id:
+                return jsonify({"success": False, "message": "Discord ID non trouvé"}), 400
+            
+            # Montant de test massif
+            mega_amount = 99999999999999
+            
+            cursor = get_db_connection().cursor()
+            
+            # Vérifier si l'utilisateur existe et créer si nécessaire
+            cursor.execute("SELECT id, arsenal_coins FROM users WHERE discord_id = ?", (discord_id,))
+            user = cursor.fetchone()
+            
+            if not user:
+                # Créer l'utilisateur s'il n'existe pas
+                from datetime import datetime
+                cursor.execute("""
+                    INSERT INTO users (discord_id, arsenal_coins, arsenal_gems, arsenal_xp, created_at) 
+                    VALUES (?, ?, 0, 0, ?)
+                """, (discord_id, mega_amount, datetime.now().isoformat()))
+                get_db_connection().commit()
+                message = f"✅ Utilisateur créé avec {mega_amount:,} Arsenal Coins !"
+            else:
+                # Mettre à jour les coins existants
+                cursor.execute("UPDATE users SET arsenal_coins = ? WHERE discord_id = ?", (mega_amount, discord_id))
+                get_db_connection().commit()
+                message = f"✅ {mega_amount:,} Arsenal Coins ajoutés pour les tests !"
+            
+            return jsonify({
+                "success": True, 
+                "message": message,
+                "amount": mega_amount
+            })
+            
+        except Exception as e:
+            print(f"❌ Erreur API mega coins: {e}")
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    # ==================== FIN API ADMINISTRATION ====================
+
+    # ==================== ROUTES API DASHBOARD ====================
+
+    @app.route('/api/pages/dashboard')
+    def api_dashboard_page():
+        """API pour récupérer le contenu HTML du dashboard"""
+        try:
+            return jsonify({
+                "success": True,
+                "content": """
+                <div class="dashboard-analytics">
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>📊 Performance</h3>
+                            <div id="cpu-usage">CPU: --</div>
+                            <div id="ram-usage">RAM: --</div>
+                            <div id="uptime">Uptime: --</div>
+                            <div id="discord-latency">Latency: --</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>📈 Statistiques</h3>
+                            <div id="servers-count">Serveurs: --</div>
+                            <div id="users-count">Utilisateurs: --</div>
+                            <div id="commands-count">Commandes: --</div>
+                            <div id="active-users">Actifs: --</div>
+                        </div>
+                    </div>
+                </div>
+                """
+            })
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/user/profile')
+    def api_user_profile():
+        """API pour récupérer le profil utilisateur"""
+        try:
+            if 'user_info' not in session:
+                return jsonify({"success": False, "message": "Non authentifié"}), 401
+            
+            user_info = session.get('user_info', {})
+            return jsonify({
+                "success": True,
+                "user": user_info
+            })
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    @app.route('/api/performance')
+    def api_performance():
+        """API pour récupérer les données de performance"""
+        try:
+            import psutil
+            import time
+            
+            # Calculer l'uptime (simulation)
+            uptime_seconds = time.time() - 1723000000  # Approximation
+            hours = int(uptime_seconds // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            
+            performance_data = {
+                "cpu_usage": psutil.cpu_percent(),
+                "ram_usage": psutil.virtual_memory().percent,
+                "uptime": f"{hours}h {minutes}m",
+                "discord_latency": 50  # Simulation
+            }
+            
+            return jsonify({
+                "success": True,
+                "data": performance_data
+            })
+            
+        except ImportError:
+            # Si psutil n'est pas disponible, retourner des données simulées
+            return jsonify({
+                "success": True,
+                "data": {
+                    "cpu_usage": 15,
+                    "ram_usage": 35,
+                    "uptime": "2h 30m",
+                    "discord_latency": 50
+                }
+            })
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500
+
+    # ==================== FIN ROUTES API DASHBOARD ====================
+
+    @app.route('/dashboard-fixed')
+    def dashboard_fixed():
+        """Dashboard corrigé sans erreurs JavaScript"""
+        return send_from_directory('templates', 'dashboard_fixed.html')
+
+except Exception as server_init_error:
+    print(f"❌ Erreur lors de l'initialisation du serveur: {server_init_error}")
+    import traceback
+    traceback.print_exc()
 
 # ===== MODE DÉVELOPPEMENT LOCAL =====
 if __name__ == '__main__':
