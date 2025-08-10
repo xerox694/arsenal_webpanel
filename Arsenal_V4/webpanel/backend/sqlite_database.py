@@ -138,6 +138,23 @@ class ArsenalDatabase:
                     is_active INTEGER DEFAULT 1,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
+            """,
+            
+            'hunt_royal_accounts': """
+                CREATE TABLE IF NOT EXISTS hunt_royal_accounts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    discord_user_id TEXT UNIQUE NOT NULL,
+                    hunt_royal_id TEXT UNIQUE NOT NULL,
+                    username TEXT,
+                    access_code TEXT UNIQUE NOT NULL,
+                    trophies INTEGER DEFAULT 0,
+                    level INTEGER DEFAULT 1,
+                    coins INTEGER DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_verified INTEGER DEFAULT 0,
+                    calculator_access INTEGER DEFAULT 1
+                )
             """
         }
 
@@ -221,6 +238,32 @@ class ArsenalDatabase:
             return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
             print(f"❌ Erreur récupération serveurs: {e}")
+            return []
+
+    def get_all_servers(self):
+        """Obtenir tous les serveurs actifs"""
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("""
+                SELECT id as server_id, name, owner_id, member_count, icon, created_at
+                FROM servers 
+                WHERE is_active = 1
+                ORDER BY member_count DESC, name
+            """)
+            
+            servers = []
+            for row in cursor.fetchall():
+                servers.append({
+                    'server_id': row[0],
+                    'name': row[1],
+                    'owner_id': row[2],
+                    'member_count': row[3],
+                    'icon': row[4],
+                    'created_at': row[5]
+                })
+            return servers
+        except Exception as e:
+            print(f"❌ Erreur récupération tous serveurs: {e}")
             return []
 
     def get_stats(self):
@@ -339,37 +382,117 @@ class ArsenalDatabase:
             return False
 
     def populate_test_data(self):
-        """Ajouter des données de test"""
+        """Méthode désactivée - Pas de données factices"""
+        print("⚠️ Données de test désactivées - Utilisation uniquement de vraies données")
+        return False
+
+    # ==================== HUNT ROYAL SYSTEM ====================
+    
+    def register_hunt_royal_account(self, discord_user_id, hunt_royal_id, username=None):
+        """Enregistrer un compte Hunt Royal"""
         try:
-            # Ajouter des utilisateurs de test
-            test_users = [
-                (123456789012345678, "XeRoX", "0001", None),
-                (987654321098765432, "TestUser", "1234", None),
-                (555666777888999000, "AdminUser", "9999", None)
-            ]
+            import secrets
+            import string
             
-            for user_data in test_users:
-                self.add_user(*user_data)
+            # Générer un code d'accès unique de 8 caractères
+            access_code = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
             
-            # Ajouter des serveurs de test
-            test_servers = [
-                (111222333444555666, "Arsenal Community", 123456789012345678, 250),
-                (777888999000111222, "Gaming Hub", 987654321098765432, 1500),
-                (333444555666777888, "Dev Server", 123456789012345678, 50)
-            ]
+            cursor = self.connection.cursor()
+            cursor.execute("""
+                INSERT OR REPLACE INTO hunt_royal_accounts 
+                (discord_user_id, hunt_royal_id, username, access_code, registered_at)
+                VALUES (?, ?, ?, ?, datetime('now'))
+            """, (discord_user_id, hunt_royal_id, username, access_code))
             
-            for server_data in test_servers:
-                self.add_server(*server_data)
+            self.connection.commit()
+            print(f"✅ Compte Hunt Royal enregistré: {discord_user_id} -> {hunt_royal_id} (Code: {access_code})")
+            return access_code
             
-            # Lier les utilisateurs aux serveurs
-            self.add_user_to_server(123456789012345678, 111222333444555666)
-            self.add_user_to_server(123456789012345678, 777888999000111222)
-            self.add_user_to_server(987654321098765432, 777888999000111222)
-            
-            print("✅ Données de test ajoutées")
-            return True
         except Exception as e:
-            print(f"❌ Erreur ajout données test: {e}")
+            print(f"❌ Erreur enregistrement Hunt Royal: {e}")
+            return None
+    
+    def get_hunt_royal_account(self, discord_user_id=None, access_code=None):
+        """Récupérer un compte Hunt Royal par Discord ID ou code d'accès"""
+        try:
+            cursor = self.connection.cursor()
+            
+            if discord_user_id:
+                cursor.execute("""
+                    SELECT * FROM hunt_royal_accounts WHERE discord_user_id = ?
+                """, (discord_user_id,))
+            elif access_code:
+                cursor.execute("""
+                    SELECT * FROM hunt_royal_accounts WHERE access_code = ?
+                """, (access_code,))
+            else:
+                return None
+            
+            row = cursor.fetchone()
+            if row:
+                return {
+                    'id': row[0],
+                    'discord_user_id': row[1],
+                    'hunt_royal_id': row[2],
+                    'username': row[3],
+                    'access_code': row[4],
+                    'trophies': row[5],
+                    'level': row[6],
+                    'coins': row[7],
+                    'last_updated': row[8],
+                    'registered_at': row[9],
+                    'is_verified': row[10],
+                    'calculator_access': row[11]
+                }
+            return None
+            
+        except Exception as e:
+            print(f"❌ Erreur récupération compte Hunt Royal: {e}")
+            return None
+    
+    def update_hunt_royal_stats(self, discord_user_id, trophies=None, level=None, coins=None):
+        """Mettre à jour les stats Hunt Royal d'un utilisateur"""
+        try:
+            cursor = self.connection.cursor()
+            updates = []
+            params = []
+            
+            if trophies is not None:
+                updates.append("trophies = ?")
+                params.append(trophies)
+            
+            if level is not None:
+                updates.append("level = ?")
+                params.append(level)
+            
+            if coins is not None:
+                updates.append("coins = ?")
+                params.append(coins)
+            
+            if updates:
+                updates.append("last_updated = datetime('now')")
+                params.append(discord_user_id)
+                
+                query = f"UPDATE hunt_royal_accounts SET {', '.join(updates)} WHERE discord_user_id = ?"
+                cursor.execute(query, params)
+                self.connection.commit()
+                
+                print(f"✅ Stats Hunt Royal mises à jour pour {discord_user_id}")
+                return True
+            
+            return False
+            
+        except Exception as e:
+            print(f"❌ Erreur mise à jour stats Hunt Royal: {e}")
+            return False
+    
+    def verify_calculator_access(self, access_code):
+        """Vérifier l'accès calculator avec le code"""
+        try:
+            account = self.get_hunt_royal_account(access_code=access_code)
+            return account is not None and account['calculator_access'] == 1
+        except Exception as e:
+            print(f"❌ Erreur vérification accès calculator: {e}")
             return False
 
     def close(self):

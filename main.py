@@ -63,6 +63,15 @@ except Exception as e:
     HUNT_PROFILES_AVAILABLE = False
     print(f"[WARNING] Hunt Royal Profiles non disponible: {e}")
 
+# Hunt Royal Integration System (NOUVEAU V4)
+try:
+    import commands.hunt_royal_integration as hunt_integration
+    HUNT_INTEGRATION_AVAILABLE = True
+    print("[OK] Hunt Royal Integration System chargé")
+except Exception as e:
+    HUNT_INTEGRATION_AVAILABLE = False
+    print(f"[WARNING] Hunt Royal Integration non disponible: {e}")
+
 # Panneau Creator GUI (Tkinter)
 from gui.ArsenalCreatorStudio import lancer_creator_interface
 
@@ -131,6 +140,14 @@ class ArsenalBot(commands.Bot):
                 log.info("[OK] Module Suggestions chargé")
             except Exception as e:
                 log.error(f"[ERROR] Erreur chargement Suggestions: {e}")
+        
+        # Charger Hunt Royal Integration
+        if HUNT_INTEGRATION_AVAILABLE:
+            try:
+                await self.add_cog(hunt_integration.HuntRoyalIntegration(self))
+                log.info("[OK] Module Hunt Royal Integration chargé")
+            except Exception as e:
+                log.error(f"[ERROR] Erreur chargement Hunt Royal Integration: {e}")
 
 client = ArsenalBot(command_prefix=PREFIX, intents=intents)
 client.startup_time = datetime.datetime.utcnow()

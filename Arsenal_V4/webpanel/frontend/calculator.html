@@ -487,14 +487,14 @@
 
         <!-- Section d'authentification -->
         <div id="authSection" class="auth-section" style="display: none;">
-            <h2>🔑 Authentification Requise</h2>
+            <h2>🔑 Authentification Hunt Royal</h2>
             <p style="margin-bottom: 30px; color: #ccc;">
-                Entrez votre token d'accès Hunt Royal pour utiliser le calculateur.
+                Entrez votre code d'accès Hunt Royal généré par le bot Discord (<code>/registerhr</code>) pour utiliser le calculateur.
             </p>
             
             <div class="auth-form">
                 <div style="position: relative; margin-bottom: 15px;">
-                    <input type="password" id="tokenInput" class="auth-input" placeholder="Votre token d'accès...">
+                    <input type="password" id="tokenInput" class="auth-input" placeholder="Code d'accès 8 caractères...">
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button class="calc-button secondary" onclick="toggleTokenVisibility()" id="toggleTokenBtn">👁️ Afficher</button>
                         <button class="calc-button secondary" onclick="clearToken()">🗑️ Effacer</button>
@@ -667,27 +667,27 @@
 
         // Vérifier l'authentification
         async function checkAuthentication() {
-            const token = localStorage.getItem('hunt_royal_token');
+            const accessCode = localStorage.getItem('hunt_royal_access_code');
             
-            if (token) {
+            if (accessCode) {
                 try {
-                    const response = await fetch('/api/hunt-royal/validate-token', {
+                    const response = await fetch('/api/hunt-royal/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ token: token })
+                        body: JSON.stringify({ access_code: accessCode })
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        if (data.valid) {
-                            authenticateSuccess(data.user, token);
+                        if (data.success) {
+                            authenticateSuccess(data.user, accessCode);
                             return;
                         }
                     }
                 } catch (error) {
-                    console.error('Erreur validation token:', error);
+                    console.error('Erreur validation code:', error);
                 }
             }
             
@@ -697,43 +697,44 @@
         // Afficher la section d'authentification
         function showAuthSection() {
             document.getElementById('accessStatus').innerHTML = 
-                '<div class="access-denied">❌ Accès non autorisé - Token requis</div>';
+                '<div class="access-denied">❌ Accès non autorisé - Code Hunt Royal requis</div>';
             document.getElementById('authSection').style.display = 'block';
             document.getElementById('calculatorMain').style.display = 'none';
         }
 
         // Authentifier l'utilisateur
         async function authenticateUser() {
-            const token = document.getElementById('tokenInput').value.trim();
+            const accessCode = document.getElementById('tokenInput').value.trim();
             
-            if (!token) {
-                alert('Veuillez entrer votre token d\'accès');
+            if (!accessCode) {
+                alert('Veuillez entrer votre code d\'accès Hunt Royal');
                 return;
             }
             
             try {
-                const response = await fetch('/api/hunt-royal/validate-token', {
+                const response = await fetch('/api/hunt-royal/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token: token })
+                    body: JSON.stringify({ access_code: accessCode })
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.valid) {
-                        localStorage.setItem('hunt_royal_token', token);
-                        authenticateSuccess(data.user, token);
+                    if (data.success) {
+                        localStorage.setItem('hunt_royal_access_code', accessCode);
+                        authenticateSuccess(data.user, accessCode);
                     } else {
-                        alert('Token invalide ou expiré');
+                        alert('Code d\'accès invalide ou accès calculator désactivé');
                     }
                 } else {
-                    alert('Erreur lors de la validation du token');
+                    const errorData = await response.json();
+                    alert('Erreur: ' + (errorData.error || 'Connexion échouée'));
                 }
             } catch (error) {
                 console.error('Erreur authentification:', error);
-                alert('Erreur de connexion');
+                alert('Erreur de connexion au serveur');
             }
         }
 

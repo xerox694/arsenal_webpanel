@@ -407,60 +407,15 @@ try:
         print(f"⚠️ Hunt Royal Auth non disponible: {e}")
     
     def handle_rate_limit_fallback(code):
-        """Gérer le fallback en cas de rate limiting Discord"""
-        print("🔄 Mode fallback activé - Création session temporaire")
+        """Mode fallback désactivé - Authentification réelle uniquement"""
+        print("❌ Mode fallback désactivé - Authentification Discord requise")
         
-        # Créer une session temporaire avec un utilisateur "générique" 
-        # En attendant la résolution du rate limiting
-        fake_user_info = {
-            'user_id': f'temp_{code[:8]}',  # ID temporaire basé sur le code
-            'username': 'Utilisateur Temporaire',
-            'discriminator': '0000',
-            'avatar': None,
-            'guilds': [{'id': '123', 'name': 'Serveur Test', 'permissions': '8'}]  # Permissions admin simulées
-        }
-        
-        # Ajouter l'utilisateur temporaire à la base
-        db.add_user(
-            fake_user_info['user_id'], 
-            fake_user_info['username'], 
-            fake_user_info['discriminator'], 
-            fake_user_info['avatar']
-        )
-        
-        # Créer une session temporaire
-        session_token = db.create_session(
-            fake_user_info['user_id'], 
-            '127.0.0.1',  # IP temporaire
-            'Fallback-Browser'
-        )
-        
-        # Stocker dans la session Flask avec configuration explicite
-        session.permanent = True
-        session.clear()  # Nettoyer d'abord la session
-        session['user_info'] = {
-            'user_id': fake_user_info['user_id'],
-            'username': fake_user_info['username'],
-            'discriminator': fake_user_info['discriminator'],
-            'avatar': fake_user_info['avatar'],
-            'session_token': session_token,
-            'permission_level': 'admin',  # Permissions temporaires élevées
-            'accessible_servers': [{'id': '123', 'name': 'Serveur Test', 'permissions': 8}],
-            'guilds_count': 1,
-            'is_fallback': True  # Marquer comme session fallback
-        }
-        session.modified = True
-        
-        # Debug session après création
-        print(f"🔍 DEBUG Session fallback créée:")
-        print(f"   Session permanent: {session.permanent}")
-        print(f"   Session modified: {session.modified}")
-        print(f"   Session keys: {list(session.keys())}")
-        print(f"   User info: {session.get('user_info', 'VIDE')}")
-        
-        
-        print(f"✅ Session fallback créée pour {fake_user_info['username']} - Token: {session_token}")
-        return redirect('/dashboard')
+        # Retourner une erreur appropriée
+        return jsonify({
+            "error": "Authentification Discord temporairement indisponible",
+            "message": "Veuillez réessayer dans quelques minutes",
+            "retry_after": 60
+        }), 503
     
     @app.route('/auth/login')
     def discord_login():
@@ -1813,41 +1768,14 @@ try:
             }
         }
         
-        # Simulation avec logique Hunt Royal réaliste
-        for _ in range(pulls):
-            # Nombre de gemmes par pull (1-4 selon le type de chest)
-            if chest_type == 'legendary':
-                gems_per_pull = random.randint(2, 4)
-            elif chest_type == 'epic':
-                gems_per_pull = random.randint(1, 3)
-            else:
-                gems_per_pull = random.randint(1, 2)
-            
-            # Appliquer les multiplicateurs
-            gems_per_pull = int(gems_per_pull * total_multiplier)
-            results['total_gems'] += gems_per_pull
-            
-            # Déterminer la rareté
-            rand = random.random()
-            if rand < rates['legendary']:
-                results['legendary'] += gems_per_pull
-            elif rand < rates['legendary'] + rates['epic']:
-                results['epic'] += gems_per_pull
-            elif rand < rates['legendary'] + rates['epic'] + rates['rare']:
-                results['rare'] += gems_per_pull
-            else:
-                results['common'] += gems_per_pull
-        
-        # Calculer les pourcentages
-        if results['total_gems'] > 0:
-            results['percentages'] = {
-                'legendary': round((results['legendary'] / results['total_gems']) * 100, 2),
-                'epic': round((results['epic'] / results['total_gems']) * 100, 2),
-                'rare': round((results['rare'] / results['total_gems']) * 100, 2),
-                'common': round((results['common'] / results['total_gems']) * 100, 2)
-            }
-        
-        return results
+        # ❌ Simulation désactivée - Données réelles uniquement
+        return jsonify({
+            "error": "Simulation désactivée",
+            "message": "Les calculs se basent uniquement sur des données réelles de Hunt Royal",
+            "real_data_only": True
+        }), 400
+
+    # ==================== API SYSTÈME USER ====================
     
     @app.route('/api/auth/user')
     @app.route('/api/user/info')
@@ -2071,6 +1999,129 @@ try:
                 "error": "Economy API unavailable"
             }), 500
 
+    # ==================== HUNT ROYAL SYSTEM APIS ====================
+    
+    @app.route('/api/hunt-royal/register', methods=['POST'])
+    def register_hunt_royal():
+        """Enregistrer un compte Hunt Royal"""
+        try:
+            data = request.get_json()
+            discord_user_id = data.get('discord_user_id')
+            hunt_royal_id = data.get('hunt_royal_id')
+            username = data.get('username')
+            
+            if not discord_user_id or not hunt_royal_id:
+                return jsonify({
+                    "error": "Discord User ID et Hunt Royal ID requis"
+                }), 400
+            
+            # Vérifier si le compte existe déjà
+            existing_account = db.get_hunt_royal_account(discord_user_id=discord_user_id)
+            if existing_account:
+                return jsonify({
+                    "error": "Compte Hunt Royal déjà enregistré",
+                    "access_code": existing_account['access_code']
+                }), 409
+            
+            # Enregistrer le nouveau compte
+            access_code = db.register_hunt_royal_account(discord_user_id, hunt_royal_id, username)
+            
+            if access_code:
+                return jsonify({
+                    "success": True,
+                    "message": "Compte Hunt Royal enregistré avec succès",
+                    "access_code": access_code,
+                    "discord_user_id": discord_user_id,
+                    "hunt_royal_id": hunt_royal_id
+                })
+            else:
+                return jsonify({
+                    "error": "Erreur lors de l'enregistrement"
+                }), 500
+                
+        except Exception as e:
+            print(f"❌ Erreur API register Hunt Royal: {e}")
+            return jsonify({
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/hunt-royal/login', methods=['POST'])
+    def login_hunt_royal():
+        """Connexion calculator avec code Hunt Royal"""
+        try:
+            data = request.get_json()
+            access_code = data.get('access_code')
+            
+            if not access_code:
+                return jsonify({
+                    "error": "Code d'accès requis"
+                }), 400
+            
+            # Vérifier le code d'accès
+            account = db.get_hunt_royal_account(access_code=access_code)
+            
+            if account and account['calculator_access']:
+                # Créer une session calculator
+                session['hunt_royal_user'] = {
+                    'discord_user_id': account['discord_user_id'],
+                    'hunt_royal_id': account['hunt_royal_id'],
+                    'username': account['username'],
+                    'trophies': account['trophies'],
+                    'level': account['level'],
+                    'access_code': access_code
+                }
+                
+                return jsonify({
+                    "success": True,
+                    "message": "Connexion calculator réussie",
+                    "user": {
+                        "username": account['username'],
+                        "hunt_royal_id": account['hunt_royal_id'],
+                        "trophies": account['trophies'],
+                        "level": account['level']
+                    }
+                })
+            else:
+                return jsonify({
+                    "error": "Code d'accès invalide ou accès calculator désactivé"
+                }), 401
+                
+        except Exception as e:
+            print(f"❌ Erreur API login Hunt Royal: {e}")
+            return jsonify({
+                "error": "Erreur serveur"
+            }), 500
+    
+    @app.route('/api/hunt-royal/stats/<discord_user_id>')
+    def get_hunt_royal_stats(discord_user_id):
+        """Récupérer les stats Hunt Royal d'un utilisateur"""
+        try:
+            account = db.get_hunt_royal_account(discord_user_id=discord_user_id)
+            
+            if account:
+                return jsonify({
+                    "success": True,
+                    "stats": {
+                        "hunt_royal_id": account['hunt_royal_id'],
+                        "username": account['username'],
+                        "trophies": account['trophies'],
+                        "level": account['level'],
+                        "coins": account['coins'],
+                        "last_updated": account['last_updated'],
+                        "is_verified": account['is_verified']
+                    }
+                })
+            else:
+                return jsonify({
+                    "error": "Compte Hunt Royal non trouvé"
+                }), 404
+                
+        except Exception as e:
+            print(f"❌ Erreur API stats Hunt Royal: {e}")
+            return jsonify({
+                "error": "Erreur serveur"
+            }), 500
+
     @app.route('/api/bot/status')
     def get_bot_status_dashboard():
         """Status du bot en temps réel"""
@@ -2106,25 +2157,21 @@ try:
                 minutes = (uptime_seconds % 3600) // 60
                 uptime_str = f"{hours}h {minutes}m"
                 
-                discord_latency = random.randint(45, 150)
-                
+                # Vraies données système uniquement
                 performance = {
                     "cpu_usage": round(cpu_percent, 1),
                     "memory_usage": memory_mb,
                     "uptime": uptime_str,
-                    "discord_latency": discord_latency,
+                    "discord_latency": None,  # Sera récupéré depuis le bot réel
                     "status": "healthy" if cpu_percent < 80 and memory_mb < 1024 else "warning"
                 }
                 
             except ImportError:
-                # Fallback si psutil n'est pas disponible
-                performance = {
-                    "cpu_usage": random.randint(15, 35),
-                    "memory_usage": random.randint(180, 400),
-                    "uptime": "8h 47m",
-                    "discord_latency": random.randint(60, 120),
-                    "status": "healthy"
-                }
+                # Si psutil n'est pas disponible, retourner erreur
+                return jsonify({
+                    "error": "Données de performance non disponibles",
+                    "message": "Module psutil requis pour les vraies données système"
+                }), 503
             
             return jsonify(performance)
             
@@ -2160,37 +2207,38 @@ try:
     
     @app.route('/api/servers/list')
     def get_servers_list():
-        """Liste simple des serveurs pour le dashboard"""
-        # FORCE des serveurs réalistes TOUJOURS
-        servers = [
-            {
-                "id": "111222333444555666",
-                "name": "Arsenal Community", 
-                "member_count": 250,
-                "online": True,
-                "bot_permissions": ["ADMINISTRATOR"],
-                "icon": None
-            },
-            {
-                "id": "777888999000111222", 
-                "name": "Gaming Hub",
-                "member_count": 1200,
-                "online": True,
-                "bot_permissions": ["MANAGE_CHANNELS", "MANAGE_MESSAGES"],
-                "icon": None
-            },
-            {
-                "id": "333444555666777888",
-                "name": "Dev Server", 
-                "member_count": 15,
-                "online": True,
-                "bot_permissions": ["ADMINISTRATOR"],
-                "icon": None
-            }
-        ]
-        
-        print(f"✅ API servers/list OK: {len(servers)} serveurs")
-        return jsonify({"servers": servers})
+        """Liste des serveurs réels uniquement"""
+        try:
+            # Récupérer les vrais serveurs depuis la base de données
+            real_servers = db.get_all_servers() if hasattr(db, 'get_all_servers') else []
+            
+            servers = []
+            for server in real_servers:
+                servers.append({
+                    "id": str(server.get('server_id', '')),
+                    "name": server.get('name', 'Serveur Inconnu'),
+                    "member_count": server.get('member_count', 0),
+                    "online": True,  # À récupérer depuis le bot réel
+                    "bot_permissions": [],  # À récupérer depuis le bot réel
+                    "icon": server.get('icon', None)
+                })
+            
+            if not servers:
+                return jsonify({
+                    "servers": [],
+                    "message": "Aucun serveur réel trouvé",
+                    "real_data_only": True
+                })
+            
+            print(f"✅ API servers/list OK: {len(servers)} serveurs réels")
+            return jsonify({"servers": servers})
+            
+        except Exception as e:
+            print(f"❌ Erreur récupération serveurs: {e}")
+            return jsonify({
+                "error": "Impossible de récupérer les serveurs réels",
+                "servers": []
+            }), 500
 
     @app.route('/api/stats/general')
     def get_general_stats():
