@@ -7,10 +7,13 @@ Flask-CORS==4.0.0
 Flask-SocketIO==5.3.6
 python-socketio[client]==5.8.0
 
-# Discord Bot - Compatible Python 3.13
-discord.py==2.4.0
+# Discord Bot - Compatible Python 3.12/3.13 
+discord.py==2.3.2
 aiohttp==3.9.5
 PyNaCl==1.5.0
+
+# Fix Python 3.13 audioop compatibility
+audioop-lts==0.3.1
 
 # Utilities & Core
 requests==2.31.0
