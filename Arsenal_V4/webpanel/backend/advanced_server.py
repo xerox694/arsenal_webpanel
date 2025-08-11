@@ -3690,3 +3690,5 @@ try:
 except Exception as deployment_error:
     print(f' Erreur de déploiement: {deployment_error}')
     # Application Flask disponible pour gunicorn app:app
+#   U p d a t e  
+ 
