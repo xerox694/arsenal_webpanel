@@ -3646,26 +3646,54 @@ try:
             """Lance le bot Discord via subprocess"""
             print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
             try:
-                # Chemin absolu vers main.py
+                # Chemin absolu vers main.py - chercher à la racine du projet
                 script_dir = os.path.dirname(os.path.abspath(__file__))
-                main_py_path = os.path.join(script_dir, 'main.py')
+                
+                # Si on est dans un sous-dossier, remonter à la racine
+                project_root = script_dir
+                while not os.path.exists(os.path.join(project_root, 'main.py')) and project_root != os.path.dirname(project_root):
+                    project_root = os.path.dirname(project_root)
+                
+                main_py_path = os.path.join(project_root, 'main.py')
                 
                 print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
+                print(f"🔍 [BOT-THREAD] Project root: {project_root}")
                 print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
                 
                 # Vérifier si main.py existe
                 if not os.path.exists(main_py_path):
                     print("❌ [BOT-THREAD] main.py non trouvé!")
                     print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
-                    return
+                    
+                    # Fallback: chercher dans les dossiers connus
+                    fallback_paths = [
+                        os.path.join(script_dir, 'main.py'),
+                        os.path.join(script_dir, '..', 'main.py'),
+                        os.path.join(script_dir, '..', '..', 'main.py'),
+                        os.path.join(script_dir, '..', '..', '..', 'main.py'),
+                        os.path.join(script_dir, 'Arsenal_V4', 'bot', 'main.py')
+                    ]
+                    
+                    for fallback in fallback_paths:
+                        fallback_abs = os.path.abspath(fallback)
+                        print(f"🔍 [BOT-THREAD] Fallback test: {fallback_abs}")
+                        if os.path.exists(fallback_abs):
+                            main_py_path = fallback_abs
+                            project_root = os.path.dirname(main_py_path)
+                            print(f"✅ [BOT-THREAD] main.py trouvé via fallback: {main_py_path}")
+                            break
+                    else:
+                        print("❌ [BOT-THREAD] Aucun main.py trouvé!")
+                        return
                 
                 print("✅ [BOT-THREAD] main.py trouvé")
                 print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
-                print(f"🔍 [BOT-THREAD] Working directory: {script_dir}")
+                print(f"🔍 [BOT-THREAD] Working directory: {project_root}")
                 
                 # Créer environnement avec token
                 bot_env = os.environ.copy()
-                bot_env['DISCORD_TOKEN'] = discord_token
+                if discord_token:
+                    bot_env['DISCORD_TOKEN'] = discord_token
                 
                 print("🚀 [BOT-THREAD] Lancement subprocess...")
                 
@@ -3676,7 +3704,7 @@ try:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    cwd=script_dir
+                    cwd=project_root
                 )
                 
                 print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
