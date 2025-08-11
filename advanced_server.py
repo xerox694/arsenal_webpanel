@@ -226,9 +226,19 @@ try:
             
             print(f"✅ Utilisateur connecté: {session['user_info'].get('username', 'Inconnu')}")
             
-            # Servir le dashboard corrigé au lieu de l'ancien index.html
-            print(f"📄 Redirection vers dashboard corrigé")
-            return send_from_directory('templates', 'dashboard_fixed.html')
+            # Servir le vrai dashboard Arsenal V4 avec tous les éléments DOM
+            print(f"📄 Chargement du dashboard Arsenal V4 complet")
+            dashboard_path = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend', 'index.html')
+            
+            if os.path.exists(dashboard_path):
+                print(f"✅ Dashboard trouvé: {dashboard_path}")
+                return send_from_directory(
+                    os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend'), 
+                    'index.html'
+                )
+            else:
+                print(f"⚠️ Dashboard principal non trouvé, fallback vers dashboard_fixed.html")
+                return send_from_directory('templates', 'dashboard_fixed.html')
             
         except Exception as e:
             print(f"❌ Erreur page dashboard: {e}")
@@ -245,6 +255,16 @@ try:
         except Exception as e:
             print(f"❌ Erreur fichier statique: {e}")
             return jsonify({"error": "Fichier non trouvé"}), 404
+    
+    @app.route('/Arsenal_V4/webpanel/frontend/<path:filename>')
+    def serve_arsenal_assets(filename):
+        """Servir les assets du dashboard Arsenal V4"""
+        try:
+            assets_path = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend')
+            return send_from_directory(assets_path, filename)
+        except Exception as e:
+            print(f"❌ Erreur asset Arsenal V4: {e}")
+            return jsonify({"error": "Asset non trouvé"}), 404
 
     @app.route('/api/pages/<page_name>')
     def load_page_content(page_name):
