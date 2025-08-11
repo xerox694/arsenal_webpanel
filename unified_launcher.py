@@ -23,16 +23,16 @@ def start_webpanel():
     """Lance le WebPanel Flask"""
     print("🌐 Démarrage du WebPanel...")
     try:
-        # Ajouter le chemin du webpanel
-        webpanel_dir = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'backend')
-        if webpanel_dir not in sys.path:
-            sys.path.insert(0, webpanel_dir)
+        # Utiliser le serveur principal corrigé au lieu du sous-dossier
+        main_dir = os.path.dirname(__file__)
+        if main_dir not in sys.path:
+            sys.path.insert(0, main_dir)
         
-        # Changer le répertoire de travail
+        # Changer le répertoire de travail vers la racine
         original_cwd = os.getcwd()
-        os.chdir(webpanel_dir)
+        os.chdir(main_dir)
         
-        # Importer et lancer le serveur
+        # Importer le serveur principal avec toutes les corrections
         import advanced_server
         
         # Récupérer l'app Flask
@@ -43,6 +43,8 @@ def start_webpanel():
         host = "0.0.0.0"
         
         print(f"🌐 WebPanel démarré sur {host}:{port}")
+        print(f"📄 Dashboard: Arsenal_V4/webpanel/frontend/index.html")
+        print(f"✅ Routes API corrigées disponibles")
         app.run(host=host, port=port, debug=False, threaded=True)
         
     except Exception as e:
