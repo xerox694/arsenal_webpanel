@@ -238,7 +238,21 @@ try:
                 )
             else:
                 print(f"⚠️ Dashboard principal non trouvé, fallback vers dashboard_fixed.html")
-                return send_from_directory('templates', 'dashboard_fixed.html')
+                # Fix: Utiliser chemin absolu vers templates
+                templates_path = os.path.join(os.path.dirname(__file__), '..', 'templates')
+                if not os.path.exists(templates_path):
+                    # Fallback: chercher templates dans différents endroits
+                    for template_dir in [
+                        os.path.join(os.path.dirname(__file__), 'templates'),
+                        os.path.join(os.path.dirname(__file__), '..', '..', 'templates'),
+                        os.path.join(os.path.dirname(__file__), '..', '..', '..', 'templates')
+                    ]:
+                        if os.path.exists(template_dir):
+                            templates_path = template_dir
+                            break
+                
+                print(f"🔍 Templates path: {templates_path}")
+                return send_from_directory(templates_path, 'dashboard_fixed.html')
             
         except Exception as e:
             print(f"❌ Erreur page dashboard: {e}")
