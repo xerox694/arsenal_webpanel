@@ -3,25 +3,25 @@ from discord.ext import commands, tasks
 import asyncio, os, sys, json, datetime, threading
 from dotenv import load_dotenv
 
-print(f"🔍 [DEBUG] Python path: {sys.path}")
-print(f"🔍 [DEBUG] Working directory: {os.getcwd()}")
-print(f"🔍 [DEBUG] Files in current dir: {os.listdir('.')[:10]}")
+print(f"[DEBUG] Python path: {sys.path}")
+print(f"[DEBUG] Working directory: {os.getcwd()}")
+print(f"[DEBUG] Files in current dir: {os.listdir('.')[:10]}")
 
 # Core config & logs
 try:
     from core.logger import log
-    print("✅ [DEBUG] core.logger importé")
+    print("[OK] [DEBUG] core.logger importé")
 except Exception as e:
-    print(f"❌ [DEBUG] Erreur import core.logger: {e}")
+    print(f"[ERROR] [DEBUG] Erreur import core.logger: {e}")
     # Fallback logger
     import logging
     log = logging.getLogger(__name__)
 
 try:
     from manager.config_manager import config_data, load_config, save_config
-    print("✅ [DEBUG] manager.config_manager importé")
+    print("[OK] [DEBUG] manager.config_manager importé")
 except Exception as e:
-    print(f"❌ [DEBUG] Erreur import manager.config_manager: {e}")
+    print(f"[ERROR] [DEBUG] Erreur import manager.config_manager: {e}")
     # Fallback config
     config_data = {}
     def load_config(): return {}
@@ -62,7 +62,7 @@ def update_bot_status():
             json.dump(status_data, f, indent=2)
         
     except Exception as e:
-        print(f"❌ Erreur update_bot_status: {e}")
+        print(f"[ERROR] Erreur update_bot_status: {e}")
 
 # Système de rechargement de modules (NOUVEAU)
 try:
