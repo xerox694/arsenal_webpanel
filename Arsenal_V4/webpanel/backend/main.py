@@ -7,53 +7,25 @@ print(f"🔍 [DEBUG] Python path: {sys.path}")
 print(f"🔍 [DEBUG] Working directory: {os.getcwd()}")
 print(f"🔍 [DEBUG] Files in current dir: {os.listdir('.')[:10]}")
 
-# Adaptation des chemins pour Render
-backend_path = os.path.dirname(os.path.abspath(__file__))
-arsenal_root = os.path.join(backend_path, '..', '..', '..')
-core_path = os.path.join(arsenal_root, 'core')
-manager_path = os.path.join(arsenal_root, 'manager')
-
-print(f"🔍 [DEBUG] Backend path: {backend_path}")
-print(f"🔍 [DEBUG] Arsenal root: {arsenal_root}")
-print(f"🔍 [DEBUG] Core path: {core_path}")
-
-if os.path.exists(core_path):
-    sys.path.insert(0, arsenal_root)
-    print(f"✅ [DEBUG] Arsenal root ajouté au Python path")
-
 # Core config & logs
 try:
     from core.logger import log
     print("✅ [DEBUG] core.logger importé")
 except Exception as e:
     print(f"❌ [DEBUG] Erreur import core.logger: {e}")
-    # Fallback logger adapté
+    # Fallback logger
     import logging
-    logging.basicConfig(level=logging.INFO)
-    
-    class SimpleBotLogger:
-        def info(self, msg): print(f"ℹ️ {msg}")
-        def error(self, msg): print(f"❌ {msg}")
-        def warning(self, msg): print(f"⚠️ {msg}")
-        def debug(self, msg): print(f"🔍 {msg}")
-    
-    log = SimpleBotLogger()
+    log = logging.getLogger(__name__)
 
 try:
     from manager.config_manager import config_data, load_config, save_config
     print("✅ [DEBUG] manager.config_manager importé")
 except Exception as e:
     print(f"❌ [DEBUG] Erreur import manager.config_manager: {e}")
-    # Fallback config adapté
-    config_data = {
-        "bot": {"token": os.environ.get('DISCORD_TOKEN', ''), "prefix": "!"},
-        "database": {"file": "arsenal_v4.db"}
-    }
-    def load_config(): 
-        return config_data
-    def save_config(data): 
-        global config_data
-        config_data.update(data)
+    # Fallback config
+    config_data = {}
+    def load_config(): return {}
+    def save_config(data): pass
 
 def update_bot_status():
     """Met à jour le fichier de statut du bot pour l'API"""
