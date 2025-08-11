@@ -27,7 +27,10 @@ os.environ['RENDER_DEPLOYMENT'] = 'True'
 
 # Importer l'application depuis le webpanel
 try:
-    from backend.advanced_server import app
+    # IMPORTANT: Le bot Discord est dans advanced_server.py ROOT, pas backend
+    print("🔄 Import depuis advanced_server.py ROOT (avec bot Discord)")
+    sys.path.insert(0, str(Path(__file__).parent))
+    from advanced_server import app
     print("✅ Render Entry: Application importée avec succès")
     
     # Vérifier que nos nouvelles routes sont bien ajoutées
