@@ -1,10 +1,10 @@
 {
   "online": true,
-  "uptime": "17h 46m",
-  "latency": 106,
+  "uptime": "0h 0m",
+  "latency": 104,
   "servers_connected": 6,
   "users_connected": 113,
   "status": "operational",
-  "last_restart": "00:22:32",
-  "last_update": "2025-08-12T18:08:36.342898"
+  "last_restart": "09:35:46",
+  "last_update": "2025-08-13T09:36:20.347423"
 }
