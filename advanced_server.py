@@ -21,6 +21,15 @@ try:
     import base64
     from dotenv import load_dotenv
     
+    # Vérification des dépendances critiques pour le monitoring
+    PSUTIL_AVAILABLE = True
+    try:
+        import psutil
+        print("✅ psutil disponible pour monitoring ressources")
+    except ImportError:
+        PSUTIL_AVAILABLE = False
+        print("⚠️ psutil non disponible - monitoring ressources désactivé")
+    
     # Charger les variables d'environnement - priorité au fichier local
     local_env_path = os.path.join(os.path.dirname(__file__), '..', '.env.local')
     if os.path.exists(local_env_path):
@@ -41,10 +50,18 @@ try:
         backend_path = os.path.dirname(os.path.abspath(__file__))
         sys.path.insert(0, backend_path)
         
+        # NOUVEAU : Importer le système ArsenalCoins centralisé
+        from arsenal_coins_central import get_central_system, get_user_balance, add_user_money, remove_user_money
+        
         from oauth_config import DiscordOAuth
         from casino_system import CasinoSystem  # NOUVEAU : Système de casino
         oauth = DiscordOAuth()
         casino = CasinoSystem()  # NOUVEAU : Instance du casino
+        
+        # Initialiser le système ArsenalCoins central
+        arsenal_coins = get_central_system()
+        print("🪙 ArsenalCoins Central System initialisé")
+        
         print("✅ Configuration OAuth Discord chargée")
         print("🎰 Système de casino initialisé")
         print(f"🔑 CLIENT_ID chargé: {oauth.CLIENT_ID}")
@@ -843,11 +860,9 @@ try:
             stats = crypto_system.get_user_crypto_stats(user_id)
             
             if stats:
-                # Ajouter le solde ArsenalCoins depuis l'économie
+                # Ajouter le solde ArsenalCoins depuis le système central
                 try:
-                    from modules.economy_system import EconomySystem
-                    economy = EconomySystem(None)
-                    balance = economy.get_user_money(user_id) if hasattr(economy, 'get_user_money') else 0
+                    balance = arsenal_coins.get_balance(str(user_id))
                 except:
                     balance = 0
                 
@@ -2211,6 +2226,81 @@ try:
             "username": session['user_info'].get('username', 'Inconnu'),
             "user": session['user_info']
         })
+    
+    @app.route('/api/user/role')
+    def get_user_role():
+        """Récupérer le grade/rôle de l'utilisateur connecté"""
+        if 'user_info' not in session:
+            return jsonify({"error": "Non connecté", "redirect": "/login"}), 401
+        
+        user_id = session['user_info'].get('user_id', '')
+        username = session['user_info'].get('username', 'Inconnu')
+        
+        # Connexion à la base de données
+        conn = sqlite3.connect('arsenal_v4.db')
+        cursor = conn.cursor()
+        
+        try:
+            # Chercher le rôle de l'utilisateur
+            cursor.execute('''
+                SELECT role_type, role_display, permissions, assigned_at 
+                FROM user_roles 
+                WHERE discord_user_id = ? OR username = ?
+                AND is_active = 1
+                ORDER BY assigned_at DESC 
+                LIMIT 1
+            ''', (user_id, username))
+            
+            role_data = cursor.fetchone()
+            
+            if role_data:
+                role_info = {
+                    "role_type": role_data[0],
+                    "role_display": role_data[1],
+                    "permissions": role_data[2],
+                    "assigned_at": role_data[3]
+                }
+            else:
+                # Grade par défaut
+                role_info = {
+                    "role_type": "member",
+                    "role_display": "Membre",
+                    "permissions": "basic",
+                    "assigned_at": None
+                }
+            
+            # Grades spéciaux pour certains utilisateurs
+            SPECIAL_ROLES = {
+                "431359112039890945": {"role_type": "creator", "role_display": "Créateur"},  # xero3elite
+                "1347175956015480863": {"role_type": "founder", "role_display": "Fondateur"},  # layzoxx
+            }
+            
+            if user_id in SPECIAL_ROLES:
+                role_info.update(SPECIAL_ROLES[user_id])
+                print(f"🎯 Grade spécial assigné à {username}: {role_info['role_display']}")
+            
+            conn.close()
+            
+            return jsonify({
+                "success": True,
+                "role": role_info,
+                "username": username,
+                "user_id": user_id
+            })
+            
+        except Exception as e:
+            conn.close()
+            print(f"❌ Erreur récupération rôle: {e}")
+            return jsonify({
+                "success": False,
+                "error": str(e),
+                "role": {
+                    "role_type": "member",
+                    "role_display": "Membre",
+                    "permissions": "basic",
+                    "assigned_at": None
+                }
+            }), 500
     
     @app.route('/api/user/permissions')
     def get_user_permissions():
@@ -3649,115 +3739,212 @@ try:
     print(f"🔍 [DEBUG] DISCORD_TOKEN present: {'✅ Yes' if discord_token else '❌ No'}")
 
     if discord_token:
-        print("🤖 Token Discord trouvé - Démarrage du bot en subprocess...")
+        # PROTECTION CONTRE LE DOUBLE DÉMARRAGE (Flask Reloader)
+        # Le reloader Flask crée un processus parent et un processus enfant
+        # On ne veut démarrer le bot que dans le processus principal
+        import os
         
-        import threading
-        import time
-        import subprocess
-        import sys
+        # Vérifier si on est dans le processus de reloader de Flask
+        is_main_process = os.environ.get('WERKZEUG_RUN_MAIN') != 'true'
         
-        def start_discord_bot():
-            """Lance le bot Discord via subprocess"""
-            print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
-            try:
-                # Chemin absolu vers main.py - chercher à la racine du projet
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                
-                # Si on est dans un sous-dossier, remonter à la racine
-                project_root = script_dir
-                while not os.path.exists(os.path.join(project_root, 'main.py')) and project_root != os.path.dirname(project_root):
-                    project_root = os.path.dirname(project_root)
-                
-                main_py_path = os.path.join(project_root, 'main.py')
-                
-                print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
-                print(f"🔍 [BOT-THREAD] Project root: {project_root}")
-                print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
-                
-                # Vérifier si main.py existe
-                if not os.path.exists(main_py_path):
-                    print("❌ [BOT-THREAD] main.py non trouvé!")
-                    print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
+        if is_main_process:
+            print("🤖 Token Discord trouvé - Démarrage du bot en subprocess (PROCESSUS PRINCIPAL)...")
+        else:
+            print("🔄 FLASK RELOADER détecté - Skip démarrage bot (éviter les doublons)")
+        
+        if is_main_process:
+            import threading
+            import time
+            import subprocess
+            import sys
+            
+            def start_discord_bot():
+                """Lance le bot Discord via subprocess"""
+                print("🤖 [BOT-THREAD] Démarrage du Bot Discord...")
+                try:
+                    # Chemin absolu vers main.py - chercher à la racine du projet
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
                     
-                    # Fallback: chercher dans les dossiers connus
-                    fallback_paths = [
-                        os.path.join(script_dir, 'main.py'),
-                        os.path.join(script_dir, '..', 'main.py'),
-                        os.path.join(script_dir, '..', '..', 'main.py'),
-                        os.path.join(script_dir, '..', '..', '..', 'main.py'),
-                        os.path.join(script_dir, 'Arsenal_V4', 'bot', 'main.py')
-                    ]
+                    # Si on est dans un sous-dossier, remonter à la racine
+                    project_root = script_dir
+                    while not os.path.exists(os.path.join(project_root, 'main.py')) and project_root != os.path.dirname(project_root):
+                        project_root = os.path.dirname(project_root)
                     
-                    for fallback in fallback_paths:
-                        fallback_abs = os.path.abspath(fallback)
-                        print(f"🔍 [BOT-THREAD] Fallback test: {fallback_abs}")
-                        if os.path.exists(fallback_abs):
-                            main_py_path = fallback_abs
-                            project_root = os.path.dirname(main_py_path)
-                            print(f"✅ [BOT-THREAD] main.py trouvé via fallback: {main_py_path}")
-                            break
+                    main_py_path = os.path.join(project_root, 'main.py')
+                    
+                    print(f"🔍 [BOT-THREAD] Script directory: {script_dir}")
+                    print(f"🔍 [BOT-THREAD] Project root: {project_root}")
+                    print(f"🔍 [BOT-THREAD] Looking for: {main_py_path}")
+                    
+                    # Vérifier si main.py existe
+                    if not os.path.exists(main_py_path):
+                        print("❌ [BOT-THREAD] main.py non trouvé!")
+                        print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
+                        
+                        # Fallback: chercher dans les dossiers connus
+                        fallback_paths = [
+                            os.path.join(script_dir, 'main.py'),
+                            os.path.join(script_dir, '..', 'main.py'),
+                            os.path.join(script_dir, '..', '..', 'main.py'),
+                            os.path.join(script_dir, '..', '..', '..', 'main.py'),
+                            os.path.join(script_dir, 'Arsenal_V4', 'bot', 'main.py')
+                        ]
+                        
+                        for fallback in fallback_paths:
+                            fallback_abs = os.path.abspath(fallback)
+                            print(f"🔍 [BOT-THREAD] Fallback test: {fallback_abs}")
+                            if os.path.exists(fallback_abs):
+                                main_py_path = fallback_abs
+                                project_root = os.path.dirname(main_py_path)
+                                print(f"✅ [BOT-THREAD] main.py trouvé via fallback: {main_py_path}")
+                                break
+                        else:
+                            print("❌ [BOT-THREAD] Aucun main.py trouvé!")
+                            return
+                    
+                    print("✅ [BOT-THREAD] main.py trouvé")
+                    print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
+                    print(f"🔍 [BOT-THREAD] Working directory: {project_root}")
+                    
+                    # Créer environnement avec token
+                    bot_env = os.environ.copy()
+                    if discord_token:
+                        bot_env['DISCORD_TOKEN'] = discord_token
+                    
+                    print("🚀 [BOT-THREAD] Lancement subprocess...")
+                    
+                    # DIAGNOSTICS RESSOURCES - RENDER
+                    if PSUTIL_AVAILABLE:
+                        try:
+                            import psutil
+                            memory = psutil.virtual_memory()
+                            print(f"📊 [BOT-THREAD] DIAGNOSTIC RESSOURCES:")
+                            print(f"📊 [BOT-THREAD] RAM disponible: {memory.available // 1024 // 1024} MB")
+                            print(f"📊 [BOT-THREAD] RAM utilisée: {memory.percent}%")
+                            print(f"📊 [BOT-THREAD] CPU count: {psutil.cpu_count()}")
+                        except Exception as e:
+                            print(f"⚠️ [BOT-THREAD] Erreur psutil: {e}")
                     else:
-                        print("❌ [BOT-THREAD] Aucun main.py trouvé!")
-                        return
-                
-                print("✅ [BOT-THREAD] main.py trouvé")
-                print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
-                print(f"🔍 [BOT-THREAD] Working directory: {project_root}")
-                
-                # Créer environnement avec token
-                bot_env = os.environ.copy()
-                if discord_token:
-                    bot_env['DISCORD_TOKEN'] = discord_token
-                
-                print("🚀 [BOT-THREAD] Lancement subprocess...")
-                
-                # Lancer le bot comme processus séparé NON-BLOQUANT
-                process = subprocess.Popen(
-                    [sys.executable, main_py_path],
-                    env=bot_env,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    cwd=project_root
-                )
-                
-                print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
-                
-                # Monitorer les premiers logs (non-bloquant)
-                import time
-                
-                for i in range(10):  # 10 secondes max
-                    if process.poll() is not None:
-                        print(f"❌ [BOT-THREAD] Process terminé prématurément: {process.returncode}")
-                        stdout, stderr = process.communicate()
-                        print(f"📤 [BOT-THREAD] stdout: {stdout}")
-                        print(f"📤 [BOT-THREAD] stderr: {stderr}")
-                        break
+                        print("⚠️ [BOT-THREAD] Monitoring ressources indisponible (psutil manquant)")
                     
-                    time.sleep(1)
-                    print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
-                
-                if process.poll() is None:
-                    print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
-                
-            except Exception as e:
-                print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
-                import traceback
-                traceback.print_exc()
-        
-        # Démarrer le bot dans un thread séparé
-        bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
-        bot_thread.start()
-        print(f"✅ Thread bot créé: {bot_thread.name}")
-        
-        # Attendre un peu pour voir si le bot démarre
-        time.sleep(3)
-        print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
+                    # Lancer le bot comme processus séparé NON-BLOQUANT
+                    process = subprocess.Popen(
+                        [sys.executable, main_py_path],
+                        env=bot_env,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        cwd=project_root,
+                        bufsize=1,
+                        universal_newlines=True
+                    )
+                    
+                    print(f"✅ [BOT-THREAD] Bot process créé: PID {process.pid}")
+                    
+                    # Monitorer les premiers logs (non-bloquant) avec capture des erreurs
+                    for i in range(15):  # 15 secondes max
+                        # Vérifier si le process est terminé
+                        return_code = process.poll()
+                        if return_code is not None:
+                            print(f"❌ [BOT-THREAD] Process terminé prématurément avec code: {return_code}")
+                            
+                            # Capturer TOUTES les sorties
+                            try:
+                                stdout, stderr = process.communicate(timeout=2)
+                                if stdout:
+                                    print(f"📤 [BOT-THREAD] STDOUT:")
+                                    for line in stdout.split('\n'):
+                                        if line.strip():
+                                            print(f"📤 [BOT-THREAD] > {line}")
+                                if stderr:
+                                    print(f"📤 [BOT-THREAD] STDERR:")
+                                    for line in stderr.split('\n'):
+                                        if line.strip():
+                                            print(f"❌ [BOT-THREAD] > {line}")
+                            except subprocess.TimeoutExpired:
+                                print("⏰ [BOT-THREAD] Timeout lors de la lecture des logs")
+                            
+                            # Analyser le code de retour
+                            if return_code == 1:
+                                print("🔍 [BOT-THREAD] Code 1 = Erreur Python probable")
+                            elif return_code == 137:
+                                print("🔍 [BOT-THREAD] Code 137 = Process tué (SIGKILL - Mémoire insuffisante?)")
+                            elif return_code == 143:
+                                print("🔍 [BOT-THREAD] Code 143 = Process terminé (SIGTERM)")
+                            elif return_code == -9:
+                                print("🔍 [BOT-THREAD] Code -9 = Killed par l'OS (probablement RAM)")
+                            
+                            break
+                        
+                        # Vérifier la RAM pendant l'exécution
+                        if i % 3 == 0 and PSUTIL_AVAILABLE:  # Toutes les 3 secondes
+                            try:
+                                import psutil
+                                memory = psutil.virtual_memory()
+                                process_memory = psutil.Process(process.pid).memory_info().rss // 1024 // 1024
+                                print(f"🔍 [BOT-THREAD] Process running... ({i+1}s) - Bot RAM: {process_memory}MB - Système: {memory.percent}%")
+                                
+                                # Alerte si trop de RAM utilisée (Render limite = 512MB)
+                                if memory.percent > 85:
+                                    print("⚠️ [BOT-THREAD] ALERTE: RAM système > 85% - Risque de kill par Render")
+                                if process_memory > 200:
+                                    print("⚠️ [BOT-THREAD] ALERTE: Bot utilise > 200MB - Risque sur Render")
+                            except:
+                                print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
+                        else:
+                            print(f"🔍 [BOT-THREAD] Process running... ({i+1}s)")
+                        
+                        time.sleep(1)
+                    
+                    if process.poll() is None:
+                        print("✅ [BOT-THREAD] Bot semble démarré avec succès!")
+                        # Capturer les premiers logs de réussite (si disponible)
+                        try:
+                            # Sur Linux/Render, essayer de lire les sorties non-bloquantes
+                            if hasattr(os, 'O_NONBLOCK'):
+                                import fcntl
+                                
+                                fd = process.stdout.fileno()
+                                fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+                                fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+                                
+                                try:
+                                    output = process.stdout.read()
+                                    if output:
+                                        print(f"📤 [BOT-THREAD] Logs initiaux:")
+                                        for line in output.split('\n')[:10]:  # 10 premières lignes
+                                            if line.strip():
+                                                print(f"📤 [BOT-THREAD] > {line}")
+                                except:
+                                    pass
+                            else:
+                                print("🔍 [BOT-THREAD] Lecture logs non-bloquante indisponible (Windows)")
+                        except Exception as e:
+                            print(f"🔍 [BOT-THREAD] Impossible de lire les logs: {e}")
+                    else:
+                        print(f"❌ [BOT-THREAD] Bot terminé avec code: {process.poll()}")
+                    
+                except Exception as e:
+                    print(f"❌ [BOT-THREAD] Erreur Bot Discord: {e}")
+                    import traceback
+                    traceback.print_exc()
+            
+            # Démarrer le bot dans un thread séparé
+            bot_thread = threading.Thread(target=start_discord_bot, daemon=True, name="DiscordBotThread")
+            bot_thread.start()
+            print(f"✅ Thread bot créé: {bot_thread.name}")
+            
+            # Attendre un peu pour voir si le bot démarre
+            time.sleep(3)
+            print(f"🔍 Thread bot status: {'🟢 Alive' if bot_thread.is_alive() else '🔴 Dead'}")
+        else:
+            print("📄 RELOADER MODE - Le bot ne sera démarré que dans le processus principal")
     else:
         print("❌ DISCORD_TOKEN manquant - Bot non démarré")
         print("📝 Ajoutez DISCORD_TOKEN dans les variables d'environnement")
 
     # ==================== API ADMINISTRATION ====================
+
 
     @app.route('/api/admin/users')
     def api_admin_users():
@@ -3780,19 +3967,19 @@ try:
             cursor.execute("""
                 SELECT 
                     id as user_id,
-                    discord_id,
+                    id as discord_id,
                     username,
                     avatar,
                     created_at,
-                    last_activity,
-                    arsenal_coins,
-                    arsenal_gems,
-                    arsenal_xp,
-                    is_vip,
+                    last_seen as last_activity,
+                    0 as arsenal_coins,
+                    0 as arsenal_gems,
+                    0 as arsenal_xp,
+                    0 as is_vip,
                     is_banned,
-                    is_online
+                    0 as is_online
                 FROM users 
-                ORDER BY arsenal_coins DESC
+                ORDER BY username ASC
             """)
             
             users = []
