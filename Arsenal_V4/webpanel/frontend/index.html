@@ -5665,122 +5665,43 @@
             try {
                 // Charger les infos de base de l'utilisateur
                 const userResponse = await fetch('/api/user/info');
-                const roleResponse = await fetch('/api/user/role');
-                
-                let userData = {};
-                let roleData = {};
                 
                 if (userResponse.ok) {
-                    userData = await userResponse.json();
-                }
-                
-                if (roleResponse.ok) {
-                    const roleResult = await roleResponse.json();
-                    roleData = roleResult.role || {};
-                }
-                
-                // Mettre à jour l'interface avec les vraies données
-                const userDisplayName = document.getElementById('userDisplayName');
-                const userDisplayRole = document.getElementById('userDisplayRole');
-                const dropdownUserName = document.getElementById('dropdownUserName');
-                const dropdownUserRole = document.getElementById('dropdownUserRole');
-                
-                if (userDisplayName) {
-                    userDisplayName.textContent = userData.username || userData.display_name || 'Utilisateur';
-                }
-                if (dropdownUserName) {
-                    dropdownUserName.textContent = userData.username || userData.display_name || 'Utilisateur';
-                }
-                
-                // Utiliser le nouveau système de grades
-                let roleLabel = 'Membre';
-                if (roleData.role_display) {
-                    roleLabel = roleData.role_display;
-                } else if (roleData.role_type) {
-                    // Mapping des types de rôles vers l'affichage
-                    const roleLabels = {
-                        'creator': 'Créateur',
-                        'founder': 'Fondateur', 
-                        'admin': 'Administrateur',
-                        'moderator': 'Modérateur',
-                        'premium': 'Premium',
-                        'vip': 'VIP',
-                        'booster': 'Booster',
-                        'member': 'Membre'
-                    };
-                    roleLabel = roleLabels[roleData.role_type] || 'Membre';
-                }
-                
-                // Style spécial pour les rôles élevés
-                const roleColors = {
-                    'creator': '#ff6b35',      // Orange pour Créateur
-                    'founder': '#9b59b6',      // Violet pour Fondateur  
-                    'admin': '#e74c3c',        // Rouge pour Admin
-                    'moderator': '#3498db',    // Bleu pour Modérateur
-                    'premium': '#f1c40f',      // Jaune pour Premium
-                    'vip': '#2ecc71',          // Vert pour VIP
-                    'booster': '#e67e22',      // Orange foncé pour Booster
-                    'member': '#888'           // Gris pour Membre
-                };
-                
-                const roleColor = roleColors[roleData.role_type] || '#888';
-                
-                if (userDisplayRole) {
-                    userDisplayRole.textContent = roleLabel;
-                    userDisplayRole.style.color = roleColor;
-                    userDisplayRole.style.fontWeight = roleData.role_type !== 'member' ? 'bold' : 'normal';
-                }
-                if (dropdownUserRole) {
-                    dropdownUserRole.textContent = roleLabel;
-                    dropdownUserRole.style.color = roleColor;
-                    dropdownUserRole.style.fontWeight = roleData.role_type !== 'member' ? 'bold' : 'normal';
-                }
-                
-                // Sauvegarder les données utilisateur
-                const combinedData = { ...userData, role: roleData };
-                localStorage.setItem('arsenal_user', JSON.stringify(combinedData));
-                
-                console.log('✅ Profil utilisateur chargé:', userData.username, 'Grade:', roleLabel);
-                
-            } catch (error) {
-                console.error('Erreur chargement profil utilisateur:', error);
-                
-                // Fallback avec données par défaut si API non disponible
-                const userDisplayName = document.getElementById('userDisplayName');
-                
-                // Fallback avec données par défaut si API non disponible
-                const userDisplayName = document.getElementById('userDisplayName');
-                const userDisplayRole = document.getElementById('userDisplayRole');
+                    const userData = await userResponse.json();
                     
-                if (userDisplayName) {
-                    userDisplayName.textContent = 'Utilisateur';
-                }
-                if (userDisplayRole) {
-                    userDisplayRole.textContent = 'Connectez l\'API';
-                }
-            } catch (error) {
-                console.error('Erreur chargement profil utilisateur:', error);
-                
-                // Essayer de charger depuis le localStorage en fallback
-                const storedUser = localStorage.getItem('arsenal_user');
-                if (storedUser) {
-                    try {
-                        const user = JSON.parse(storedUser);
-                        updateUserInterface(user);
-                    } catch (error) {
-                        console.error('Erreur parsing stored user data:', error);
-                    }
-                } else {
-                    // Afficher que l'API est requise
+                    // Mettre à jour l'interface avec les vraies données
                     const userDisplayName = document.getElementById('userDisplayName');
                     const userDisplayRole = document.getElementById('userDisplayRole');
+                    const dropdownUserName = document.getElementById('dropdownUserName');
+                    const dropdownUserRole = document.getElementById('dropdownUserRole');
                     
                     if (userDisplayName) {
-                        userDisplayName.textContent = 'API Required';
+                        userDisplayName.textContent = userData.username || userData.display_name || 'Utilisateur';
                     }
+                    if (dropdownUserName) {
+                        dropdownUserName.textContent = userData.username || userData.display_name || 'Utilisateur';
+                    }
+                    
+                    // Rôle simple basé sur les données existantes
+                    let roleLabel = 'Membre';
+                    if (userData.permission_level === 'super_admin') {
+                        roleLabel = 'Administrateur';
+                    } else if (userData.permission_level === 'admin') {
+                        roleLabel = 'Admin';
+                    } else if (userData.permission_level === 'moderator') {
+                        roleLabel = 'Modérateur';
+                    }
+                    
                     if (userDisplayRole) {
-                        userDisplayRole.textContent = 'Connectez le backend';
+                        userDisplayRole.textContent = roleLabel;
                     }
+                    if (dropdownUserRole) {
+                        dropdownUserRole.textContent = roleLabel;
+                    }
+                
+                } catch (error) {
+                    console.warn('Erreur lors du chargement des infos utilisateur:', error);
+                    // Garder les valeurs par défaut en cas d'erreur
                 }
             }
         }
