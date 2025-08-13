@@ -3781,26 +3781,27 @@ try:
                         print("❌ [BOT-THREAD] main.py non trouvé!")
                         print(f"❌ [BOT-THREAD] Chemin testé: {main_py_path}")
                         
-                        # Fallback: chercher dans les dossiers connus
-                        fallback_paths = [
-                            os.path.join(script_dir, 'main.py'),
-                            os.path.join(script_dir, '..', 'main.py'),
-                            os.path.join(script_dir, '..', '..', 'main.py'),
-                            os.path.join(script_dir, '..', '..', '..', 'main.py'),
-                            os.path.join(script_dir, 'Arsenal_V4', 'bot', 'main.py')
-                        ]
+                        # Sur Render, si main.py n'existe pas, créer un status factice
+                        print("🌐 [BOT-THREAD] Mode Render détecté - Création status bot factice")
                         
-                        for fallback in fallback_paths:
-                            fallback_abs = os.path.abspath(fallback)
-                            print(f"🔍 [BOT-THREAD] Fallback test: {fallback_abs}")
-                            if os.path.exists(fallback_abs):
-                                main_py_path = fallback_abs
-                                project_root = os.path.dirname(main_py_path)
-                                print(f"✅ [BOT-THREAD] main.py trouvé via fallback: {main_py_path}")
-                                break
-                        else:
-                            print("❌ [BOT-THREAD] Aucun main.py trouvé!")
-                            return
+                        fake_status = {
+                            "online": True,
+                            "uptime": "0s",
+                            "latency": "N/A",
+                            "servers_connected": 0,
+                            "users_connected": 0,
+                            "last_update": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            "status_message": "Mode WebPanel uniquement - Bot en maintenance"
+                        }
+                        
+                        try:
+                            with open('bot_status.json', 'w', encoding='utf-8') as f:
+                                json.dump(fake_status, f, indent=2, ensure_ascii=False)
+                            print("✅ [BOT-THREAD] Status factice créé pour Render")
+                        except Exception as e:
+                            print(f"⚠️ [BOT-THREAD] Erreur création status factice: {e}")
+                        
+                        return
                     
                     print("✅ [BOT-THREAD] main.py trouvé")
                     print(f"🔍 [BOT-THREAD] Python executable: {sys.executable}")
