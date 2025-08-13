@@ -101,6 +101,24 @@ import commands.moderateur as moderateur
 import commands.sanction as sanction
 import commands.music as music
 
+# WebPanel Integration Commands (NOUVEAU)
+try:
+    from commands.webpanel_integration import WebPanelCommands
+    WEBPANEL_COMMANDS_AVAILABLE = True
+    print("[OK] WebPanel Integration Commands chargé")
+except Exception as e:
+    WEBPANEL_COMMANDS_AVAILABLE = False
+    print(f"[ERROR] Erreur import WebPanel Commands: {e}")
+
+# Advanced Bot Features (NOUVEAU)
+try:
+    from commands.advanced_features import AdvancedBotFeatures
+    ADVANCED_FEATURES_AVAILABLE = True
+    print("[OK] Advanced Bot Features chargé")
+except Exception as e:
+    ADVANCED_FEATURES_AVAILABLE = False
+    print(f"[ERROR] Erreur import Advanced Features: {e}")
+
 # Hunt Royal Auth System (NOUVEAU)
 try:
     import commands.hunt_royal_auth as hunt_auth
@@ -227,6 +245,22 @@ class ArsenalBot(commands.Bot):
                 log.info("[OK] Module Crypto System Integration chargé")
             except Exception as e:
                 log.error(f"[ERROR] Erreur chargement Crypto System Integration: {e}")
+        
+        # Charger WebPanel Integration Commands
+        if WEBPANEL_COMMANDS_AVAILABLE:
+            try:
+                await self.add_cog(WebPanelCommands(self))
+                log.info("[OK] Module WebPanel Integration Commands chargé")
+            except Exception as e:
+                log.error(f"[ERROR] Erreur chargement WebPanel Commands: {e}")
+        
+        # Charger Advanced Bot Features
+        if ADVANCED_FEATURES_AVAILABLE:
+            try:
+                await self.add_cog(AdvancedBotFeatures(self))
+                log.info("[OK] Module Advanced Bot Features chargé")
+            except Exception as e:
+                log.error(f"[ERROR] Erreur chargement Advanced Features: {e}")
 
 client = ArsenalBot(command_prefix=PREFIX, intents=intents)
 client.startup_time = datetime.datetime.utcnow()
