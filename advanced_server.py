@@ -3783,12 +3783,15 @@ try:
                         
                         # Fallback: chercher dans les dossiers connus
                         fallback_paths = [
-                            os.path.join(script_dir, 'main.py'),
+                            os.path.join(script_dir, 'main.py'),  # Racine
+                            os.path.join(script_dir, 'bot', 'main.py'),  # Nouveau dossier bot
                             os.path.join(script_dir, '..', 'main.py'),
                             os.path.join(script_dir, '..', '..', 'main.py'),
                             os.path.join(script_dir, 'Arsenal_V4', 'bot', 'main.py'),
                             os.path.join('/opt/render/project/src', 'main.py'),  # Render path
+                            os.path.join('/opt/render/project/src', 'bot', 'main.py'),  # Render bot path
                             os.path.join('/app', 'main.py'),  # Heroku-style path
+                            os.path.join('/app', 'bot', 'main.py'),  # Heroku bot path
                         ]
                         
                         for fallback in fallback_paths:

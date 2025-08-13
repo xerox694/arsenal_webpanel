@@ -7,3 +7,16 @@ logging.basicConfig(
 )
 
 log = logging.getLogger("ArsenalBot")
+
+# Compatibilité avec l'ancien code
+def info(message):
+    log.info(message)
+
+def error(message):
+    log.error(message)
+
+def warning(message):
+    log.warning(message)
+
+def debug(message):
+    log.debug(message)
