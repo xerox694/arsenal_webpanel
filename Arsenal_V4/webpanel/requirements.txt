@@ -1,3 +1,4 @@
+# Arsenal V4 WebPanel Dependencies - Updated 2025-08-14 20:38
 gunicorn==21.2.0
 Flask==2.3.3
 Flask-CORS==4.0.0
