@@ -1,0 +1,108 @@
+/* Arsenal V4 WebPanel - Configuration CSS supplémentaire */
+
+/* Optimisations pour l'interface avancée */
+:root {
+    --arsenal-primary: #00fff7;
+    --arsenal-secondary: #0088ff;
+    --arsenal-success: #00ff88;
+    --arsenal-warning: #ffaa00;
+    --arsenal-error: #ff4444;
+    --arsenal-dark: #0a0a0f;
+}
+
+/* Animations optimisées */
+@keyframes arsenalGlow {
+    0%, 100% { 
+        box-shadow: 0 0 20px var(--arsenal-primary);
+        filter: brightness(1);
+    }
+    50% { 
+        box-shadow: 0 0 40px var(--arsenal-primary);
+        filter: brightness(1.2);
+    }
+}
+
+/* Améliorations des cartes */
+.card:hover {
+    animation: arsenalGlow 2s infinite;
+}
+
+/* Indicateurs de statut améliorés */
+.status-online {
+    background: var(--arsenal-success);
+    box-shadow: 0 0 10px var(--arsenal-success);
+}
+
+.status-offline {
+    background: var(--arsenal-error);
+    box-shadow: 0 0 10px var(--arsenal-error);
+}
+
+/* Boutons optimisés */
+.btn-arsenal {
+    background: linear-gradient(45deg, var(--arsenal-primary), var(--arsenal-secondary));
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-arsenal:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px var(--arsenal-primary);
+}
+
+/* Loading spinner Arsenal */
+.arsenal-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--arsenal-primary);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notifications */
+.arsenal-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 255, 247, 0.9);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+}
+
+.arsenal-notification.show {
+    transform: translateX(0);
+}
+
+/* Mode responsive amélioré */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .page-title {
+        font-size: 1.8em;
+    }
+}

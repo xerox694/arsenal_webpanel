@@ -1,0 +1,31 @@
+.uix-settings {
+  background: rgba(16, 24, 44, 0.97);
+  border: 2px solid #00fff7;
+  border-radius: 18px;
+  box-shadow: 0 0 30px #00fff744;
+  padding: 32px 40px;
+  margin: 40px auto;
+  min-width: 350px;
+  max-width: 500px;
+  color: #00fff7;
+  text-align: left;
+}
+.uix-settings h3 {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.uix-settings-group {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.uix-settings select,
+.uix-settings input[type="checkbox"] {
+  font-size: 1rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #00fff7;
+  background: #10182c;
+  color: #00fff7;
+}

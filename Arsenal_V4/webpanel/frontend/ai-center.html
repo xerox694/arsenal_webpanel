@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Arsenal AI Center - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/arsenal-styles.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+            --ai-purple: #8b5cf6;
+            --ai-blue: #3b82f6;
+            --ai-green: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--ai-purple);
+            text-shadow: 0 0 20px var(--ai-purple);
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 30px;
+        }
+
+        .ai-center {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .center-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .center-title {
+            font-size: 3em;
+            background: linear-gradient(45deg, var(--ai-purple), var(--ai-blue), var(--primary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px var(--ai-purple);
+        }
+
+        .center-subtitle {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .ai-dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .ai-sidebar {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .ai-models {
+            margin-bottom: 30px;
+        }
+
+        .models-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--ai-purple);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .model-card.active {
+            border-color: var(--ai-purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .model-card:hover {
+            border-color: var(--ai-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .model-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .model-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .model-description {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .model-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .chat-interface {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-title {
+            font-size: 1.3em;
+            color: var(--ai-purple);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .control-btn:hover {
+            border-color: var(--ai-purple);
+            background: var(--hover-color);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(45deg, var(--ai-purple), var(--ai-blue));
+        }
+
+        .message-content {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 15px 20px;
+            max-width: 70%;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            background: rgba(0, 255, 247, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .message.ai .message-content {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--ai-purple);
+        }
+
+        .message-text {
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--ai-purple);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, var(--ai-purple), var(--ai-blue));
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.5);
+        }
+
+        .ai-stats {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .stats-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--ai-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .ai-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--ai-purple);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--ai-purple), var(--ai-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            background: var(--success-color);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .status-badge.beta {
+            background: var(--warning-color);
+        }
+
+        .status-badge.soon {
+            background: var(--text-secondary);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--ai-purple), var(--ai-blue));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin: 10px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--ai-purple);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .ai-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--ai-purple);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: aiParticle 3s linear infinite;
+        }
+
+        @keyframes aiParticle {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            <span style="margin-left: 10px;">Arsenal AI Center</span>
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour Dashboard
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="ai-center">
+            <!-- Center Header -->
+            <div class="center-header">
+                <h1 class="center-title">🤖 ARSENAL AI CENTER</h1>
+                <p class="center-subtitle">Intelligence Artificielle Avancée pour Discord</p>
+            </div>
+
+            <!-- AI Dashboard -->
+            <div class="ai-dashboard">
+                <!-- AI Models Sidebar -->
+                <div class="ai-sidebar">
+                    <div class="ai-models">
+                        <h3 class="models-title">
+                            <i class="fas fa-brain"></i>
+                            Modèles IA
+                        </h3>
+                        
+                        <div class="model-card active" onclick="selectModel('gpt4')">
+                            <div class="model-name">
+                                GPT-4 Arsenal
+                                <div class="model-status"></div>
+                            </div>
+                            <div class="model-description">Modèle ultra-avancé pour conversations complexes</div>
+                            <div class="model-stats">
+                                <span>🧠 175B params</span>
+                                <span>⚡ 0.3s</span>
+                            </div>
+                        </div>
+
+                        <div class="model-card" onclick="selectModel('claude')">
+                            <div class="model-name">
+                                Claude Arsenal
+                                <div class="model-status"></div>
+                            </div>
+                            <div class="model-description">Expert en analyse et raisonnement</div>
+                            <div class="model-stats">
+                                <span>🎯 Précis</span>
+                                <span>⚡ 0.5s</span>
+                            </div>
+                        </div>
+
+                        <div class="model-card" onclick="selectModel('gemini')">
+                            <div class="model-name">
+                                Gemini Arsenal
+                                <div class="model-status"></div>
+                            </div>
+                            <div class="model-description">Multimodal avec vision avancée</div>
+                            <div class="model-stats">
+                                <span>👁️ Vision</span>
+                                <span>⚡ 0.4s</span>
+                            </div>
+                        </div>
+
+                        <div class="model-card" onclick="selectModel('custom')">
+                            <div class="model-name">
+                                Arsenal Custom
+                                <div class="model-status"></div>
+                            </div>
+                            <div class="model-description">IA personnalisée pour Arsenal V4</div>
+                            <div class="model-stats">
+                                <span>🎮 Gaming</span>
+                                <span>⚡ 0.2s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-quick-actions">
+                        <h3 class="models-title">
+                            <i class="fas fa-lightning-bolt"></i>
+                            Actions Rapides
+                        </h3>
+                        
+                        <div class="model-card" onclick="quickAction('translate')">
+                            <div class="model-name">🌍 Traduction</div>
+                            <div class="model-description">Traduit dans 100+ langues</div>
+                        </div>
+
+                        <div class="model-card" onclick="quickAction('code')">
+                            <div class="model-name">💻 Code Assistant</div>
+                            <div class="model-description">Génère et débogue du code</div>
+                        </div>
+
+                        <div class="model-card" onclick="quickAction('creative')">
+                            <div class="model-name">🎨 Créatif</div>
+                            <div class="model-description">Histoires, poèmes, scripts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Interface -->
+                <div class="chat-interface">
+                    <div class="chat-header">
+                        <div class="chat-title">
+                            <i class="fas fa-comments"></i>
+                            Chat IA Arsenal
+                        </div>
+                        <div class="chat-controls">
+                        <div class="control-btn" onclick="clearChat()">
+                            <i class="fas fa-trash"></i> Clear
+                        </div>
+                        <div class="control-btn" onclick="quickTranslate()">
+                            <i class="fas fa-language"></i> Traduire
+                        </div>
+                        <div class="control-btn" onclick="quickCode()">
+                            <i class="fas fa-code"></i> Code
+                        </div>
+                        <div class="control-btn" onclick="exportChat()">
+                            <i class="fas fa-download"></i> Export
+                        </div>
+                        <div class="control-btn" onclick="toggleSettings()">
+                            <i class="fas fa-cog"></i> Config
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    Salut ! Je suis l'IA Arsenal V4. Comment puis-je t'aider aujourd'hui ? 
+                                    Je peux discuter, coder, créer, traduire et bien plus encore ! 🤖✨
+                                </div>
+                                <div class="message-time">Il y a quelques instants</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            Arsenal IA écrit
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <textarea class="chat-input" id="chatInput" placeholder="Pose moi n'importe quelle question..." 
+                                  onkeydown="handleKeyPress(event)"></textarea>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Stats -->
+                <div class="ai-stats">
+                    <h3 class="stats-title">
+                        <i class="fas fa-chart-line"></i>
+                        Statistiques IA
+                    </h3>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Messages traités</div>
+                        <div class="stat-value">47,829</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Temps de réponse moy.</div>
+                        <div class="stat-value">0.3s</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Précision</div>
+                        <div class="stat-value">98.7%</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Langues supportées</div>
+                        <div class="stat-value">127</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Utilisateurs actifs</div>
+                        <div class="stat-value">2,456</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Satisfaction</div>
+                        <div class="stat-value">99.2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Features -->
+            <div class="ai-features">
+                <div class="feature-card" onclick="openFeature('conversation')">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="feature-title">Conversation Avancée</h3>
+                    <p class="feature-description">
+                        Discussions naturelles avec contexte persistant, émotions et personnalité adaptative.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge">Actif</span>
+                        <span>15,247 conversations</span>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openFeature('multiverse')">
+                    <div class="feature-icon">🌌</div>
+                    <h3 class="feature-title">Chat Multiverse</h3>
+                    <p class="feature-description">
+                        Connecte plusieurs serveurs Discord dans un réseau de chat universel alimenté par l'IA.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge beta">Beta</span>
+                        <span>47 serveurs connectés</span>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openFeature('learning')">
+                    <div class="feature-icon">🧠</div>
+                    <h3 class="feature-title">Apprentissage Machine</h3>
+                    <p class="feature-description">
+                        L'IA apprend des interactions pour s'adapter aux préférences de chaque serveur.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge">Actif</span>
+                        <span>2.3M données analysées</span>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openFeature('creative')">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">IA Créative</h3>
+                    <p class="feature-description">
+                        Génération d'histoires, poèmes, scripts, paroles de chansons et contenus originaux.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge">Actif</span>
+                        <span>8,947 créations</span>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openFeature('analysis')">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Analyse Comportementale</h3>
+                    <p class="feature-description">
+                        Analyse des patterns de chat pour optimiser l'expérience utilisateur et détecter les problèmes.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge">Actif</span>
+                        <span>Real-time monitoring</span>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openFeature('sensory')">
+                    <div class="feature-icon">👁️</div>
+                    <h3 class="feature-title">IA Sensorielle</h3>
+                    <p class="feature-description">
+                        Vision par ordinateur, reconnaissance vocale, et traitement d'images pour expériences immersives.
+                    </p>
+                    <div class="feature-status">
+                        <span class="status-badge beta">Beta</span>
+                        <span>Multimodal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentModel = 'gpt4';
+        let chatHistory = [];
+
+        // Sélection de modèle IA
+        function selectModel(modelId) {
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.model-card').classList.add('active');
+            currentModel = modelId;
+            
+            // Mise à jour du titre du chat
+            const modelNames = {
+                'gpt4': 'GPT-4 Arsenal',
+                'claude': 'Claude Arsenal', 
+                'gemini': 'Gemini Arsenal',
+                'custom': 'Arsenal Custom'
+            };
+            
+            addSystemMessage(`Modèle changé vers ${modelNames[modelId]} 🤖`);
+        }
+
+        // Actions rapides
+        async function quickAction(action) {
+            const actions = {
+                'translate': 'Traduis ce texte en anglais: "Bonjour, comment allez-vous ?"',
+                'code': 'Écris-moi une fonction Python qui calcule la factorielle d\'un nombre',
+                'creative': 'Écris-moi un petit poème sur l\'intelligence artificielle'
+            };
+            
+            if (actions[action]) {
+                document.getElementById('chatInput').value = actions[action];
+                await sendMessage();
+            }
+        }
+
+        // Gestion des touches
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Envoyer un message
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Ajouter le message utilisateur
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Vérifier les commandes spéciales
+            if (await handleSpecialCommands(message)) {
+                return;
+            }
+            
+            // Afficher l'indicateur de frappe
+            showTypingIndicator();
+            
+            // Envoyer à l'IA
+            await generateAIResponse(message);
+            hideTypingIndicator();
+        }
+
+        // Ajouter un message au chat
+        function addMessage(text, sender, metadata = {}) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'user' ? 
+                '<i class="fas fa-user"></i>' : 
+                '<i class="fas fa-robot"></i>';
+            
+            // Construire les métadonnées pour l'IA
+            let metaInfo = '';
+            if (sender === 'ai' && metadata.provider) {
+                const providerIcons = {
+                    'openai': '🤖',
+                    'gemini': '💎',
+                    'claude': '🧠'
+                };
+                
+                const providerColors = {
+                    'openai': '#00a67e',
+                    'gemini': '#4285f4', 
+                    'claude': '#ff6b35'
+                };
+                
+                metaInfo = `
+                    <div style="font-size: 0.7em; color: var(--text-secondary); margin-top: 8px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: ${providerColors[metadata.provider]};">
+                            ${providerIcons[metadata.provider]} ${metadata.provider.toUpperCase()}
+                        </span>
+                        ${metadata.tokens ? `<span>📊 ${metadata.tokens} tokens</span>` : ''}
+                        ${metadata.model ? `<span>🔧 ${metadata.model}</span>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Style d'erreur
+            const errorStyle = metadata.error ? 'border-color: var(--error-color); background: rgba(255, 71, 87, 0.1);' : '';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content" style="${errorStyle}">
+                    <div class="message-text">${formatMessage(text)}</div>
+                    ${metaInfo}
+                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Ajouter à l'historique
+            chatHistory.push({text, sender, time: Date.now(), metadata});
+            
+            // Effet de particules
+            if (sender === 'ai' && !metadata.error) {
+                createAIParticles();
+            }
+        }
+
+        // Formater le message (markdown simple)
+        function formatMessage(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code style="background: var(--bg-primary); padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>')
+                .replace(/```([\s\S]*?)```/g, '<pre style="background: var(--bg-primary); padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0;"><code>$1</code></pre>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // Ajouter message système
+        function addSystemMessage(text) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); font-style: italic; margin: 10px 0; padding: 10px; background: var(--bg-secondary); border-radius: 10px;">
+                    ${text}
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Générer réponse IA
+        async function generateAIResponse(userMessage) {
+            try {
+                // Déterminer le provider basé sur le modèle sélectionné
+                let provider = null;
+                if (currentModel === 'gemini') {
+                    provider = 'gemini';
+                } else if (currentModel === 'gpt4') {
+                    provider = 'openai';
+                }
+                
+                // Appel API réel vers notre backend
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        provider: provider,
+                        system_prompt: getSystemPrompt()
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Réponse réussie
+                    const aiResponse = data.response;
+                    const providerUsed = data.provider;
+                    const tokensUsed = data.tokens_used;
+                    
+                    // Afficher la réponse avec des infos sur le provider
+                    addMessage(aiResponse, 'ai', {
+                        provider: providerUsed,
+                        tokens: tokensUsed,
+                        model: data.model
+                    });
+                    
+                    // Mettre à jour les stats réelles
+                    updateRealStats(tokensUsed, providerUsed);
+                    
+                } else {
+                    // Erreur API
+                    addMessage(`❌ Erreur: ${data.error}`, 'ai', {error: true});
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'appel API:', error);
+                addMessage('🔧 Problème de connexion. Vérifiez que le serveur est démarré et que les clés API sont configurées.', 'ai', {error: true});
+            }
+        }
+
+        // Obtenir le prompt système selon le modèle
+        function getSystemPrompt() {
+            const systemPrompts = {
+                'gpt4': 'Tu es Arsenal IA, un assistant Discord avancé. Réponds de manière utile, créative et engageante. Tu peux aider avec la programmation, les jeux, la créativité et bien plus.',
+                'claude': 'Tu es Claude Arsenal, spécialisé dans l\'analyse et le raisonnement. Fournis des réponses réfléchies et bien structurées.',
+                'gemini': 'Tu es Gemini Arsenal, expert en multimodal. Tu excelles dans la vision, l\'analyse d\'images et les tâches créatives.',
+                'custom': 'Tu es Arsenal Custom IA, optimisé pour Discord et les communautés gaming. Tu connais tout sur Arsenal V4 et ses fonctionnalités.'
+            };
+            
+            return systemPrompts[currentModel] || systemPrompts['custom'];
+        }
+
+        // Afficher indicateur de frappe
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Masquer indicateur de frappe
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        // Créer particules IA
+        function createAIParticles() {
+            const container = document.querySelector('.chat-interface');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'ai-particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+
+        // Mettre à jour les statistiques réelles
+        function updateRealStats(tokens, provider) {
+            // Incrémenter messages traités
+            const messagesElement = document.querySelector('.stat-item:nth-child(1) .stat-value');
+            if (messagesElement) {
+                const current = parseInt(messagesElement.textContent.replace(',', ''));
+                messagesElement.textContent = (current + 1).toLocaleString();
+            }
+            
+            // Mettre à jour tokens utilisés (stat cachée)
+            if (!window.totalTokens) window.totalTokens = 0;
+            window.totalTokens += tokens || 0;
+            
+            // Mettre à jour provider stats
+            if (!window.providerStats) window.providerStats = {};
+            if (provider) {
+                window.providerStats[provider] = (window.providerStats[provider] || 0) + 1;
+            }
+            
+            // Simuler temps de réponse
+            const responseTimeElement = document.querySelector('.stat-item:nth-child(2) .stat-value');
+            if (responseTimeElement) {
+                const randomTime = (0.2 + Math.random() * 0.8).toFixed(1);
+                responseTimeElement.textContent = randomTime + 's';
+            }
+        }
+
+        // Vérifier le statut des providers IA
+        async function checkAIStatus() {
+            try {
+                const response = await fetch('/api/ai/status');
+                const data = await response.json();
+                
+                if (data.available) {
+                    const providers = data.providers;
+                    
+                    // Mettre à jour les cartes de modèles
+                    updateModelCards(providers);
+                    
+                    // Afficher un message de statut
+                    console.log('✅ AI Ultimate disponible:', providers);
+                } else {
+                    console.log('❌ AI Ultimate non disponible');
+                    addSystemMessage('⚠️ AI Ultimate non disponible. Vérifiez la configuration des clés API.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification du statut IA:', error);
+            }
+        }
+
+        // Mettre à jour les cartes de modèles selon la disponibilité
+        function updateModelCards(providers) {
+            const models = document.querySelectorAll('.model-card');
+            
+            models.forEach(model => {
+                const modelName = model.querySelector('.model-name').textContent.toLowerCase();
+                const statusDot = model.querySelector('.model-status');
+                
+                let available = false;
+                if (modelName.includes('gpt') && providers.openai?.available) {
+                    available = true;
+                } else if (modelName.includes('gemini') && providers.gemini?.available) {
+                    available = true;
+                } else if (modelName.includes('custom')) {
+                    available = providers.openai?.available || providers.gemini?.available;
+                }
+                
+                if (available) {
+                    statusDot.style.background = 'var(--success-color)';
+                    model.style.opacity = '1';
+                } else {
+                    statusDot.style.background = 'var(--error-color)';
+                    model.style.opacity = '0.5';
+                }
+            });
+        }
+
+        // Fonctionnalités spéciales
+        async function handleSpecialCommands(message) {
+            if (message.startsWith('/')) {
+                const command = message.substring(1).toLowerCase();
+                
+                switch (command) {
+                    case 'status':
+                        await checkAIStatus();
+                        return true;
+                    case 'clear':
+                        clearChat();
+                        return true;
+                    case 'stats':
+                        showDetailedStats();
+                        return true;
+                    case 'help':
+                        showHelp();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            return false;
+        }
+
+        // Afficher les stats détaillées
+        function showDetailedStats() {
+            const stats = `
+                📊 **Statistiques Détaillées**
+                
+                • **Total tokens utilisés**: ${window.totalTokens || 0}
+                • **Providers utilisés**: ${Object.keys(window.providerStats || {}).join(', ') || 'Aucun'}
+                • **Messages dans cette session**: ${chatHistory.length}
+                • **Modèle actuel**: ${currentModel}
+                
+                **Commandes disponibles:**
+                • \`/status\` - Vérifier le statut IA
+                • \`/clear\` - Effacer le chat  
+                • \`/stats\` - Afficher ces statistiques
+                • \`/help\` - Aide
+            `;
+            
+            addMessage(stats, 'ai', {system: true});
+        }
+
+        // Afficher l'aide
+        function showHelp() {
+            const help = `
+                🤖 **Arsenal AI Center - Guide d'utilisation**
+                
+                **Modèles disponibles:**
+                • **GPT-4 Arsenal** - Conversations avancées
+                • **Gemini Arsenal** - Multimodal avec vision
+                • **Claude Arsenal** - Analyse et raisonnement
+                • **Arsenal Custom** - Optimisé gaming
+                
+                **Actions rapides:**
+                • 🌍 **Traduction** - Traduit dans 100+ langues
+                • 💻 **Code Assistant** - Génère et débogue du code
+                • 🎨 **Créatif** - Histoires, poèmes, scripts
+                
+                **Commandes spéciales:**
+                • \`/status\` - Vérifier disponibilité IA
+                • \`/stats\` - Statistiques détaillées
+                • \`/clear\` - Effacer conversation
+                • \`/help\` - Cette aide
+                
+                **Formatage supporté:**
+                • \`code\` pour du code inline
+                • \`\`\`code\`\`\` pour des blocs de code
+                • **gras** et *italique*
+            `;
+            
+            addMessage(help, 'ai', {system: true});
+        }
+
+        // Contrôles du chat
+        function clearChat() {
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="message ai">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            Chat effacé ! Je suis prêt pour une nouvelle conversation 🔄
+                        </div>
+                        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `;
+            chatHistory = [];
+        }
+
+        function exportChat() {
+            const formattedHistory = chatHistory.map(msg => ({
+                timestamp: new Date(msg.time).toISOString(),
+                sender: msg.sender,
+                message: msg.text,
+                provider: msg.metadata?.provider || null,
+                tokens: msg.metadata?.tokens || null
+            }));
+            
+            const exportData = {
+                session_info: {
+                    exported_at: new Date().toISOString(),
+                    total_messages: chatHistory.length,
+                    total_tokens: window.totalTokens || 0,
+                    providers_used: Object.keys(window.providerStats || {}),
+                    current_model: currentModel
+                },
+                conversation: formattedHistory
+            };
+            
+            const data = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `arsenal-ai-chat-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            addSystemMessage('💾 Chat exporté avec métadonnées complètes !');
+        }
+
+        function toggleSettings() {
+            const settingsModal = `
+                <div id="settingsModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.8); z-index: 2000; display: flex; 
+                    align-items: center; justify-content: center;
+                " onclick="closeSettings()">
+                    <div style="
+                        background: var(--bg-tertiary); padding: 30px; border-radius: 20px; 
+                        max-width: 500px; width: 90%; border: 1px solid var(--border-color);
+                    " onclick="event.stopPropagation()">
+                        <h3 style="color: var(--ai-purple); margin-bottom: 20px;">⚙️ Paramètres IA Arsenal</h3>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">
+                                Température (créativité):
+                            </label>
+                            <input type="range" min="0" max="1" step="0.1" value="0.7" 
+                                   style="width: 100%;" onchange="updateTemperature(this.value)">
+                            <span id="tempValue" style="color: var(--primary-color);">0.7</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">
+                                Tokens max par réponse:
+                            </label>
+                            <input type="number" min="100" max="4000" value="2000" 
+                                   style="width: 100%; padding: 8px; background: var(--bg-secondary); 
+                                          border: 1px solid var(--border-color); border-radius: 8px; color: white;"
+                                   onchange="updateMaxTokens(this.value)">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">
+                                <input type="checkbox" checked onchange="toggleAutoSwitch(this.checked)"> 
+                                Auto-switch providers si erreur
+                            </label>
+                        </div>
+                        
+                        <button onclick="closeSettings()" style="
+                            background: var(--ai-purple); color: white; border: none; 
+                            padding: 10px 20px; border-radius: 10px; cursor: pointer;
+                        ">Fermer</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', settingsModal);
+        }
+
+        function closeSettings() {
+            const modal = document.getElementById('settingsModal');
+            if (modal) modal.remove();
+        }
+
+        function updateTemperature(value) {
+            window.aiSettings = window.aiSettings || {};
+            window.aiSettings.temperature = parseFloat(value);
+            document.getElementById('tempValue').textContent = value;
+        }
+
+        function updateMaxTokens(value) {
+            window.aiSettings = window.aiSettings || {};
+            window.aiSettings.maxTokens = parseInt(value);
+        }
+
+        function toggleAutoSwitch(enabled) {
+            window.aiSettings = window.aiSettings || {};
+            window.aiSettings.autoSwitch = enabled;
+        }
+
+        // Fonctions de traduction et code rapides
+        async function quickTranslate() {
+            const text = prompt('Texte à traduire:');
+            if (!text) return;
+            
+            const language = prompt('Langue cible (ex: en, es, de, ja, ko):', 'en');
+            if (!language) return;
+            
+            try {
+                const response = await fetch('/api/ai/translate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: text,
+                        target: language,
+                        provider: currentModel === 'gemini' ? 'gemini' : 'openai'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addMessage(`🌍 **Traduction (${language}):**\n${data.response}`, 'ai', {
+                        provider: data.provider,
+                        tokens: data.tokens_used
+                    });
+                } else {
+                    addMessage(`❌ Erreur traduction: ${data.error}`, 'ai', {error: true});
+                }
+            } catch (error) {
+                addMessage(`❌ Erreur: ${error.message}`, 'ai', {error: true});
+            }
+        }
+
+        async function quickCode() {
+            const description = prompt('Décrivez le code à générer:');
+            if (!description) return;
+            
+            const language = prompt('Langage (python, javascript, html, css, etc.):', 'python');
+            if (!language) return;
+            
+            try {
+                const response = await fetch('/api/ai/code', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        description: description,
+                        language: language,
+                        provider: currentModel === 'gemini' ? 'gemini' : 'openai'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addMessage(`💻 **Code ${language}:**\n\`\`\`${language}\n${data.response}\n\`\`\``, 'ai', {
+                        provider: data.provider,
+                        tokens: data.tokens_used
+                    });
+                } else {
+                    addMessage(`❌ Erreur génération: ${data.error}`, 'ai', {error: true});
+                }
+            } catch (error) {
+                addMessage(`❌ Erreur: ${error.message}`, 'ai', {error: true});
+            }
+        }
+
+        // Ouvrir fonctionnalité
+        function openFeature(feature) {
+            const features = {
+                'conversation': 'Conversation Avancée',
+                'multiverse': 'Chat Multiverse',
+                'learning': 'Apprentissage Machine',
+                'creative': 'IA Créative',
+                'analysis': 'Analyse Comportementale',
+                'sensory': 'IA Sensorielle'
+            };
+            
+            addSystemMessage(`Fonctionnalité "${features[feature]}" sera disponible dans Arsenal V4 Ultimate ! 🚀`);
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Démarrer les particules
+            createAIParticles();
+            
+            // Vérifier le statut IA
+            await checkAIStatus();
+            
+            // Message de bienvenue personnalisé
+            setTimeout(() => {
+                addMessage("🚀 **Arsenal AI Center** activé ! Je suis connecté à plusieurs modèles IA de pointe.\n\nTapez `/help` pour voir toutes mes capacités ou posez-moi directement votre question ! 🌟", 'ai');
+            }, 1000);
+            
+            // Vérifier périodiquement le statut (toutes les 30 secondes)
+            setInterval(checkAIStatus, 30000);
+        });
+    </script>
+</body>
+</html>

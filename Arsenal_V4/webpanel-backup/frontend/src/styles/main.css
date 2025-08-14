@@ -1,0 +1,77 @@
+/* Styles globaux néon/futuristes ARSENAL V4 */
+@import url('./phase1.css');
+
+.uix-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #0a0f1c 60%, #00fff7 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  animation: bgMove 12s infinite linear alternate;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Particules d'arrière-plan */
+.uix-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #00fff7, transparent),
+    radial-gradient(2px 2px at 40px 70px, #00eaff, transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, #00fff7, transparent);
+  background-repeat: repeat;
+  background-size: 150px 150px;
+  animation: particleFloat 20s linear infinite;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 100vw 100vh; }
+}
+
+@keyframes particleFloat {
+  0% { transform: translateY(0px) translateX(0px); }
+  33% { transform: translateY(-50px) translateX(30px); }
+  66% { transform: translateY(-20px) translateX(-20px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+.uix-header {
+  margin-top: 60px;
+  text-align: center;
+}
+.uix-title {
+  font-size: 3.5rem;
+  color: #00fff7;
+  text-shadow: 0 0 30px #00fff7, 0 0 60px #00eaff;
+  letter-spacing: 10px;
+}
+.uix-subtitle {
+  color: #c2f7ff;
+  font-size: 1.3rem;
+  margin-top: 10px;
+}
+.uix-main {
+  margin-top: 60px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.uix-card {
+  background: rgba(16, 24, 44, 0.92);
+  border: 2px solid #00fff7;
+  border-radius: 22px;
+  padding: 40px 60px;
+  box-shadow: 0 0 40px #00fff744;
+  min-width: 350px;
+  text-align: center;
+  color: #00fff7;
+}

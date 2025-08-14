@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Arsenal Economy Center - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/arsenal-styles.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+            --gold-color: #ffd700;
+            --silver-color: #c0c0c0;
+            --bronze-color: #cd7f32;
+            --gem-purple: #8b5cf6;
+            --gem-blue: #3b82f6;
+            --gem-green: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--gold-color);
+            text-shadow: 0 0 20px var(--gold-color);
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 30px;
+        }
+
+        .economy-center {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .center-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .center-title {
+            font-size: 3em;
+            background: linear-gradient(45deg, var(--gold-color), var(--primary-color), var(--gem-purple));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px var(--gold-color);
+        }
+
+        .center-subtitle {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .economy-dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .economy-sidebar {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .wallet-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .wallet-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--gold-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .currency-display {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .currency-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .currency-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .currency-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .currency-name {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .arsenal-coins {
+            color: var(--gold-color);
+        }
+
+        .arsenal-gems {
+            color: var(--gem-purple);
+        }
+
+        .arsenal-xp {
+            color: var(--success-color);
+        }
+
+        .quick-actions {
+            margin-bottom: 30px;
+        }
+
+        .actions-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .economy-main {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .main-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .shop-item {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 30px rgba(0, 255, 247, 0.2);
+        }
+
+        .shop-item.legendary {
+            border-color: var(--gold-color);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(255, 215, 0, 0.1));
+        }
+
+        .shop-item.epic {
+            border-color: var(--gem-purple);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(139, 92, 246, 0.1));
+        }
+
+        .item-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .item-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .item-description {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .item-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .buy-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 247, 0.5);
+        }
+
+        .economy-stats {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .leaderboard {
+            margin-top: 30px;
+        }
+
+        .leaderboard-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--gold-color);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .rank {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 30px;
+        }
+
+        .rank.first { color: var(--gold-color); }
+        .rank.second { color: var(--silver-color); }
+        .rank.third { color: var(--bronze-color); }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            flex-grow: 1;
+            font-size: 0.9em;
+        }
+
+        .user-coins {
+            font-weight: bold;
+            color: var(--gold-color);
+            font-size: 0.9em;
+        }
+
+        .daily-rewards {
+            margin-bottom: 30px;
+        }
+
+        .rewards-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--success-color);
+        }
+
+        .daily-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-reward {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .day-reward.claimed {
+            background: var(--success-color);
+            color: var(--bg-primary);
+        }
+
+        .day-reward.available {
+            border-color: var(--gold-color);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .day-reward:hover {
+            transform: scale(1.05);
+        }
+
+        .day-number {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .day-amount {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--gold-color), var(--primary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .rarity-legendary {
+            background: linear-gradient(45deg, var(--gold-color), #ff8c00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .rarity-epic {
+            background: linear-gradient(45deg, var(--gem-purple), var(--gem-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .rarity-rare {
+            color: var(--gem-blue);
+        }
+
+        .rarity-common {
+            color: var(--text-secondary);
+        }
+
+        .floating-coins {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatUp 3s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        .achievement-toast {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--gold-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            transform: translateX(100%);
+            transition: transform 0.5s ease;
+            z-index: 1001;
+        }
+
+        .achievement-toast.show {
+            transform: translateX(0);
+        }
+
+        .investment-panel {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .investment-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--gem-green);
+        }
+
+        .investment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .investment-option {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .investment-option:hover {
+            border-color: var(--gem-green);
+            transform: translateY(-2px);
+        }
+
+        .investment-return {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--gem-green);
+            margin-bottom: 5px;
+        }
+
+        .investment-duration {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-coins"></i>
+            <span style="margin-left: 10px;">Arsenal Economy Center</span>
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour Dashboard
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="economy-center">
+            <!-- Center Header -->
+            <div class="center-header">
+                <h1 class="center-title">💰 ARSENAL ECONOMY CENTER</h1>
+                <p class="center-subtitle">Système économique le plus avancé pour Discord</p>
+            </div>
+
+            <!-- Economy Dashboard -->
+            <div class="economy-dashboard">
+                <!-- Economy Sidebar -->
+                <div class="economy-sidebar">
+                    <!-- Wallet Section -->
+                    <div class="wallet-section">
+                        <h3 class="wallet-title">
+                            <i class="fas fa-wallet"></i>
+                            Mon Portefeuille
+                        </h3>
+                        
+                        <div class="currency-display arsenal-coins">
+                            <div class="currency-icon">🪙</div>
+                            <div class="currency-amount">47,829</div>
+                            <div class="currency-name">Arsenal Coins</div>
+                        </div>
+
+                        <div class="currency-display arsenal-gems">
+                            <div class="currency-icon">💎</div>
+                            <div class="currency-amount">2,156</div>
+                            <div class="currency-name">Arsenal Gems</div>
+                        </div>
+
+                        <div class="currency-display arsenal-xp">
+                            <div class="currency-icon">⭐</div>
+                            <div class="currency-amount">189,457</div>
+                            <div class="currency-name">Arsenal XP</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3 class="actions-title">Actions Rapides</h3>
+                        
+                        <button class="action-btn" onclick="claimDaily()">
+                            <i class="fas fa-gift"></i>
+                            Récompense Quotidienne
+                        </button>
+
+                        <button class="action-btn" onclick="openLottery()">
+                            <i class="fas fa-ticket"></i>
+                            Loterie Arsenal
+                        </button>
+
+                        <button class="action-btn" onclick="openInvestments()">
+                            <i class="fas fa-chart-line"></i>
+                            Investissements
+                        </button>
+
+                        <button class="action-btn" onclick="openTrade()">
+                            <i class="fas fa-exchange-alt"></i>
+                            Commerce
+                        </button>
+
+                        <button class="action-btn" onclick="openAuction()">
+                            <i class="fas fa-gavel"></i>
+                            Enchères
+                        </button>
+                    </div>
+
+                    <!-- Daily Rewards -->
+                    <div class="daily-rewards">
+                        <h3 class="rewards-title">Récompenses Quotidiennes</h3>
+                        <div class="daily-calendar">
+                            <div class="day-reward claimed">
+                                <div class="day-number">Jour 1</div>
+                                <div class="day-amount">100🪙</div>
+                            </div>
+                            <div class="day-reward claimed">
+                                <div class="day-number">Jour 2</div>
+                                <div class="day-amount">150🪙</div>
+                            </div>
+                            <div class="day-reward claimed">
+                                <div class="day-number">Jour 3</div>
+                                <div class="day-amount">200🪙</div>
+                            </div>
+                            <div class="day-reward available">
+                                <div class="day-number">Jour 4</div>
+                                <div class="day-amount">250🪙</div>
+                            </div>
+                            <div class="day-reward">
+                                <div class="day-number">Jour 5</div>
+                                <div class="day-amount">300🪙</div>
+                            </div>
+                            <div class="day-reward">
+                                <div class="day-number">Jour 6</div>
+                                <div class="day-amount">400🪙</div>
+                            </div>
+                            <div class="day-reward">
+                                <div class="day-number">Jour 7</div>
+                                <div class="day-amount">500💎</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economy Main -->
+                <div class="economy-main">
+                    <div class="main-tabs">
+                        <button class="tab-btn active" onclick="switchTab('shop')">🛒 Boutique</button>
+                        <button class="tab-btn" onclick="switchTab('inventory')">📦 Inventaire</button>
+                        <button class="tab-btn" onclick="switchTab('achievements')">🏆 Succès</button>
+                        <button class="tab-btn" onclick="switchTab('investments')">📈 Investissements</button>
+                        <button class="tab-btn" onclick="switchTab('transactions')">💳 Transactions</button>
+                    </div>
+
+                    <!-- Shop Tab -->
+                    <div id="shop" class="tab-content active">
+                        <div class="shop-grid">
+                            <div class="shop-item legendary" onclick="buyItem('premium-role')">
+                                <div class="item-icon rarity-legendary">👑</div>
+                                <div class="item-name rarity-legendary">Rôle Premium</div>
+                                <div class="item-description">Accès exclusif aux fonctionnalités premium d'Arsenal V4</div>
+                                <div class="item-price">
+                                    <span>5,000</span>
+                                    <span class="arsenal-coins">🪙</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+
+                            <div class="shop-item epic" onclick="buyItem('custom-emoji')">
+                                <div class="item-icon rarity-epic">😎</div>
+                                <div class="item-name rarity-epic">Emoji Personnalisé</div>
+                                <div class="item-description">Créez votre propre emoji pour le serveur</div>
+                                <div class="item-price">
+                                    <span>1,500</span>
+                                    <span class="arsenal-gems">💎</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+
+                            <div class="shop-item" onclick="buyItem('nickname-color')">
+                                <div class="item-icon rarity-rare">🌈</div>
+                                <div class="item-name rarity-rare">Couleur de Pseudo</div>
+                                <div class="item-description">Changez la couleur de votre pseudo dans les messages</div>
+                                <div class="item-price">
+                                    <span>800</span>
+                                    <span class="arsenal-coins">🪙</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+
+                            <div class="shop-item legendary" onclick="buyItem('vip-access')">
+                                <div class="item-icon rarity-legendary">💠</div>
+                                <div class="item-name rarity-legendary">Accès VIP</div>
+                                <div class="item-description">Salon VIP exclusif et privilèges spéciaux</div>
+                                <div class="item-price">
+                                    <span>10,000</span>
+                                    <span class="arsenal-coins">🪙</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+
+                            <div class="shop-item" onclick="buyItem('chat-effects')">
+                                <div class="item-icon rarity-common">✨</div>
+                                <div class="item-name rarity-common">Effets de Chat</div>
+                                <div class="item-description">Ajoutez des effets visuels à vos messages</div>
+                                <div class="item-price">
+                                    <span>500</span>
+                                    <span class="arsenal-coins">🪙</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+
+                            <div class="shop-item epic" onclick="buyItem('private-room')">
+                                <div class="item-icon rarity-epic">🏠</div>
+                                <div class="item-name rarity-epic">Salon Privé</div>
+                                <div class="item-description">Votre propre salon vocal privé personnalisable</div>
+                                <div class="item-price">
+                                    <span>3,000</span>
+                                    <span class="arsenal-gems">💎</span>
+                                </div>
+                                <button class="buy-btn">Acheter</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Tab -->
+                    <div id="inventory" class="tab-content">
+                        <div class="shop-grid">
+                            <div class="shop-item">
+                                <div class="item-icon">🌈</div>
+                                <div class="item-name">Couleur Arc-en-ciel</div>
+                                <div class="item-description">Acheté le 15/12/2024</div>
+                                <button class="buy-btn" style="background: var(--success-color);">Équipé</button>
+                            </div>
+                            <div class="shop-item">
+                                <div class="item-icon">✨</div>
+                                <div class="item-name">Effets Étoiles</div>
+                                <div class="item-description">Acheté le 12/12/2024</div>
+                                <button class="buy-btn" onclick="equipItem('stars')">Équiper</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Tab -->
+                    <div id="achievements" class="tab-content">
+                        <div class="shop-grid">
+                            <div class="shop-item" style="border-color: var(--success-color);">
+                                <div class="item-icon">🏆</div>
+                                <div class="item-name">Premier Achat</div>
+                                <div class="item-description">Effectuer votre premier achat dans la boutique</div>
+                                <div class="item-price" style="color: var(--success-color);">Débloqué ✓</div>
+                            </div>
+                            <div class="shop-item">
+                                <div class="item-icon">💰</div>
+                                <div class="item-name">Millionnaire</div>
+                                <div class="item-description">Posséder 1,000,000 Arsenal Coins</div>
+                                <div class="item-price">952,171 / 1,000,000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Investments Tab -->
+                    <div id="investments" class="tab-content">
+                        <div class="investment-panel">
+                            <h3 class="investment-title">Arsenal Investment Bank</h3>
+                            <div class="investment-options">
+                                <div class="investment-option" onclick="invest('safe')">
+                                    <div class="investment-return">+5% / jour</div>
+                                    <div class="investment-duration">Investissement Sûr</div>
+                                    <div style="margin-top: 10px; font-size: 0.8em; color: var(--text-secondary);">Risque faible</div>
+                                </div>
+                                <div class="investment-option" onclick="invest('medium')">
+                                    <div class="investment-return">+12% / jour</div>
+                                    <div class="investment-duration">Investissement Modéré</div>
+                                    <div style="margin-top: 10px; font-size: 0.8em; color: var(--warning-color);">Risque moyen</div>
+                                </div>
+                                <div class="investment-option" onclick="invest('high')">
+                                    <div class="investment-return">+25% / jour</div>
+                                    <div class="investment-duration">Investissement Risqué</div>
+                                    <div style="margin-top: 10px; font-size: 0.8em; color: var(--error-color);">Risque élevé</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transactions Tab -->
+                    <div id="transactions" class="tab-content">
+                        <div style="color: var(--text-secondary); text-align: center; padding: 50px;">
+                            <i class="fas fa-receipt" style="font-size: 3em; margin-bottom: 20px;"></i>
+                            <h3>Historique des Transactions</h3>
+                            <p>Vos dernières transactions apparaîtront ici</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economy Stats -->
+                <div class="economy-stats">
+                    <h3 class="stats-title">
+                        <i class="fas fa-chart-line"></i>
+                        Statistiques
+                    </h3>
+                    
+                    <div class="stat-item">
+                        <div class="stat-label">Gains aujourd'hui</div>
+                        <div class="stat-value">2,847🪙</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Dépenses totales</div>
+                        <div class="stat-value">156,923🪙</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Investissements</div>
+                        <div class="stat-value">45,000🪙</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Rang serveur</div>
+                        <div class="stat-value">#12</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Niveau</div>
+                        <div class="stat-value">47</div>
+                    </div>
+
+                    <!-- Leaderboard -->
+                    <div class="leaderboard">
+                        <h3 class="leaderboard-title">🏆 Top Richesse</h3>
+                        <div class="leaderboard-item">
+                            <span class="rank first">1</span>
+                            <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="user-avatar">
+                            <div class="user-info">CryptoKing</div>
+                            <div class="user-coins">2.4M🪙</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank second">2</span>
+                            <img src="https://cdn.discordapp.com/embed/avatars/1.png" alt="Avatar" class="user-avatar">
+                            <div class="user-info">GoldRush</div>
+                            <div class="user-coins">1.8M🪙</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank third">3</span>
+                            <img src="https://cdn.discordapp.com/embed/avatars/2.png" alt="Avatar" class="user-avatar">
+                            <div class="user-info">DiamondHands</div>
+                            <div class="user-coins">1.2M🪙</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank">12</span>
+                            <img src="https://cdn.discordapp.com/embed/avatars/3.png" alt="Avatar" class="user-avatar">
+                            <div class="user-info">Vous</div>
+                            <div class="user-coins">47.8k🪙</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Achievement Toast -->
+    <div id="achievementToast" class="achievement-toast">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-trophy" style="color: var(--gold-color);"></i>
+            <div>
+                <div style="font-weight: bold;">Succès débloqué !</div>
+                <div id="achievementText">Premier achat effectué</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCoins = 47829;
+        let currentGems = 2156;
+        let currentXP = 189457;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Buy item function
+        function buyItem(itemId) {
+            const items = {
+                'premium-role': { price: 5000, currency: 'coins', name: 'Rôle Premium' },
+                'custom-emoji': { price: 1500, currency: 'gems', name: 'Emoji Personnalisé' },
+                'nickname-color': { price: 800, currency: 'coins', name: 'Couleur de Pseudo' },
+                'vip-access': { price: 10000, currency: 'coins', name: 'Accès VIP' },
+                'chat-effects': { price: 500, currency: 'coins', name: 'Effets de Chat' },
+                'private-room': { price: 3000, currency: 'gems', name: 'Salon Privé' }
+            };
+            
+            const item = items[itemId];
+            if (!item) return;
+            
+            let canAfford = false;
+            if (item.currency === 'coins' && currentCoins >= item.price) {
+                currentCoins -= item.price;
+                canAfford = true;
+            } else if (item.currency === 'gems' && currentGems >= item.price) {
+                currentGems -= item.price;
+                canAfford = true;
+            }
+            
+            if (canAfford) {
+                updateWallet();
+                showAchievement(`${item.name} acheté !`);
+                createFloatingCoins(event.target);
+                
+                // Disable button temporarily
+                event.target.style.background = 'var(--success-color)';
+                event.target.textContent = 'Acheté !';
+                event.target.disabled = true;
+                
+                setTimeout(() => {
+                    event.target.style.background = '';
+                    event.target.textContent = 'Acheter';
+                    event.target.disabled = false;
+                }, 3000);
+            } else {
+                showAchievement('Fonds insuffisants !', 'error');
+            }
+        }
+
+        // Update wallet display
+        function updateWallet() {
+            document.querySelector('.arsenal-coins .currency-amount').textContent = currentCoins.toLocaleString();
+            document.querySelector('.arsenal-gems .currency-amount').textContent = currentGems.toLocaleString();
+            document.querySelector('.arsenal-xp .currency-amount').textContent = currentXP.toLocaleString();
+        }
+
+        // Show achievement notification
+        function showAchievement(text, type = 'success') {
+            const toast = document.getElementById('achievementToast');
+            const textElement = document.getElementById('achievementText');
+            
+            textElement.textContent = text;
+            
+            if (type === 'error') {
+                toast.style.borderColor = 'var(--error-color)';
+            } else {
+                toast.style.borderColor = 'var(--gold-color)';
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Create floating coins animation
+        function createFloatingCoins(element) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const coin = document.createElement('div');
+                    coin.className = 'floating-coins';
+                    coin.innerHTML = '🪙';
+                    coin.style.position = 'fixed';
+                    coin.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    coin.style.top = rect.top + 'px';
+                    coin.style.fontSize = '20px';
+                    coin.style.zIndex = '1000';
+                    
+                    document.body.appendChild(coin);
+                    
+                    setTimeout(() => {
+                        coin.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // Daily reward claim
+        function claimDaily() {
+            const reward = 250;
+            currentCoins += reward;
+            updateWallet();
+            showAchievement(`+${reward} Arsenal Coins récupérés !`);
+            createFloatingCoins(event.target);
+            
+            // Update calendar
+            const availableReward = document.querySelector('.day-reward.available');
+            if (availableReward) {
+                availableReward.classList.remove('available');
+                availableReward.classList.add('claimed');
+            }
+        }
+
+        // Quick actions
+        function openLottery() {
+            showAchievement('Loterie Arsenal - Fonctionnalité bientôt disponible !');
+        }
+
+        function openInvestments() {
+            switchTab('investments');
+            document.querySelector('[onclick="switchTab(\'investments\')"]').click();
+        }
+
+        function openTrade() {
+            showAchievement('Commerce Arsenal - Échangez avec d\'autres joueurs !');
+        }
+
+        function openAuction() {
+            showAchievement('Enchères Arsenal - Participez aux ventes aux enchères !');
+        }
+
+        // Investment function
+        function invest(type) {
+            const investments = {
+                'safe': { return: 5, risk: 'Faible', min: 1000 },
+                'medium': { return: 12, risk: 'Moyen', min: 5000 },
+                'high': { return: 25, risk: 'Élevé', min: 10000 }
+            };
+            
+            const investment = investments[type];
+            showAchievement(`Investissement ${investment.risk} - ROI: +${investment.return}% / jour`);
+        }
+
+        // Equip item function
+        function equipItem(itemId) {
+            showAchievement('Objet équipé avec succès !');
+            event.target.style.background = 'var(--success-color)';
+            event.target.textContent = 'Équipé';
+        }
+
+        // Initialize economy center
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start coin generation simulation
+            setInterval(() => {
+                currentCoins += Math.floor(Math.random() * 10) + 1;
+                currentXP += Math.floor(Math.random() * 50) + 10;
+                updateWallet();
+            }, 30000); // Every 30 seconds
+            
+            // Show welcome message
+            setTimeout(() => {
+                showAchievement('Bienvenue dans l\'Arsenal Economy Center !');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

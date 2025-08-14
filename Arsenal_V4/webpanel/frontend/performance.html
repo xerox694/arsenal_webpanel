@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performances - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .status-overview {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .uptime-text {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .stat-trend {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .trend-up {
+            color: var(--success-color);
+        }
+
+        .trend-down {
+            color: var(--error-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .performance-chart {
+            height: 300px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        .metrics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .metric-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-weight: bold;
+        }
+
+        .metric-value {
+            color: var(--primary-color);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .alerts-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .alert-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+        }
+
+        .alert-warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .alert-info {
+            background: rgba(0, 255, 247, 0.2);
+            color: var(--primary-color);
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .alert-description {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .alert-time {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading i {
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-chart-line"></i>&nbsp;&nbsp;Performances
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">📊 Monitoring Performances</h1>
+
+        <div class="status-overview">
+            <div class="system-status">
+                <div class="status-indicator"></div>
+                <div class="status-text">Système Opérationnel</div>
+            </div>
+            <div class="uptime-text">Uptime: 99.7% - En ligne depuis 247 jours</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="cpu-usage">-</div>
+                        <div class="stat-label">CPU Usage</div>
+                        <div class="stat-trend trend-up" id="cpu-trend"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="ram-usage">-</div>
+                        <div class="stat-label">RAM Usage</div>
+                        <div class="stat-trend trend-down" id="ram-trend"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="latency">-</div>
+                        <div class="stat-label">Latence</div>
+                        <div class="stat-trend trend-up" id="latency-trend"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="db-queries">-</div>
+                        <div class="stat-label">Requêtes DB/min</div>
+                        <div class="stat-trend trend-up" id="db-trend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-area"></i>
+                    Performances Temps Réel
+                </h3>
+                <div class="performance-chart">
+                    <div class="chart-placeholder">
+                        📈 Graphique des performances<br>
+                        <small>CPU, RAM, Latence - Dernières 24h</small>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="section-title">
+                    <i class="fas fa-server"></i>
+                    Métriques Système
+                </h3>
+                <div class="metrics-list" id="metrics-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des métriques...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alerts-section">
+            <h3 class="section-title">
+                <i class="fas fa-bell"></i>
+                Alertes & Notifications
+            </h3>
+            <div id="alerts-list">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i><br>
+                    Chargement des alertes...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Métriques système
+        const systemMetrics = [
+            { label: 'Threads Actifs', value: '42' },
+            { label: 'Connexions DB', value: '8/20' },
+            { label: 'Cache Hit Rate', value: '94.2%' },
+            { label: 'Taille Cache', value: '156 MB' },
+            { label: 'Disk I/O', value: '23 MB/s' },
+            { label: 'Network I/O', value: '45 MB/s' },
+            { label: 'Commandes/min', value: '247' },
+            { label: 'Erreurs/h', value: '0.3' }
+        ];
+
+        // Alertes
+        const alertsData = [
+            {
+                type: 'success',
+                title: 'Optimisation automatique',
+                description: 'Cache nettoyé automatiquement, performances améliorées',
+                time: '2 min ago'
+            },
+            {
+                type: 'info',
+                title: 'Mise à jour shard',
+                description: 'Shard 2 redémarré avec succès',
+                time: '15 min ago'
+            },
+            {
+                type: 'warning',
+                title: 'Pic de latence détecté',
+                description: 'Latence temporairement élevée sur la région EU-West',
+                time: '1h ago'
+            },
+            {
+                type: 'success',
+                title: 'Sauvegarde complétée',
+                description: 'Sauvegarde automatique des données utilisateur terminée',
+                time: '2h ago'
+            }
+        ];
+
+        function loadMetrics() {
+            const container = document.getElementById('metrics-list');
+            
+            const metricsHtml = systemMetrics.map(metric => `
+                <div class="metric-item">
+                    <div class="metric-label">${metric.label}</div>
+                    <div class="metric-value">${metric.value}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = metricsHtml;
+        }
+
+        function loadAlerts() {
+            const container = document.getElementById('alerts-list');
+            
+            const alertsHtml = alertsData.map(alert => `
+                <div class="alert-item">
+                    <div class="alert-icon alert-${alert.type}">
+                        <i class="fas fa-${alert.type === 'success' ? 'check' : alert.type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-description">${alert.description}</div>
+                    </div>
+                    <div class="alert-time">${alert.time}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = alertsHtml;
+        }
+
+        function updatePerformanceStats() {
+            // Simule des données en temps réel
+            const cpuUsage = Math.floor(Math.random() * 30) + 10;
+            const ramUsage = Math.floor(Math.random() * 40) + 450;
+            const latency = Math.floor(Math.random() * 10) + 20;
+            const dbQueries = Math.floor(Math.random() * 50) + 200;
+
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            document.getElementById('ram-usage').textContent = ramUsage + ' MB';
+            document.getElementById('latency').textContent = latency + 'ms';
+            document.getElementById('db-queries').textContent = dbQueries;
+
+            // Trends
+            document.getElementById('cpu-trend').textContent = '↑ +2.1%';
+            document.getElementById('ram-trend').textContent = '↓ -5.3%';
+            document.getElementById('latency-trend').textContent = '↑ +0.8ms';
+            document.getElementById('db-trend').textContent = '↑ +12%';
+        }
+
+        // Simulation de chargement des données
+        setTimeout(() => {
+            updatePerformanceStats();
+            loadMetrics();
+            loadAlerts();
+        }, 2000);
+
+        // Mise à jour en temps réel toutes les 5 secondes
+        setInterval(updatePerformanceStats, 5000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.status-overview, .stat-card, .chart-card, .alerts-section');
+            elements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    element.style.transition = 'all 0.6s ease';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

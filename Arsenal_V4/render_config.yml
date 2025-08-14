@@ -1,0 +1,331 @@
+# Arsenal V4 - Configuration Render Complète
+# ==========================================
+
+# Build script pour Render
+build: |
+  echo "🚀 Installation Arsenal V4..."
+  
+  # Mise à jour système
+  apt-get update -y
+  
+  # Installation FFmpeg pour la musique
+  apt-get install -y ffmpeg
+  
+  # Installation des dépendances Python
+  pip install --upgrade pip
+  pip install -r requirements.txt
+  
+  # Vérification de l'installation
+  python -c "import discord; print(f'Discord.py {discord.__version__} installé')"
+  
+  # Création des répertoires nécessaires
+  mkdir -p logs backups data temp
+  
+  # Configuration des permissions
+  chmod +x launcher.py
+  chmod +x deploy.py
+  
+  echo "✅ Arsenal V4 prêt pour le déploiement !"
+
+# Variables d'environnement par défaut
+env:
+  PYTHONPATH: "/opt/render/project/src"
+  PYTHONUNBUFFERED: "1"
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  
+# Configuration des services
+services:
+  # Bot Discord principal
+  discord_bot:
+    type: worker
+    plan: starter
+    build_command: "bash build.sh"
+    start_command: "python launcher.py"
+    
+    # Auto-restart en cas de crash
+    auto_deploy: true
+    
+    # Health check
+    health_check_path: "/health"
+    
+    # Ressources
+    memory: 512MB
+    cpu: 0.5
+    
+    # Variables d'environnement requises
+    environment:
+      - DISCORD_TOKEN  # À définir dans l'interface Render
+      - DATABASE_URL: "./arsenal_v4.db"
+      - LOG_LEVEL: "INFO"
+      - MAX_WORKERS: "2"
+      - ENABLE_MUSIC: "true"
+      - ENABLE_GAMES: "true"
+      - ENABLE_MODERATION: "true"
+      - ENABLE_STATS: "true"
+      - ENABLE_PERSONALIZATION: "true"
+      - ENABLE_ADMIN: "true"
+
+# Configuration avancée
+advanced:
+  # Monitoring
+  monitoring:
+    enabled: true
+    alerts:
+      - type: "memory"
+        threshold: "90%"
+      - type: "cpu"
+        threshold: "85%"
+      - type: "error_rate"
+        threshold: "5%"
+  
+  # Backup automatique
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Tous les jours à 2h
+    retention: "30d"
+    
+  # Scaling automatique
+  auto_scaling:
+    enabled: false  # Désactivé pour le plan gratuit
+    min_instances: 1
+    max_instances: 3
+    
+# Scripts de déploiement
+scripts:
+  pre_deploy: |
+    echo "🔄 Pré-déploiement Arsenal V4..."
+    python -c "
+    import os
+    import sys
+    
+    # Vérifications de sécurité
+    required_vars = ['DISCORD_TOKEN']
+    missing = [var for var in required_vars if not os.getenv(var)]
+    
+    if missing:
+        print(f'❌ Variables manquantes: {missing}')
+        sys.exit(1)
+    
+    print('✅ Variables d\'environnement validées')
+    "
+    
+  post_deploy: |
+    echo "🎉 Post-déploiement Arsenal V4..."
+    
+    # Test de connectivité
+    timeout 30 python -c "
+    import asyncio
+    import discord
+    import os
+    
+    async def test_connection():
+        try:
+            client = discord.Client(intents=discord.Intents.default())
+            
+            @client.event
+            async def on_ready():
+                print(f'✅ Test connexion réussi: {client.user}')
+                await client.close()
+            
+            await client.start(os.getenv('DISCORD_TOKEN'))
+        except Exception as e:
+            print(f'❌ Test connexion échoué: {e}')
+            exit(1)
+    
+    asyncio.run(test_connection())
+    " || echo "⚠️ Test de connexion échoué (timeout)"
+    
+    echo "🚀 Arsenal V4 déployé avec succès !"
+
+# Documentation des variables d'environnement
+environment_documentation: |
+  Variables d'environnement Arsenal V4:
+  
+  OBLIGATOIRES:
+  - DISCORD_TOKEN: Token du bot Discord (depuis Discord Developer Portal)
+  
+  OPTIONNELLES:
+  - DATABASE_URL: Chemin vers la base de données (défaut: ./arsenal_v4.db)
+  - LOG_LEVEL: Niveau de logging (DEBUG/INFO/WARNING/ERROR) (défaut: INFO)
+  - ENVIRONMENT: Environnement d'exécution (development/production) (défaut: production)
+  - DEBUG: Mode debug (true/false) (défaut: false)
+  - MAX_WORKERS: Nombre de workers (défaut: 2)
+  
+  MODULES (true/false):
+  - ENABLE_MUSIC: Activer le module musique (défaut: true)
+  - ENABLE_GAMES: Activer les mini-jeux (défaut: true)
+  - ENABLE_MODERATION: Activer la modération (défaut: true)
+  - ENABLE_STATS: Activer les statistiques (défaut: true)
+  - ENABLE_PERSONALIZATION: Activer la personnalisation (défaut: true)
+  - ENABLE_ADMIN: Activer l'administration (défaut: true)
+  
+  PERFORMANCE:
+  - CACHE_SIZE: Taille du cache en MB (défaut: 100)
+  - DB_POOL_SIZE: Taille du pool de connexions DB (défaut: 10)
+  - RATE_LIMIT_REQUESTS: Limite de requêtes par minute (défaut: 60)
+
+# Commandes de diagnostic
+diagnostic_commands:
+  check_health: |
+    echo "🏥 Diagnostic de santé Arsenal V4..."
+    
+    # Vérification Python
+    python --version
+    
+    # Vérification des modules
+    python -c "
+    modules = ['discord', 'sqlite3', 'aiohttp', 'PIL', 'matplotlib']
+    for module in modules:
+        try:
+            __import__(module)
+            print(f'✅ {module}')
+        except ImportError:
+            print(f'❌ {module}')
+    "
+    
+    # Vérification de la base de données
+    python -c "
+    import sqlite3
+    import os
+    
+    db_path = os.getenv('DATABASE_URL', './arsenal_v4.db')
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM sqlite_master WHERE type=\"table\"')
+        tables = cursor.fetchone()[0]
+        print(f'✅ Base de données: {tables} tables')
+        conn.close()
+    except Exception as e:
+        print(f'❌ Base de données: {e}')
+    "
+    
+    # Vérification mémoire
+    python -c "
+    import psutil
+    memory = psutil.virtual_memory()
+    print(f'💾 Mémoire: {memory.percent}% utilisée')
+    "
+    
+  view_logs: |
+    echo "📋 Derniers logs Arsenal V4..."
+    tail -n 50 arsenal_v4.log 2>/dev/null || echo "Aucun log trouvé"
+    
+  restart_bot: |
+    echo "🔄 Redémarrage Arsenal V4..."
+    pkill -f "python launcher.py" || true
+    sleep 2
+    python launcher.py &
+    echo "✅ Bot redémarré"
+
+# Configuration des logs
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  files:
+    - path: "arsenal_v4.log"
+      max_size: "10MB"
+      backup_count: 5
+    - path: "errors.log"
+      level: ERROR
+      max_size: "5MB"
+      backup_count: 3
+
+# Notifications
+notifications:
+  discord_webhook: ""  # Webhook pour notifications de déploiement
+  email: ""           # Email pour alertes critiques
+  
+  events:
+    - deploy_success
+    - deploy_failure
+    - health_check_failure
+    - memory_high
+    - error_rate_high
+
+# Instructions de déploiement
+deployment_instructions: |
+  📋 INSTRUCTIONS DE DÉPLOIEMENT RENDER:
+  
+  1. 🌐 Connectez-vous sur https://render.com
+  
+  2. ➕ Créez un nouveau service "Worker"
+  
+  3. 🔗 Connectez votre repository GitHub
+  
+  4. ⚙️ Configuration:
+     • Type: Worker
+     • Name: arsenal-v4-bot
+     • Environment: Python 3
+     • Build Command: pip install -r requirements.txt
+     • Start Command: python launcher.py
+     • Plan: Starter (recommandé) ou Free
+  
+  5. 🔑 Variables d'environnement (Section Environment):
+     • DISCORD_TOKEN: votre_token_discord_ici
+     • ENVIRONMENT: production
+     • DEBUG: false
+     
+     Optionnelles:
+     • LOG_LEVEL: INFO
+     • ENABLE_MUSIC: true
+     • ENABLE_GAMES: true
+     • (voir documentation complète ci-dessus)
+  
+  6. 💾 Disque persistant (optionnel pour Free plan):
+     • Name: arsenal-data
+     • Mount Path: /opt/render/project/src
+     • Size: 1GB
+  
+  7. 🚀 Cliquez sur "Create Web Service"
+  
+  8. ⏳ Attendez la fin du déploiement (2-5 minutes)
+  
+  9. ✅ Vérifiez les logs pour confirmer le démarrage
+  
+  🆘 En cas de problème:
+  • Vérifiez les logs dans l'onglet "Logs"
+  • Confirmez que DISCORD_TOKEN est correct
+  • Assurez-vous que le bot a les permissions nécessaires
+  • Consultez le README.md pour plus d'aide
+
+# Dépannage courant
+troubleshooting:
+  bot_offline: |
+    Le bot apparaît hors ligne:
+    1. Vérifiez que DISCORD_TOKEN est correct
+    2. Confirmez que le service Render est en cours d'exécution
+    3. Vérifiez les permissions du bot sur Discord
+    4. Consultez les logs pour erreurs de connexion
+    
+  commands_not_working: |
+    Les commandes ne fonctionnent pas:
+    1. Vérifiez que le bot a les permissions "Send Messages"
+    2. Confirmez que le préfixe est correct (! par défaut)
+    3. Vérifiez que les modules sont activés
+    4. Testez avec une commande simple comme !ping
+    
+  database_errors: |
+    Erreurs de base de données:
+    1. Vérifiez que le disque persistant est configuré
+    2. Confirmez les permissions d'écriture
+    3. Vérifiez l'espace disque disponible
+    4. Consultez les logs d'erreur SQLite
+    
+  memory_issues: |
+    Problèmes de mémoire:
+    1. Passez au plan Starter si en Free
+    2. Désactivez les modules non essentiels
+    3. Réduisez CACHE_SIZE
+    4. Redémarrez le service
+
+# Version et métadonnées
+metadata:
+  version: "4.0.0"
+  last_updated: "2024-01-XX"
+  author: "Arsenal Team"
+  license: "MIT"
+  repository: "https://github.com/votre-repo/arsenal-v4"
+  documentation: "https://github.com/votre-repo/arsenal-v4/wiki"
+  support: "https://discord.gg/votre-serveur"

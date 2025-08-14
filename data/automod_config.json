@@ -1,0 +1,131 @@
+{
+    "enabled": true,
+    "spam_detection": {
+        "enabled": true,
+        "max_messages": 5,
+        "time_window": 5,
+        "max_duplicates": 3,
+        "action": "mute",
+        "duration": 300
+    },
+    "word_filter": {
+        "enabled": true,
+        "words": [
+            "fuck",
+            "shit",
+            "bitch",
+            "ass",
+            "damn",
+            "putain",
+            "merde",
+            "connard",
+            "salope",
+            "con"
+        ],
+        "action": "warn",
+        "auto_delete": true
+    },
+    "caps_filter": {
+        "enabled": true,
+        "max_caps_percentage": 70,
+        "min_message_length": 10,
+        "action": "warn"
+    },
+    "mention_spam": {
+        "enabled": true,
+        "max_mentions": 5,
+        "action": "mute",
+        "duration": 600
+    },
+    "link_filter": {
+        "enabled": false,
+        "whitelist": [
+            "discord.gg",
+            "youtube.com",
+            "github.com"
+        ],
+        "action": "delete"
+    },
+    "raid_protection": {
+        "enabled": true,
+        "max_joins": 10,
+        "time_window": 30,
+        "action": "lockdown"
+    },
+    "auto_sanctions": {
+        "enabled": true,
+        "warn_threshold": 3,
+        "mute_duration": 600,
+        "ban_duration": 86400
+    },
+    "exempt_roles": [],
+    "exempt_channels": [],
+    "log_channel": null,
+    "servers": {
+        "1393644008991096842": {
+            "enabled": true,
+            "spam_detection": {
+                "enabled": true,
+                "max_messages": 5,
+                "time_window": 5,
+                "max_duplicates": 3,
+                "action": "mute",
+                "duration": 300
+            },
+            "word_filter": {
+                "enabled": true,
+                "words": [
+                    "fuck",
+                    "shit",
+                    "bitch",
+                    "ass",
+                    "damn",
+                    "putain",
+                    "merde",
+                    "connard",
+                    "salope",
+                    "con"
+                ],
+                "action": "warn",
+                "auto_delete": true
+            },
+            "caps_filter": {
+                "enabled": true,
+                "max_caps_percentage": 70,
+                "min_message_length": 10,
+                "action": "warn"
+            },
+            "mention_spam": {
+                "enabled": true,
+                "max_mentions": 5,
+                "action": "mute",
+                "duration": 600
+            },
+            "link_filter": {
+                "enabled": false,
+                "whitelist": [
+                    "discord.gg",
+                    "youtube.com",
+                    "github.com"
+                ],
+                "action": "delete"
+            },
+            "raid_protection": {
+                "enabled": true,
+                "max_joins": 10,
+                "time_window": 30,
+                "action": "lockdown"
+            },
+            "auto_sanctions": {
+                "enabled": true,
+                "warn_threshold": 3,
+                "mute_duration": 600,
+                "ban_duration": 86400
+            },
+            "exempt_roles": [],
+            "exempt_channels": [],
+            "log_channel": null,
+            "servers": {}
+        }
+    }
+}

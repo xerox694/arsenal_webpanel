@@ -1,0 +1,38 @@
+.uix-avatar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 30px auto 0 auto;
+  justify-content: center;
+}
+.uix-avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00fff7 60%, #0a0f1c 100%);
+  box-shadow: 0 0 30px #00fff7, 0 0 60px #00eaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: avatarGlow 2s infinite alternate;
+}
+@keyframes avatarGlow {
+  0% { box-shadow: 0 0 30px #00fff7; }
+  100% { box-shadow: 0 0 60px #00eaff; }
+}
+.uix-avatar-initial {
+  font-size: 2.8rem;
+  color: #0a0f1c;
+  font-family: 'Orbitron', 'Consolas', sans-serif;
+  font-weight: bold;
+}
+.uix-avatar-info h4 {
+  color: #00fff7;
+  margin: 0;
+  font-size: 1.3rem;
+}
+.uix-avatar-info p {
+  color: #c2f7ff;
+  margin: 0;
+  font-size: 1rem;
+}

@@ -1,0 +1,41 @@
+# Arsenal V4 Bot - Configuration Render
+# =====================================
+
+services:
+  # Arsenal V4 Discord Bot
+  - type: worker
+    name: arsenal-v4-bot
+    env: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python bot/main.py"
+    
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        value: "./arsenal_v4.db"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: DEBUG
+        value: "false"
+    
+    # Disques persistants pour la base de données
+    disk:
+      name: arsenal-data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
+  
+  # Arsenal V4 WebPanel (optionnel - déjà déployé)
+  - type: web
+    name: arsenal-v4-webpanel
+    env: python
+    plan: free
+    buildCommand: "pip install -r webpanel_requirements.txt"
+    startCommand: "python advanced_server.py"
+    
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: ENVIRONMENT
+        value: "production"

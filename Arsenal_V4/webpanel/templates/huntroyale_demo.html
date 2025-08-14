@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏹 Hunt Royal Assets Demo - Arsenal V4</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .hunters-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+        
+        .maps-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .hunter-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .hunter-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .hunter-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        
+        .map-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .map-img {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff4444;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-btn.secondary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏹 Hunt Royal Assets Demo</h1>
+            <p>Démonstration des assets Hunt Royal intégrés dans Arsenal V4</p>
+            
+            <div class="nav-buttons">
+                <a href="/" class="nav-btn">🏠 Accueil</a>
+                <a href="/NSS" class="nav-btn secondary">🚨 Mode NSS</a>
+            </div>
+        </div>
+
+        <!-- Section Maps -->
+        <div class="section">
+            <h2>🗺️ Maps Hunt Royal</h2>
+            <div id="maps-container" class="loading">
+                <p>Chargement des maps...</p>
+            </div>
+        </div>
+
+        <!-- Section Hunters -->
+        <div class="section">
+            <h2>🏹 Hunters Hunt Royal</h2>
+            <p>Total: <span id="hunters-count">-</span> hunters disponibles</p>
+            <div id="hunters-container" class="loading">
+                <p>Chargement des hunters...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Charger les maps
+        async function loadMaps() {
+            try {
+                const response = await fetch('/api/huntroyale/maps');
+                const data = await response.json();
+                
+                const container = document.getElementById('maps-container');
+                
+                if (data.success) {
+                    container.innerHTML = `<div class="grid maps-grid">${data.maps.map(map => `
+                        <div class="map-card">
+                            <img src="${map.image_url}" alt="${map.name}" class="map-img" 
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm9uIERpc3BvbmlibGU8L3RleHQ+PC9zdmc+'">
+                            <h3>${map.name}</h3>
+                            <p>${map.description}</p>
+                        </div>
+                    `).join('')}</div>`;
+                } else {
+                    container.innerHTML = `<div class="error">Erreur: ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Erreur chargement maps:', error);
+                document.getElementById('maps-container').innerHTML = 
+                    `<div class="error">Erreur de connexion: ${error.message}</div>`;
+            }
+        }
+
+        // Charger les hunters
+        async function loadHunters() {
+            try {
+                const response = await fetch('/api/huntroyale/hunters');
+                const data = await response.json();
+                
+                const container = document.getElementById('hunters-container');
+                const countSpan = document.getElementById('hunters-count');
+                
+                if (data.success) {
+                    countSpan.textContent = data.total;
+                    container.innerHTML = `<div class="grid hunters-grid">${data.hunters.map(hunter => `
+                        <div class="hunter-card">
+                            <img src="${hunter.image_url}" alt="${hunter.name}" class="hunter-img"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjNDQ0Ii8+PHRleHQgeD0iNDAiIHk9IjQwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1zaXplPSIxMCI+Tk88L3RleHQ+PC9zdmc+'">
+                            <div>${hunter.name}</div>
+                        </div>
+                    `).join('')}</div>`;
+                } else {
+                    container.innerHTML = `<div class="error">Erreur: ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Erreur chargement hunters:', error);
+                document.getElementById('hunters-container').innerHTML = 
+                    `<div class="error">Erreur de connexion: ${error.message}</div>`;
+            }
+        }
+
+        // Charger tout au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMaps();
+            loadHunters();
+        });
+    </script>
+</body>
+</html>

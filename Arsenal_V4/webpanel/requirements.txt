@@ -1,0 +1,12 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+Flask-SocketIO==5.3.6
+python-socketio[client]==5.8.0
+requests==2.31.0
+python-dotenv==1.0.0
+gunicorn==21.2.0
+psutil==5.9.5
+discord.py==2.3.2
+aiohttp==3.9.5
+cryptography==41.0.4
+Werkzeug==2.3.7

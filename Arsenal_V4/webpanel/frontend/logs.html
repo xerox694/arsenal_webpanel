@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary); min-height: 100vh;
+        }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px;
+            background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; z-index: 1000;
+        }
+        .logo {
+            display: flex; align-items: center; font-size: 1.5em; font-weight: bold;
+            color: var(--primary-color); text-shadow: 0 0 20px var(--primary-color);
+        }
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none; padding: 10px 20px; border-radius: 25px; color: white;
+            text-decoration: none; font-weight: bold; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none; color: white;
+        }
+        .main-content {
+            margin-top: 100px; padding: 30px; max-width: 1400px;
+            margin-left: auto; margin-right: auto;
+        }
+        .page-title {
+            font-size: 2.5em; text-align: center; margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-shadow: 0 0 30px var(--primary-color);
+        }
+        .logs-container {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color); border-radius: 15px; padding: 25px;
+        }
+        .log-item {
+            display: flex; align-items: flex-start; padding: 15px;
+            background: var(--bg-primary); border-radius: 10px; margin-bottom: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .log-item.error { border-left-color: var(--error-color); }
+        .log-item.warning { border-left-color: var(--warning-color); }
+        .log-item.success { border-left-color: var(--success-color); }
+        .log-time {
+            min-width: 140px; color: var(--text-secondary); font-size: 0.9em;
+            font-family: monospace; margin-right: 15px;
+        }
+        .log-level {
+            min-width: 80px; font-weight: bold; margin-right: 15px;
+            text-transform: uppercase; font-size: 0.8em;
+        }
+        .log-level.info { color: var(--primary-color); }
+        .log-level.error { color: var(--error-color); }
+        .log-level.warning { color: var(--warning-color); }
+        .log-level.success { color: var(--success-color); }
+        .log-message { flex: 1; color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo"><i class="fas fa-file-alt"></i>&nbsp;&nbsp;Logs Panel</div>
+        <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i>Retour au Dashboard</a>
+    </header>
+    <main class="main-content">
+        <h1 class="page-title">📋 Logs du Système</h1>
+        <div class="logs-container">
+            <div class="log-item success">
+                <div class="log-time">2024-01-15 14:30:25</div>
+                <div class="log-level success">INFO</div>
+                <div class="log-message">Bot démarré avec succès</div>
+            </div>
+            <div class="log-item">
+                <div class="log-time">2024-01-15 14:32:15</div>
+                <div class="log-level info">INFO</div>
+                <div class="log-message">Connexion WebPanel établie</div>
+            </div>
+            <div class="log-item warning">
+                <div class="log-time">2024-01-15 14:35:42</div>
+                <div class="log-level warning">WARN</div>
+                <div class="log-message">Tentative de connexion non autorisée</div>
+            </div>
+            <div class="log-item error">
+                <div class="log-time">2024-01-15 14:38:12</div>
+                <div class="log-level error">ERROR</div>
+                <div class="log-message">Erreur de connexion à la base de données</div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

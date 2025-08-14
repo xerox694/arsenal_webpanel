@@ -1,0 +1,477 @@
+{
+  "gems_system": {
+    "description": "Système de gemmes Hunt Royal avec stats réelles niveau 7",
+    "power_per_level": {
+      "level_7": 600,
+      "level_6": 500,
+      "level_5": 400,
+      "level_4": 300,
+      "level_3": 200,
+      "level_2": 100,
+      "level_1": 50
+    },
+    "equipment_slots": {
+      "default_slots": 3,
+      "titan_rank_10_slots": 4,
+      "total_equipment_pieces": 5,
+      "max_gems_normal": 15,
+      "max_gems_titan": 20
+    }
+  },
+  "gems_level_7": {
+    "pierre_rouge": {
+      "id": "red_power_stone",
+      "name": "Pierre de Pouvoir Rouge",
+      "level": 7,
+      "power": 600,
+      "color": "#FF4444",
+      "effects": {
+        "armor": {
+          "type": "defense",
+          "stat": "Chance d'esquive",
+          "value": 12,
+          "unit": "%",
+          "description": "Esquive 12% des attaques"
+        },
+        "weapon": {
+          "type": "damage",
+          "stat": "Effet de brûlure",
+          "value": 250,
+          "unit": "%",
+          "description": "Dégâts de brûlure +250%"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_verte": {
+      "id": "green_power_stone", 
+      "name": "Pierre de Pouvoir Verte",
+      "level": 7,
+      "power": 600,
+      "color": "#44FF44",
+      "effects": {
+        "armor": {
+          "type": "health",
+          "stat": "Points de vie",
+          "value": 300,
+          "unit": "HP",
+          "description": "Points de vie +300"
+        },
+        "weapon": {
+          "type": "damage",
+          "stat": "Dégâts poison",
+          "value": 200,
+          "unit": "%",
+          "description": "Dégâts de poison +200%"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_bleue": {
+      "id": "blue_power_stone",
+      "name": "Pierre de Pouvoir Bleue", 
+      "level": 7,
+      "power": 600,
+      "color": "#4444FF",
+      "effects": {
+        "armor": {
+          "type": "defense",
+          "stat": "Réduction dégâts",
+          "value": 11,
+          "unit": "%", 
+          "description": "Dégâts réduits de 11%"
+        },
+        "weapon": {
+          "type": "special",
+          "stat": "Chance tentacules",
+          "value": 90,
+          "unit": "%",
+          "description": "90% chance d'invoquer des tentacules"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_violette": {
+      "id": "purple_power_stone",
+      "name": "Pierre de Pouvoir Violette",
+      "level": 7, 
+      "power": 600,
+      "color": "#8844FF",
+      "effects": {
+        "armor": {
+          "type": "utility",
+          "stat": "Bonus XP",
+          "value": 35,
+          "unit": "%",
+          "description": "Expérience gagnée +35%"
+        },
+        "weapon": {
+          "type": "sustain",
+          "stat": "Drain de vie",
+          "value": 20,
+          "unit": "%",
+          "description": "Vol de vie +20%"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_blanche": {
+      "id": "white_power_stone",
+      "name": "Pierre de Pouvoir Blanche",
+      "level": 7,
+      "power": 600, 
+      "color": "#FFFFFF",
+      "effects": {
+        "armor": {
+          "type": "control",
+          "stat": "Chance d'étourdir",
+          "value": 10,
+          "unit": "%",
+          "description": "10% chance d'étourdir l'ennemi"
+        },
+        "weapon": {
+          "type": "damage",
+          "stat": "Dégâts purs",
+          "value": 75,
+          "unit": "DMG",
+          "description": "Dégâts d'attaque +75"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_jaune": {
+      "id": "yellow_power_stone",
+      "name": "Pierre de Pouvoir Jaune",
+      "level": 7,
+      "power": 600,
+      "color": "#FFFF44", 
+      "effects": {
+        "armor": {
+          "type": "mobility",
+          "stat": "Vitesse déplacement",
+          "value": 35,
+          "unit": "%",
+          "description": "Vitesse de mouvement +35%"
+        },
+        "weapon": {
+          "type": "speed",
+          "stat": "Vitesse attaque",
+          "value": 40,
+          "unit": "%",
+          "description": "Vitesse d'attaque +40%"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_azure": {
+      "id": "azure_power_stone",
+      "name": "Pierre de Pouvoir Azure",
+      "level": 7,
+      "power": 600,
+      "color": "#44FFFF",
+      "effects": {
+        "armor": {
+          "type": "control",
+          "stat": "Effet gelé",
+          "value": 25,
+          "unit": "%",
+          "description": "25% chance de geler l'ennemi"
+        },
+        "weapon": {
+          "type": "special",
+          "stat": "Explosion nova",
+          "value": 50,
+          "unit": "%",
+          "description": "50% chance d'explosion de nova"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_zombie": {
+      "id": "zombie_power_stone",
+      "name": "Pierre de Pouvoir Zombie", 
+      "level": 7,
+      "power": 600,
+      "color": "#88FF44",
+      "effects": {
+        "armor": {
+          "type": "defense",
+          "stat": "Résistance zombie",
+          "value": 20,
+          "unit": "%",
+          "description": "Réduction dégâts des zombies -20%"
+        },
+        "weapon": {
+          "type": "damage",
+          "stat": "Dégâts zombie/bonus",
+          "value": "60%/+20",
+          "unit": "DMG",
+          "description": "Dégâts contre zombies +60% + 20 dégâts bonus"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    },
+    "pierre_terre": {
+      "id": "earth_power_stone",
+      "name": "Pierre de Pouvoir Terre",
+      "level": 7,
+      "power": 600,
+      "color": "#8B4513",
+      "effects": {
+        "armor": {
+          "type": "resistance",
+          "stat": "Résistance poison",
+          "value": 15,
+          "unit": "%", 
+          "description": "Résistance au poison +15%"
+        },
+        "weapon": {
+          "type": "damage",
+          "stat": "Dégâts terre",
+          "value": 20,
+          "unit": "%",
+          "description": "Dégâts élémentaires terre +20%"
+        }
+      },
+      "compatible_equipment": {
+        "armor": ["casque", "plastron", "bottes"],
+        "weapon": ["épée", "anneau"]
+      }
+    }
+  },
+  "equipment_types": {
+    "armor": {
+      "casque": {
+        "name": "Casque",
+        "type": "armor",
+        "default_slots": 3,
+        "titan_slots": 4
+      },
+      "plastron": {
+        "name": "Plastron", 
+        "type": "armor",
+        "default_slots": 3,
+        "titan_slots": 4
+      },
+      "bottes": {
+        "name": "Bottes",
+        "type": "armor", 
+        "default_slots": 3,
+        "titan_slots": 4
+      }
+    },
+    "weapon": {
+      "epee": {
+        "name": "Épée",
+        "type": "weapon",
+        "default_slots": 3,
+        "titan_slots": 4
+      },
+      "anneau": {
+        "name": "Anneau",
+        "type": "weapon",
+        "default_slots": 3,
+        "titan_slots": 4
+      }
+    }
+  },
+  "upgrade_system": {
+    "description": "Système d'amélioration des gemmes avec coûts réels",
+    "upgrade_costs": {
+      "level_1_to_2": {
+        "cost": 100,
+        "currency": "coins",
+        "materials": {
+          "pierre_puissance": 1
+        }
+      },
+      "level_2_to_3": {
+        "cost": 500,
+        "currency": "coins", 
+        "materials": {
+          "pierre_puissance": 2
+        }
+      },
+      "level_3_to_4": {
+        "cost": 1500,
+        "currency": "coins",
+        "materials": {
+          "pierre_puissance": 3,
+          "fragment_cristal": 1
+        }
+      },
+      "level_4_to_5": {
+        "cost": 5000,
+        "currency": "coins",
+        "materials": {
+          "pierre_puissance": 5,
+          "fragment_cristal": 2
+        }
+      },
+      "level_5_to_6": {
+        "cost": 15000,
+        "currency": "coins",
+        "materials": {
+          "pierre_puissance": 8,
+          "fragment_cristal": 4,
+          "essence_magique": 1
+        }
+      },
+      "level_6_to_7": {
+        "cost": 45000,
+        "currency": "coins",
+        "materials": {
+          "pierre_puissance": 12,
+          "fragment_cristal": 8,
+          "essence_magique": 3,
+          "coeur_dragon": 1
+        }
+      }
+    },
+    "total_cost_to_max": {
+      "coins": 67100,
+      "pierre_puissance": 31,
+      "fragment_cristal": 15,
+      "essence_magique": 4,
+      "coeur_dragon": 1
+    }
+  },
+  "fusion_system": {
+    "description": "Système de fusion pour créer des super gemmes et méga gemmes",
+    "super_stones": {
+      "description": "Fusion de 2 gemmes différentes niveau 7",
+      "cost": {
+        "gems_required": 2,
+        "same_type": true,
+        "level_required": 7,
+        "fusion_fee": 25000,
+        "currency": "coins"
+      },
+      "benefits": {
+        "power_multiplier": 1.5,
+        "new_power": 900,
+        "special_effects": "Effets améliorés +50%",
+        "rarity": "Super"
+      }
+    },
+    "mega_stones": {
+      "description": "Fusion de 3 gemmes différentes niveau 7",
+      "cost": {
+        "gems_required": 3,
+        "same_type": true,
+        "level_required": 7,
+        "fusion_fee": 75000,
+        "currency": "coins",
+        "special_materials": {
+          "orbe_legendaire": 1,
+          "essence_primordiale": 2
+        }
+      },
+      "benefits": {
+        "power_multiplier": 2.25,
+        "new_power": 1350,
+        "special_effects": "Effets uniques et double boost",
+        "rarity": "Méga",
+        "unique_abilities": true
+      }
+    },
+    "fusion_calculator": {
+      "normal_player_limit": "15 gemmes max = 5 Super possibles",
+      "titan_player_limit": "20 gemmes max = 6 Super + extras possibles",
+      "mega_recommendation": "1 Méga gemme par build optimal"
+    }
+  },
+  "materials_database": {
+    "pierre_puissance": {
+      "name": "Pierre de Puissance",
+      "rarity": "Commune",
+      "sources": ["Donjons", "Quêtes quotidiennes", "Boutique"],
+      "description": "Matériau de base pour améliorer les gemmes"
+    },
+    "fragment_cristal": {
+      "name": "Fragment de Cristal",
+      "rarity": "Rare",
+      "sources": ["Donjons élite", "Événements", "Récompenses PvP"],
+      "description": "Cristal nécessaire pour les niveaux avancés"
+    },
+    "essence_magique": {
+      "name": "Essence Magique",
+      "rarity": "Épique", 
+      "sources": ["Raids", "Donjons légendaires", "Tournois"],
+      "description": "Essence pure pour les hauts niveaux"
+    },
+    "coeur_dragon": {
+      "name": "Cœur de Dragon",
+      "rarity": "Légendaire",
+      "sources": ["Boss raids", "Événements spéciaux", "Boutique premium"],
+      "description": "Matériau ultime pour niveau 7"
+    },
+    "orbe_legendaire": {
+      "name": "Orbe Légendaire",
+      "rarity": "Mythique",
+      "sources": ["Fusion de boss", "Événements mythiques"],
+      "description": "Requis pour les Méga gemmes"
+    },
+    "essence_primordiale": {
+      "name": "Essence Primordiale", 
+      "rarity": "Mythique",
+      "sources": ["Contenu end-game", "Récompenses de guilde"],
+      "description": "Essence pure pour fusion Méga"
+    }
+  },
+  "economy_balance": {
+    "progression_curve": {
+      "early_game": "Niveaux 1-3 accessibles rapidement",
+      "mid_game": "Niveaux 4-5 nécessitent farming régulier", 
+      "late_game": "Niveaux 6-7 requièrent investissement sérieux",
+      "end_game": "Fusion Super/Méga pour optimisation finale"
+    },
+    "time_investment": {
+      "casual_player": "1 gemme niveau 7 par semaine",
+      "active_player": "2-3 gemmes niveau 7 par semaine",
+      "hardcore_player": "Build complet en 1 mois"
+    },
+    "cost_efficiency": {
+      "best_value": "Niveau 6 gemmes (bon ratio puissance/coût)",
+      "max_power": "Niveau 7 pour builds optimaux",
+      "fusion_luxury": "Super/Méga pour perfectionnistes"
+    }
+  },
+  "build_calculator": {
+    "max_power_normal": 9000,
+    "max_power_titan": 12000,
+    "max_power_with_supers": 13500,
+    "max_power_with_megas": 20250,
+    "description": "Calculateur pour optimiser les builds de gemmes"
+  },
+  "meta_info": {
+    "last_updated": "2025-01-27",
+    "version": "7.1",
+    "source": "Hunt Royal official game data",
+    "notes": "Données réelles avec système d'amélioration et fusion complet"
+  }
+}

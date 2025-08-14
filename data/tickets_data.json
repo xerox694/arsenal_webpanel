@@ -1,0 +1,34 @@
+{
+    "servers": {
+        "1393644008991096842": {
+            "tickets": {},
+            "stats": {
+                "total": 0,
+                "closed": 0,
+                "open": 0
+            }
+        },
+        "1346649383164186654": {
+            "tickets": {
+                "1": {
+                    "id": 1,
+                    "user_id": 431359112039890945,
+                    "channel_id": 1401179401160364174,
+                    "category": "support",
+                    "status": "closed",
+                    "created_at": "2025-08-02T14:26:44.274162",
+                    "last_activity": "2025-08-02T14:26:44.274162",
+                    "messages_count": 0,
+                    "closed_at": "2025-08-02T14:26:54.831601",
+                    "closed_by": 431359112039890945,
+                    "close_reason": "Fermé via bouton"
+                }
+            },
+            "stats": {
+                "total": 1,
+                "closed": 1,
+                "open": 0
+            }
+        }
+    }
+}

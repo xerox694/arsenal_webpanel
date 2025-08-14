@@ -1,0 +1,13 @@
+{
+    "SECRET_KEY": "e7184e236d4d98cf2acb886ee36302a98051c22fdd949aae",
+    "DATABASE_URL": "sqlite:///arsenal_v4_production.db",
+    "CORS_ORIGINS": [
+        "*"
+    ],
+    "SESSION_TIMEOUT": 86400,
+    "MAX_CONTENT_LENGTH": 16777216,
+    "DISCORD_CLIENT_ID": "VOTRE_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET": "VOTRE_CLIENT_SECRET",
+    "DISCORD_REDIRECT_URI": "http://votre-domaine.com/auth/callback",
+    "BOT_TOKEN": "VOTRE_BOT_TOKEN"
+}

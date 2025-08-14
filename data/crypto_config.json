@@ -1,0 +1,15 @@
+{
+    "enabled": true,
+    "min_conversion": 100,
+    "max_conversion": 1000000,
+    "commission_rate": 0.01,
+    "instant_transfer_enabled": true,
+    "qr_code_expiry_hours": 24,
+    "supported_cryptos": [
+        "ETH",
+        "BTC",
+        "BNB",
+        "MATIC"
+    ],
+    "coinbase_integration": true
+}

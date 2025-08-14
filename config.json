@@ -1,0 +1,19 @@
+{
+  "general": {
+    "prefix": "!",
+    "activity_type": "watching",
+    "activity_name": "Arsenal V4.2.1",
+    "status": "online"
+  },
+  "features": {
+    "music": true,
+    "moderation": true,
+    "economy": true,
+    "hunt_royal": true
+  },
+  "limits": {
+    "max_queue_size": 50,
+    "max_volume": 100,
+    "timeout_duration": 300
+  }
+}

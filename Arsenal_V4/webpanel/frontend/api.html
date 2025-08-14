@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API & Intégrations - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .endpoints-section, .keys-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .endpoint-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .endpoint-item:hover {
+            background: var(--hover-color);
+        }
+
+        .endpoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .endpoint-method {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .method-get {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .method-post {
+            background: rgba(0, 255, 247, 0.2);
+            color: var(--primary-color);
+        }
+
+        .method-put {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .method-delete {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error-color);
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        .endpoint-description {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .endpoint-status {
+            font-size: 0.8em;
+            color: var(--success-color);
+        }
+
+        .key-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .key-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .key-name {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .key-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error-color);
+        }
+
+        .key-description {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .key-details {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .documentation-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .doc-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .doc-tab {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .doc-tab.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-color: transparent;
+        }
+
+        .doc-content {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .webhooks-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .webhook-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .webhook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .webhook-url {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--primary-color);
+        }
+
+        .webhook-toggle {
+            background: var(--border-color);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .webhook-toggle.active {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading i {
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-code"></i>&nbsp;&nbsp;API & Intégrations
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">⚡ API Arsenal V4</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="api-calls">-</div>
+                        <div class="stat-label">Appels API/jour</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="active-keys">-</div>
+                        <div class="stat-label">Clés Actives</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="endpoints">-</div>
+                        <div class="stat-label">Endpoints</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="response-time">-</div>
+                        <div class="stat-label">Temps Réponse</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="endpoints-section">
+                <h3 class="section-title">
+                    <i class="fas fa-list"></i>
+                    Endpoints Disponibles
+                </h3>
+                <div id="endpoints-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des endpoints...
+                    </div>
+                </div>
+            </div>
+
+            <div class="keys-section">
+                <h3 class="section-title">
+                    <i class="fas fa-key"></i>
+                    Clés API
+                </h3>
+                <div id="keys-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des clés...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="documentation-section">
+            <h3 class="section-title">
+                <i class="fas fa-book"></i>
+                Documentation API
+            </h3>
+            <div class="doc-tabs">
+                <div class="doc-tab active" onclick="showDocTab('overview')">Vue d'ensemble</div>
+                <div class="doc-tab" onclick="showDocTab('auth')">Authentification</div>
+                <div class="doc-tab" onclick="showDocTab('examples')">Exemples</div>
+                <div class="doc-tab" onclick="showDocTab('errors')">Codes d'erreur</div>
+            </div>
+            <div class="doc-content" id="doc-content">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i><br>
+                    Chargement de la documentation...
+                </div>
+            </div>
+        </div>
+
+        <div class="webhooks-section">
+            <h3 class="section-title">
+                <i class="fas fa-webhook"></i>
+                Webhooks
+            </h3>
+            <div id="webhooks-list">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i><br>
+                    Chargement des webhooks...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Données des endpoints
+        const endpointsData = [
+            {
+                method: 'GET',
+                path: '/api/v1/user/{id}',
+                description: 'Récupérer les informations d\'un utilisateur',
+                status: 'Opérationnel'
+            },
+            {
+                method: 'GET',
+                path: '/api/v1/user/{id}/stats',
+                description: 'Statistiques de jeu d\'un utilisateur',
+                status: 'Opérationnel'
+            },
+            {
+                method: 'POST',
+                path: '/api/v1/economy/transfer',
+                description: 'Transférer des Arsenal Coins',
+                status: 'Opérationnel'
+            },
+            {
+                method: 'GET',
+                path: '/api/v1/hunt-royal/leaderboard',
+                description: 'Classement Hunt Royal',
+                status: 'Opérationnel'
+            },
+            {
+                method: 'PUT',
+                path: '/api/v1/guild/{id}/config',
+                description: 'Modifier la configuration serveur',
+                status: 'Opérationnel'
+            },
+            {
+                method: 'DELETE',
+                path: '/api/v1/moderation/warning/{id}',
+                description: 'Supprimer un avertissement',
+                status: 'Opérationnel'
+            }
+        ];
+
+        // Données des clés API
+        const keysData = [
+            {
+                name: 'Arsenal WebPanel',
+                description: 'Clé principale pour le panel web',
+                created: '15 Jan 2024',
+                lastUsed: '2h ago',
+                requests: '24,567',
+                status: 'active'
+            },
+            {
+                name: 'Bot Stats Integration',
+                description: 'Intégration statistiques bot',
+                created: '12 Jan 2024',
+                lastUsed: '1h ago',
+                requests: '8,923',
+                status: 'active'
+            },
+            {
+                name: 'Mobile App Dev',
+                description: 'Développement application mobile',
+                created: '8 Jan 2024',
+                lastUsed: '3 days ago',
+                requests: '1,456',
+                status: 'inactive'
+            }
+        ];
+
+        // Données des webhooks
+        const webhooksData = [
+            {
+                name: 'Discord Notifications',
+                url: 'https://discord.com/api/webhooks/123456789/abcdef',
+                events: ['user_join', 'level_up'],
+                status: true
+            },
+            {
+                name: 'Hunt Royal Events',
+                url: 'https://api.example.com/arsenal/hunt-events',
+                events: ['hunt_start', 'boss_defeat'],
+                status: true
+            },
+            {
+                name: 'Economy Tracking',
+                url: 'https://stats.arsenal-bot.com/webhook',
+                events: ['coin_transfer', 'purchase'],
+                status: false
+            }
+        ];
+
+        // Documentation tabs content
+        const docContent = {
+            overview: `
+<h4 style="color: var(--primary-color); margin-bottom: 15px;">🚀 Arsenal V4 API</h4>
+
+L'API Arsenal V4 offre un accès complet aux fonctionnalités du bot via des endpoints RESTful.
+
+<strong>Base URL:</strong> https://api.arsenal-bot.com/v1
+
+<div class="code-block">
+curl -H "Authorization: Bearer YOUR_API_KEY" \\
+     https://api.arsenal-bot.com/v1/user/123456789
+</div>
+
+<strong>Fonctionnalités disponibles:</strong>
+• Gestion des utilisateurs et statistiques
+• Économie et Arsenal Coins
+• Hunt Royal et jeux
+• Modération et logs
+• Configuration des serveurs
+            `,
+            auth: `
+<h4 style="color: var(--primary-color); margin-bottom: 15px;">🔐 Authentification</h4>
+
+Toutes les requêtes API nécessitent une clé d'authentification valide.
+
+<strong>Header requis:</strong>
+<div class="code-block">
+Authorization: Bearer YOUR_API_KEY
+</div>
+
+<strong>Exemple de requête:</strong>
+<div class="code-block">
+fetch('https://api.arsenal-bot.com/v1/user/123', {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+})
+</div>
+
+<strong>Rate Limiting:</strong>
+• 1000 requêtes/heure par clé
+• 100 requêtes/minute par IP
+            `,
+            examples: `
+<h4 style="color: var(--primary-color); margin-bottom: 15px;">📝 Exemples d'utilisation</h4>
+
+<strong>Récupérer les stats d'un utilisateur:</strong>
+<div class="code-block">
+GET /api/v1/user/123456789/stats
+{
+  "user_id": "123456789",
+  "level": 42,
+  "experience": 15678,
+  "arsenal_coins": 9999,
+  "hunt_royal": {
+    "kills": 156,
+    "deaths": 23,
+    "victories": 45
+  }
+}
+</div>
+
+<strong>Transférer des coins:</strong>
+<div class="code-block">
+POST /api/v1/economy/transfer
+{
+  "from_user": "123456789",
+  "to_user": "987654321",
+  "amount": 1000,
+  "reason": "Récompense tournoi"
+}
+</div>
+            `,
+            errors: `
+<h4 style="color: var(--primary-color); margin-bottom: 15px;">⚠️ Codes d'erreur</h4>
+
+<strong>Codes de statut HTTP:</strong>
+
+<div class="code-block">
+200 OK - Requête réussie
+400 Bad Request - Paramètres invalides
+401 Unauthorized - Clé API manquante/invalide
+403 Forbidden - Permissions insuffisantes
+404 Not Found - Ressource introuvable
+429 Too Many Requests - Rate limit dépassé
+500 Internal Server Error - Erreur serveur
+</div>
+
+<strong>Format des erreurs:</strong>
+<div class="code-block">
+{
+  "error": {
+    "code": "INVALID_USER_ID",
+    "message": "L'ID utilisateur fourni est invalide",
+    "details": "L'ID doit être un nombre de 17-19 chiffres"
+  }
+}
+</div>
+            `
+        };
+
+        function loadEndpoints() {
+            const container = document.getElementById('endpoints-list');
+            
+            const endpointsHtml = endpointsData.map(endpoint => `
+                <div class="endpoint-item">
+                    <div class="endpoint-header">
+                        <div class="endpoint-method method-${endpoint.method.toLowerCase()}">${endpoint.method}</div>
+                        <div class="endpoint-status">✓ ${endpoint.status}</div>
+                    </div>
+                    <div class="endpoint-path">${endpoint.path}</div>
+                    <div class="endpoint-description">${endpoint.description}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = endpointsHtml;
+        }
+
+        function loadKeys() {
+            const container = document.getElementById('keys-list');
+            
+            const keysHtml = keysData.map(key => `
+                <div class="key-item">
+                    <div class="key-header">
+                        <div class="key-name">${key.name}</div>
+                        <div class="key-status status-${key.status}">${key.status === 'active' ? 'Actif' : 'Inactif'}</div>
+                    </div>
+                    <div class="key-description">${key.description}</div>
+                    <div class="key-details">
+                        <span>Créé: ${key.created}</span>
+                        <span>Dernière utilisation: ${key.lastUsed}</span>
+                        <span>Requêtes: ${key.requests}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = keysHtml;
+        }
+
+        function loadWebhooks() {
+            const container = document.getElementById('webhooks-list');
+            
+            const webhooksHtml = webhooksData.map((webhook, index) => `
+                <div class="webhook-item">
+                    <div class="webhook-header">
+                        <div class="webhook-url">${webhook.url}</div>
+                        <button class="webhook-toggle ${webhook.status ? 'active' : ''}" 
+                                onclick="toggleWebhook(${index})">
+                            ${webhook.status ? 'Actif' : 'Inactif'}
+                        </button>
+                    </div>
+                    <div style="color: var(--text-primary); font-weight: bold; margin-bottom: 5px;">${webhook.name}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9em;">
+                        Événements: ${webhook.events.join(', ')}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = webhooksHtml;
+        }
+
+        function showDocTab(tab) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.doc-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Mettre à jour le contenu
+            document.getElementById('doc-content').innerHTML = docContent[tab];
+        }
+
+        function toggleWebhook(index) {
+            webhooksData[index].status = !webhooksData[index].status;
+            loadWebhooks();
+        }
+
+        // Simulation de chargement des données
+        setTimeout(() => {
+            // Stats simulées
+            document.getElementById('api-calls').textContent = '47.2K';
+            document.getElementById('active-keys').textContent = '12';
+            document.getElementById('endpoints').textContent = '24';
+            document.getElementById('response-time').textContent = '145ms';
+
+            // Charger le contenu
+            loadEndpoints();
+            loadKeys();
+            loadWebhooks();
+            
+            // Charger la documentation par défaut
+            document.getElementById('doc-content').innerHTML = docContent.overview;
+        }, 2000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.stat-card, .endpoints-section, .keys-section, .documentation-section, .webhooks-section');
+            elements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    element.style.transition = 'all 0.6s ease';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

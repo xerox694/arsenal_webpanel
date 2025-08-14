@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Modération - Arsenal V4 WebPanel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --primary-color: #00fff7;
+            --secondary-color: #ff006e;
+            --accent-color: #39ff14;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a3e;
+            --hover-color: rgba(0, 255, 247, 0.1);
+            --success-color: #00ff41;
+            --warning-color: #ffaa00;
+            --error-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 247, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 247, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 247, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .automod-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .automod-settings, .automod-actions {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item:hover {
+            background: var(--hover-color);
+        }
+
+        .setting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .setting-name {
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-icon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--success-color);
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::before {
+            left: 28px;
+        }
+
+        .setting-description {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .setting-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .config-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .action-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .action-item:hover {
+            background: var(--hover-color);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .action-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.8em;
+        }
+
+        .action-warn {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .action-kick {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error-color);
+        }
+
+        .action-ban {
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--secondary-color);
+        }
+
+        .action-mute {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success-color);
+        }
+
+        .action-info {
+            flex: 1;
+        }
+
+        .action-type {
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .action-details {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .action-time {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
+        .recent-actions {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading i {
+            font-size: 2em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .automod-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-robot"></i>&nbsp;&nbsp;Auto-Modération
+        </div>
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour au Dashboard
+        </a>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">🤖 Système Auto-Modération</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="actions-today">-</div>
+                        <div class="stat-label">Actions Aujourd'hui</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="warnings-issued">-</div>
+                        <div class="stat-label">Avertissements</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="auto-bans">-</div>
+                        <div class="stat-label">Bannissements Auto</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="spam-blocked">-</div>
+                        <div class="stat-label">Spam Bloqué</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="automod-content">
+            <div class="automod-settings">
+                <h3 class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    Paramètres Auto-Mod
+                </h3>
+
+                <div id="automod-settings-list">
+                    <div class="loading" id="settings-loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des paramètres...
+                    </div>
+                </div>
+            </div>
+
+            <div class="automod-actions">
+                <h3 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Actions Récentes
+                </h3>
+
+                <div id="recent-actions-list">
+                    <div class="loading" id="actions-loading">
+                        <i class="fas fa-spinner"></i><br>
+                        Chargement des actions...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Paramètres d'auto-modération
+        const automodSettings = [
+            {
+                name: 'Filtre Anti-Spam',
+                icon: 'fas fa-filter',
+                description: 'Détecte et supprime automatiquement le spam',
+                enabled: true,
+                config: { maxMessages: '5', timeWindow: '10s' }
+            },
+            {
+                name: 'Filtre Grossièretés',
+                icon: 'fas fa-comment-slash',
+                description: 'Bloque les messages contenant des mots interdits',
+                enabled: true,
+                config: { severity: 'Medium', action: 'Warn' }
+            },
+            {
+                name: 'Anti-Raid',
+                icon: 'fas fa-shield-alt',
+                description: 'Protection contre les raids de serveur',
+                enabled: true,
+                config: { joinLimit: '10', timeWindow: '60s' }
+            },
+            {
+                name: 'Mentions Spam',
+                icon: 'fas fa-at',
+                description: 'Limite les mentions excessives',
+                enabled: false,
+                config: { maxMentions: '5', action: 'Mute' }
+            },
+            {
+                name: 'Liens Suspects',
+                icon: 'fas fa-link',
+                description: 'Analyse et bloque les liens malveillants',
+                enabled: true,
+                config: { checkIp: 'Yes', checkDomain: 'Yes' }
+            },
+            {
+                name: 'Auto-Modération Caps',
+                icon: 'fas fa-font',
+                description: 'Gère les messages en majuscules excessives',
+                enabled: false,
+                config: { threshold: '70%', action: 'Delete' }
+            }
+        ];
+
+        // Actions récentes
+        const recentActions = [
+            { type: 'warn', user: 'ToxicUser#1234', reason: 'Langage inapproprié', time: '2 min ago' },
+            { type: 'mute', user: 'SpamBot#5678', reason: 'Spam détecté', time: '5 min ago' },
+            { type: 'kick', user: 'Raider#9999', reason: 'Tentative de raid', time: '12 min ago' },
+            { type: 'ban', user: 'Hacker#0001', reason: 'Liens malveillants', time: '25 min ago' },
+            { type: 'warn', user: 'BadBoy#2345', reason: 'Mentions excessives', time: '34 min ago' },
+            { type: 'mute', user: 'CapsLock#7890', reason: 'Messages en majuscules', time: '1h ago' }
+        ];
+
+        function loadAutomodSettings() {
+            const container = document.getElementById('automod-settings-list');
+            
+            const settingsHtml = automodSettings.map(setting => `
+                <div class="setting-item">
+                    <div class="setting-header">
+                        <div class="setting-name">
+                            <div class="setting-icon" style="background: ${setting.enabled ? 'rgba(0, 255, 65, 0.2)' : 'rgba(255, 71, 87, 0.2)'}; color: ${setting.enabled ? 'var(--success-color)' : 'var(--error-color)'};">
+                                <i class="${setting.icon}"></i>
+                            </div>
+                            ${setting.name}
+                        </div>
+                        <div class="toggle-switch ${setting.enabled ? 'active' : ''}" 
+                             onclick="toggleSetting('${setting.name}', this)">
+                        </div>
+                    </div>
+                    <div class="setting-description">${setting.description}</div>
+                    <div class="setting-config">
+                        ${Object.entries(setting.config).map(([key, value]) => `
+                            <input type="text" class="config-input" placeholder="${key}" value="${value}">
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = settingsHtml;
+        }
+
+        function loadRecentActions() {
+            const container = document.getElementById('recent-actions-list');
+            
+            const actionsHtml = recentActions.map(action => `
+                <div class="action-item">
+                    <div class="action-header">
+                        <div class="action-icon action-${action.type}">
+                            <i class="fas fa-${action.type === 'warn' ? 'exclamation-triangle' : action.type === 'mute' ? 'volume-mute' : action.type === 'kick' ? 'door-open' : 'ban'}"></i>
+                        </div>
+                        <div class="action-info">
+                            <div class="action-type">${action.type.toUpperCase()} - ${action.user}</div>
+                            <div class="action-details">${action.reason}</div>
+                        </div>
+                        <div class="action-time">${action.time}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = actionsHtml;
+        }
+
+        function toggleSetting(settingName, element) {
+            element.classList.toggle('active');
+            const isEnabled = element.classList.contains('active');
+            
+            const setting = automodSettings.find(s => s.name === settingName);
+            if (setting) {
+                setting.enabled = isEnabled;
+                // Mettre à jour l'icône
+                const settingIcon = element.closest('.setting-item').querySelector('.setting-icon');
+                settingIcon.style.background = isEnabled ? 'rgba(0, 255, 65, 0.2)' : 'rgba(255, 71, 87, 0.2)';
+                settingIcon.style.color = isEnabled ? 'var(--success-color)' : 'var(--error-color)';
+            }
+            
+            console.log(`${settingName} est maintenant ${isEnabled ? 'activé' : 'désactivé'}`);
+        }
+
+        // Simulation de chargement des données
+        setTimeout(() => {
+            document.getElementById('settings-loading').style.display = 'none';
+            document.getElementById('actions-loading').style.display = 'none';
+            
+            // Stats simulées
+            document.getElementById('actions-today').textContent = '47';
+            document.getElementById('warnings-issued').textContent = '23';
+            document.getElementById('auto-bans').textContent = '3';
+            document.getElementById('spam-blocked').textContent = '156';
+
+            // Charger le contenu
+            loadAutomodSettings();
+            loadRecentActions();
+        }, 2000);
+
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.stat-card, .automod-settings, .automod-actions');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
