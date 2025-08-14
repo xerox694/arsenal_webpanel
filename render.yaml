@@ -1,33 +1,31 @@
 services:
-  # Service principal - Arsenal Bot + WebPanel intégré
+  # Arsenal WebPanel V5 - Service Web uniquement
   - type: web
-    name: arsenal-webpanel
+    name: arsenal-webpanel-v5
     env: python
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements.txt
-    startCommand: python unified_launcher.py
+    startCommand: python app.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.18
-      - key: DISCORD_TOKEN
+        value: 3.11.0
+      - key: PORT
         sync: false
-      - key: BOT_PREFIX
-        value: "!"
-      - key: WEB_SECRET_KEY
+      - key: WEBPANEL_SECRET_KEY
         generateValue: true
-      - key: DEBUG
-        value: false
+      - key: CREATOR_ID
+        value: "431359112039890945"
       - key: FLASK_ENV
         value: production
+      - key: DEBUG
+        value: false
       - key: DISCORD_CLIENT_ID
         sync: false
       - key: DISCORD_CLIENT_SECRET
         sync: false
-      - key: ARSENAL_MODE
-        value: production
-      - key: WEB_AUTH_ENABLED
-        value: true
+      - key: DISCORD_REDIRECT_URI
+        value: https://arsenal-webpanel-v5.onrender.com/auth/callback
       - key: MAX_LOG_LINES
         value: 1000
       - key: AUTO_RESTART
