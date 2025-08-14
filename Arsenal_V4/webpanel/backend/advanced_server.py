@@ -228,17 +228,30 @@ try:
             
             # Servir le vrai dashboard Arsenal V4 avec tous les éléments DOM
             print(f"📄 Chargement du dashboard Arsenal V4 complet")
-            dashboard_path = os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend', 'index.html')
+            dashboard_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'index.html')
             
             if os.path.exists(dashboard_path):
                 print(f"✅ Dashboard trouvé: {dashboard_path}")
                 return send_from_directory(
-                    os.path.join(os.path.dirname(__file__), 'Arsenal_V4', 'webpanel', 'frontend'), 
+                    os.path.join(os.path.dirname(__file__), '..', 'frontend'), 
                     'index.html'
                 )
             else:
-                print(f"⚠️ Dashboard principal non trouvé, fallback vers dashboard_fixed.html")
-                return send_from_directory('templates', 'dashboard_fixed.html')
+                print(f"⚠️ Dashboard principal non trouvé, fallback vers dashboard local")
+                # Fallback vers un dashboard minimal si le fichier principal manque
+                return '''<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Arsenal V4 WebPanel - Dashboard</title>
+    <style>body{font-family:Arial;background:#0a0a0f;color:#fff;text-align:center;padding:50px;}</style>
+</head>
+<body>
+    <h1>🚀 Arsenal V4 WebPanel</h1>
+    <p>Chargement du dashboard...</p>
+    <script>setTimeout(() => location.reload(), 2000);</script>
+</body>
+</html>'''
             
         except Exception as e:
             print(f"❌ Erreur page dashboard: {e}")
