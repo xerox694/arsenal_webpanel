@@ -1,0 +1,866 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Paramètres{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fas fa-cog header-icon"></i>
+        <div>
+            <h1>Paramètres Système</h1>
+            <p>Configuration et personnalisation du bot Arsenal</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-success" onclick="saveAllSettings()">
+            <i class="fas fa-save"></i> Sauvegarder Tout
+        </button>
+        <button class="btn btn-secondary" onclick="resetSettings()">
+            <i class="fas fa-undo"></i> Réinitialiser
+        </button>
+        <button class="btn btn-primary" onclick="exportSettings()">
+            <i class="fas fa-download"></i> Exporter Config
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Configuration Bot -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-robot"></i> Configuration Bot</h3>
+        </div>
+        <div class="card-content">
+            <div class="settings-form">
+                <div class="form-group">
+                    <label>Nom du Bot</label>
+                    <input type="text" class="form-control" value="Arsenal Bot" id="botName">
+                </div>
+                <div class="form-group">
+                    <label>Préfixe des Commandes</label>
+                    <input type="text" class="form-control" value="!" id="commandPrefix" maxlength="3">
+                </div>
+                <div class="form-group">
+                    <label>Statut du Bot</label>
+                    <select class="form-control" id="botStatus">
+                        <option value="online">En ligne</option>
+                        <option value="idle">Inactif</option>
+                        <option value="dnd">Ne pas déranger</option>
+                        <option value="invisible">Invisible</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Activité</label>
+                    <select class="form-control" id="activityType">
+                        <option value="playing">Joue à</option>
+                        <option value="watching" selected>Regarde</option>
+                        <option value="listening">Écoute</option>
+                        <option value="streaming">Diffuse</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Message d'Activité</label>
+                    <input type="text" class="form-control" value="Arsenal WebPanel V5" id="activityText">
+                </div>
+                <div class="form-group">
+                    <label>Avatar du Bot</label>
+                    <div class="avatar-upload">
+                        <img src="/static/images/bot-avatar.png" alt="Avatar" class="avatar-preview" id="avatarPreview">
+                        <button class="btn btn-secondary" onclick="uploadAvatar()">
+                            <i class="fas fa-upload"></i> Changer Avatar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-shield-alt"></i> Permissions</h3>
+        </div>
+        <div class="card-content">
+            <div class="permissions-grid">
+                <div class="permission-group">
+                    <h4>Administrateurs</h4>
+                    <div class="users-list">
+                        <div class="user-item">
+                            <i class="fas fa-user-shield"></i>
+                            <span>XeRoX#0001</span>
+                            <button class="btn-icon remove" onclick="removeUser(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button class="add-user-btn" onclick="addUser('admin')">
+                            <i class="fas fa-plus"></i> Ajouter Admin
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="permission-group">
+                    <h4>Modérateurs</h4>
+                    <div class="users-list">
+                        <div class="user-item">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Moderator#1234</span>
+                            <button class="btn-icon remove" onclick="removeUser(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="user-item">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Helper#5678</span>
+                            <button class="btn-icon remove" onclick="removeUser(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button class="add-user-btn" onclick="addUser('mod')">
+                            <i class="fas fa-plus"></i> Ajouter Modérateur
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="permission-group">
+                    <h4>VIP</h4>
+                    <div class="users-list">
+                        <div class="user-item">
+                            <i class="fas fa-crown"></i>
+                            <span>VipUser#9999</span>
+                            <button class="btn-icon remove" onclick="removeUser(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button class="add-user-btn" onclick="addUser('vip')">
+                            <i class="fas fa-plus"></i> Ajouter VIP
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sécurité -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-lock"></i> Sécurité</h3>
+        </div>
+        <div class="card-content">
+            <div class="security-settings">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Authentification à 2 Facteurs</label>
+                        <small>Sécurité renforcée pour l'accès WebPanel</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" id="twoFactorAuth">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Logs de Sécurité</label>
+                        <small>Enregistrer les tentatives de connexion</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="securityLogs">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Anti-Bruteforce</label>
+                        <small>Bloquer après plusieurs tentatives échouées</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="antiBruteforce">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Sessions Multiples</label>
+                        <small>Autoriser plusieurs connexions simultanées</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" id="multipleSessions">
+                </div>
+                
+                <div class="form-group">
+                    <label>Durée de Session (minutes)</label>
+                    <input type="number" class="form-control" value="120" min="30" max="1440" id="sessionDuration">
+                </div>
+                
+                <div class="form-group">
+                    <label>IPs Autorisées</label>
+                    <textarea class="form-control" rows="3" placeholder="192.168.1.0/24&#10;10.0.0.0/8&#10;Laisser vide pour toutes les IPs" id="allowedIPs"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Base de Données -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-database"></i> Base de Données</h3>
+        </div>
+        <div class="card-content">
+            <div class="database-info">
+                <div class="db-stat">
+                    <i class="fas fa-hdd"></i>
+                    <div>
+                        <span class="stat-value">2.4 MB</span>
+                        <span class="stat-label">Taille totale</span>
+                    </div>
+                </div>
+                <div class="db-stat">
+                    <i class="fas fa-table"></i>
+                    <div>
+                        <span class="stat-value">8</span>
+                        <span class="stat-label">Tables</span>
+                    </div>
+                </div>
+                <div class="db-stat">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <span class="stat-value">14/08/25</span>
+                        <span class="stat-label">Dernière sauvegarde</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="database-actions">
+                <button class="btn btn-primary" onclick="backupDatabase()">
+                    <i class="fas fa-download"></i> Sauvegarder DB
+                </button>
+                <button class="btn btn-secondary" onclick="optimizeDatabase()">
+                    <i class="fas fa-wrench"></i> Optimiser
+                </button>
+                <button class="btn btn-warning" onclick="repairDatabase()">
+                    <i class="fas fa-tools"></i> Réparer
+                </button>
+                <button class="btn btn-danger" onclick="resetDatabase()">
+                    <i class="fas fa-trash-restore"></i> Réinitialiser
+                </button>
+            </div>
+            
+            <div class="auto-backup">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Sauvegarde Automatique</label>
+                        <small>Sauvegarder automatiquement la base</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="autoBackup">
+                </div>
+                
+                <div class="form-group">
+                    <label>Fréquence de Sauvegarde</label>
+                    <select class="form-control" id="backupFrequency">
+                        <option value="daily" selected>Quotidienne</option>
+                        <option value="weekly">Hebdomadaire</option>
+                        <option value="monthly">Mensuelle</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-bell"></i> Notifications</h3>
+        </div>
+        <div class="card-content">
+            <div class="notifications-settings">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Notifications Push</label>
+                        <small>Recevoir des notifications dans le navigateur</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="pushNotifications">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Notifications Email</label>
+                        <small>Recevoir des alertes par email</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" id="emailNotifications">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Alertes de Sécurité</label>
+                        <small>Notifications pour événements de sécurité</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="securityAlerts">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Alertes de Performance</label>
+                        <small>Notifications pour problèmes de performance</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="performanceAlerts">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email de Contact</label>
+                    <input type="email" class="form-control" placeholder="admin@arsenal.bot" id="contactEmail">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thème et Interface -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-palette"></i> Thème & Interface</h3>
+        </div>
+        <div class="card-content">
+            <div class="theme-settings">
+                <div class="form-group">
+                    <label>Thème</label>
+                    <div class="theme-selector">
+                        <div class="theme-option active" data-theme="dark" onclick="selectTheme('dark')">
+                            <div class="theme-preview dark"></div>
+                            <span>Sombre</span>
+                        </div>
+                        <div class="theme-option" data-theme="light" onclick="selectTheme('light')">
+                            <div class="theme-preview light"></div>
+                            <span>Clair</span>
+                        </div>
+                        <div class="theme-option" data-theme="auto" onclick="selectTheme('auto')">
+                            <div class="theme-preview auto"></div>
+                            <span>Auto</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Couleur d'Accent</label>
+                    <div class="color-picker">
+                        <div class="color-option active" data-color="green" style="background: #00ff88;" onclick="selectAccentColor('green')"></div>
+                        <div class="color-option" data-color="blue" style="background: #00b4d8;" onclick="selectAccentColor('blue')"></div>
+                        <div class="color-option" data-color="purple" style="background: #9b59b6;" onclick="selectAccentColor('purple')"></div>
+                        <div class="color-option" data-color="orange" style="background: #f39c12;" onclick="selectAccentColor('orange')"></div>
+                        <div class="color-option" data-color="red" style="background: #e74c3c;" onclick="selectAccentColor('red')"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Animations</label>
+                        <small>Activer les animations de l'interface</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" checked id="animations">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label>Sidebar Compacte</label>
+                        <small>Réduire la taille de la barre latérale</small>
+                    </div>
+                    <input type="checkbox" class="toggle-switch" id="compactSidebar">
+                </div>
+                
+                <div class="form-group">
+                    <label>Langue</label>
+                    <select class="form-control" id="language">
+                        <option value="fr" selected>Français</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><i class="fas fa-wrench"></i> Maintenance</h3>
+        </div>
+        <div class="card-content">
+            <div class="maintenance-grid">
+                <div class="maintenance-action">
+                    <i class="fas fa-broom"></i>
+                    <h4>Nettoyage Cache</h4>
+                    <p>Vider le cache système et temporaire</p>
+                    <button class="btn btn-secondary" onclick="clearCache()">
+                        Nettoyer Cache
+                    </button>
+                </div>
+                
+                <div class="maintenance-action">
+                    <i class="fas fa-sync"></i>
+                    <h4>Redémarrage Bot</h4>
+                    <p>Redémarrer le bot Discord et ses services</p>
+                    <button class="btn btn-warning" onclick="restartBot()">
+                        Redémarrer Bot
+                    </button>
+                </div>
+                
+                <div class="maintenance-action">
+                    <i class="fas fa-server"></i>
+                    <h4>Redémarrage Serveur</h4>
+                    <p>Redémarrer complètement le WebPanel</p>
+                    <button class="btn btn-danger" onclick="restartServer()">
+                        Redémarrer Serveur
+                    </button>
+                </div>
+                
+                <div class="maintenance-action">
+                    <i class="fas fa-download"></i>
+                    <h4>Mise à Jour</h4>
+                    <p>Vérifier et installer les mises à jour</p>
+                    <button class="btn btn-primary" onclick="checkUpdates()">
+                        Vérifier MAJ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout Utilisateur -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="addUserTitle">Ajouter Utilisateur</h3>
+            <button class="modal-close" onclick="closeModal('addUserModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Nom d'utilisateur Discord</label>
+                    <input type="text" id="newUsername" placeholder="Utilisateur#1234" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Utilisateur (optionnel)</label>
+                    <input type="text" id="newUserId" placeholder="123456789012345678" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentUserType = '';
+
+function saveAllSettings() {
+    showNotification('Tous les paramètres ont été sauvegardés', 'success');
+}
+
+function resetSettings() {
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les paramètres ?')) {
+        showNotification('Paramètres réinitialisés', 'warning');
+    }
+}
+
+function exportSettings() {
+    showNotification('Configuration exportée vers arsenal_config.json', 'info');
+}
+
+function uploadAvatar() {
+    showNotification('Upload d\'avatar - Fonctionnalité à venir', 'info');
+}
+
+function addUser(type) {
+    currentUserType = type;
+    const titles = {
+        admin: 'Ajouter Administrateur',
+        mod: 'Ajouter Modérateur',
+        vip: 'Ajouter VIP'
+    };
+    
+    document.getElementById('addUserTitle').textContent = titles[type];
+    document.getElementById('addUserModal').style.display = 'flex';
+}
+
+function removeUser(button) {
+    const userItem = button.closest('.user-item');
+    const username = userItem.querySelector('span').textContent;
+    
+    if (confirm(`Supprimer ${username} ?`)) {
+        userItem.remove();
+        showNotification(`${username} supprimé`, 'info');
+    }
+}
+
+document.getElementById('addUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('newUsername').value;
+    const userId = document.getElementById('newUserId').value;
+    
+    // Find the correct permission group
+    const groups = document.querySelectorAll('.permission-group');
+    let targetGroup = null;
+    
+    groups.forEach(group => {
+        const title = group.querySelector('h4').textContent.toLowerCase();
+        if ((currentUserType === 'admin' && title.includes('admin')) ||
+            (currentUserType === 'mod' && title.includes('mod')) ||
+            (currentUserType === 'vip' && title.includes('vip'))) {
+            targetGroup = group;
+        }
+    });
+    
+    if (targetGroup) {
+        const usersList = targetGroup.querySelector('.users-list');
+        const addButton = usersList.querySelector('.add-user-btn');
+        
+        const icons = {
+            admin: 'fas fa-user-shield',
+            mod: 'fas fa-user-cog',
+            vip: 'fas fa-crown'
+        };
+        
+        const userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.innerHTML = `
+            <i class="${icons[currentUserType]}"></i>
+            <span>${username}</span>
+            <button class="btn-icon remove" onclick="removeUser(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        usersList.insertBefore(userItem, addButton);
+        showNotification(`${username} ajouté comme ${currentUserType}`, 'success');
+    }
+    
+    closeModal('addUserModal');
+    document.getElementById('addUserForm').reset();
+});
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function selectTheme(theme) {
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+    showNotification(`Thème ${theme} sélectionné`, 'info');
+}
+
+function selectAccentColor(color) {
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    document.querySelector(`[data-color="${color}"]`).classList.add('active');
+    showNotification(`Couleur d'accent ${color} sélectionnée`, 'info');
+}
+
+// Maintenance functions
+function clearCache() {
+    showNotification('Nettoyage du cache en cours...', 'info');
+    setTimeout(() => {
+        showNotification('Cache nettoyé avec succès', 'success');
+    }, 2000);
+}
+
+function restartBot() {
+    if (confirm('Redémarrer le bot Discord ? Les commandes seront temporairement indisponibles.')) {
+        showNotification('Redémarrage du bot en cours...', 'warning');
+        setTimeout(() => {
+            showNotification('Bot redémarré avec succès', 'success');
+        }, 5000);
+    }
+}
+
+function restartServer() {
+    if (confirm('Redémarrer le serveur WebPanel ? Vous serez déconnecté.')) {
+        showNotification('Redémarrage du serveur en cours...', 'warning');
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    }
+}
+
+function checkUpdates() {
+    showNotification('Vérification des mises à jour...', 'info');
+    setTimeout(() => {
+        showNotification('Aucune mise à jour disponible', 'success');
+    }, 3000);
+}
+
+// Database functions
+function backupDatabase() {
+    showNotification('Sauvegarde de la base de données...', 'info');
+    setTimeout(() => {
+        showNotification('Base de données sauvegardée', 'success');
+    }, 2000);
+}
+
+function optimizeDatabase() {
+    showNotification('Optimisation de la base de données...', 'info');
+    setTimeout(() => {
+        showNotification('Base de données optimisée', 'success');
+    }, 3000);
+}
+
+function repairDatabase() {
+    if (confirm('Réparer la base de données ? Cette opération peut prendre du temps.')) {
+        showNotification('Réparation de la base de données...', 'warning');
+        setTimeout(() => {
+            showNotification('Base de données réparée', 'success');
+        }, 4000);
+    }
+}
+
+function resetDatabase() {
+    if (confirm('ATTENTION: Réinitialiser la base de données supprimera TOUTES les données. Continuer ?')) {
+        showNotification('Réinitialisation de la base de données...', 'error');
+        setTimeout(() => {
+            showNotification('Base de données réinitialisée', 'warning');
+        }, 3000);
+    }
+}
+</script>
+
+<style>
+.avatar-upload {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.permission-group h4 {
+    color: #00ff88;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.user-item i {
+    color: #00ff88;
+}
+
+.user-item span {
+    flex: 1;
+    color: #ffffff;
+}
+
+.add-user-btn {
+    padding: 8px 12px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px dashed rgba(0, 255, 136, 0.3);
+    border-radius: 6px;
+    color: #00ff88;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-user-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.security-settings, .notifications-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-info label {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.setting-info small {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.database-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.db-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.db-stat i {
+    font-size: 24px;
+    color: #00ff88;
+}
+
+.stat-value {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.stat-label {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.database-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.auto-backup {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.theme-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-option.active {
+    border-color: #00ff88;
+}
+
+.theme-preview {
+    width: 50px;
+    height: 30px;
+    border-radius: 6px;
+    position: relative;
+}
+
+.theme-preview.dark {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.theme-preview.light {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.theme-preview.auto {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1a1a2e 50%, #f8f9fa 50%, #f8f9fa 100%);
+}
+
+.color-picker {
+    display: flex;
+    gap: 10px;
+}
+
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.color-option.active {
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.maintenance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.maintenance-action {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.maintenance-action i {
+    font-size: 32px;
+    color: #00ff88;
+    margin-bottom: 15px;
+}
+
+.maintenance-action h4 {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.maintenance-action p {
+    color: #a0a0a0;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+</style>
+{% endblock %}

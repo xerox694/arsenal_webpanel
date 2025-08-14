@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Logs Système{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fas fa-file-alt header-icon"></i>
+        <div>
+            <h1>Logs Système</h1>
+            <p>Surveillance et journalisation des événements</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="refreshLogs()">
+            <i class="fas fa-sync"></i> Actualiser
+        </button>
+        <button class="btn btn-secondary" onclick="exportLogs()">
+            <i class="fas fa-download"></i> Exporter
+        </button>
+        <button class="btn btn-danger" onclick="clearLogs()">
+            <i class="fas fa-trash"></i> Vider Logs
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Filtres et Recherche -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-filter"></i> Filtres</h3>
+        </div>
+        <div class="card-content">
+            <div class="filters-form">
+                <div class="form-group">
+                    <label>Niveau de Log</label>
+                    <select id="logLevel" class="form-control" onchange="filterLogs()">
+                        <option value="all">Tous les niveaux</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="critical">Critical</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="logCategory" class="form-control" onchange="filterLogs()">
+                        <option value="all">Toutes catégories</option>
+                        <option value="bot">Bot Discord</option>
+                        <option value="commands">Commandes</option>
+                        <option value="moderation">Modération</option>
+                        <option value="database">Base de données</option>
+                        <option value="api">API</option>
+                        <option value="system">Système</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Période</label>
+                    <select id="logPeriod" class="form-control" onchange="filterLogs()">
+                        <option value="1h">Dernière heure</option>
+                        <option value="24h" selected>Dernières 24h</option>
+                        <option value="7d">7 derniers jours</option>
+                        <option value="30d">30 derniers jours</option>
+                        <option value="all">Toutes les données</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Recherche</label>
+                    <input type="text" id="logSearch" placeholder="Rechercher dans les logs..." 
+                           class="form-control" oninput="searchLogs(this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques des Logs -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-pie"></i> Statistiques</h3>
+        </div>
+        <div class="card-content">
+            <div class="stats-grid">
+                <div class="stat-item info">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="stat-number">1,247</span>
+                    <span class="stat-label">Info</span>
+                </div>
+                <div class="stat-item warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="stat-number">23</span>
+                    <span class="stat-label">Warnings</span>
+                </div>
+                <div class="stat-item error">
+                    <i class="fas fa-times-circle"></i>
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">Erreurs</span>
+                </div>
+                <div class="stat-item critical">
+                    <i class="fas fa-exclamation"></i>
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Critiques</span>
+                </div>
+            </div>
+            <div class="log-chart">
+                <canvas id="logChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs en Temps Réel -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><i class="fas fa-stream"></i> Logs en Temps Réel</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="toggleAutoScroll()" id="autoScrollBtn">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+                <button class="btn-icon" onclick="pauseLogs()" id="pauseBtn">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="logs-container" id="logsContainer">
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:44:35</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">BOT</span>
+                    <span class="log-message">WebSocket utilisateur XeRoX connecté</span>
+                </div>
+                
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:44:24</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">API</span>
+                    <span class="log-message">Requête GET /api/bot/servers - 200 OK</span>
+                </div>
+                
+                <div class="log-entry warning">
+                    <span class="log-time">2025-08-14 05:44:04</span>
+                    <span class="log-level warning">WARN</span>
+                    <span class="log-category">SYSTEM</span>
+                    <span class="log-message">Serveur de développement utilisé en production</span>
+                </div>
+                
+                <div class="log-entry error">
+                    <span class="log-time">2025-08-14 05:43:59</span>
+                    <span class="log-level error">ERROR</span>
+                    <span class="log-category">TEMPLATE</span>
+                    <span class="log-message">Template non trouvé: music.html</span>
+                </div>
+                
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:43:36</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">AUTH</span>
+                    <span class="log-message">Redirection vers page de connexion</span>
+                </div>
+                
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:43:00</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">BOT</span>
+                    <span class="log-message">Serveur Flask démarré sur le port 5000</span>
+                </div>
+                
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:42:58</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">DATABASE</span>
+                    <span class="log-message">Base de données initialisée avec succès</span>
+                </div>
+                
+                <div class="log-entry critical">
+                    <span class="log-time">2025-08-14 05:30:45</span>
+                    <span class="log-level critical">CRITICAL</span>
+                    <span class="log-category">SECURITY</span>
+                    <span class="log-message">Tentative d'accès non autorisé détectée</span>
+                </div>
+                
+                <div class="log-entry info">
+                    <span class="log-time">2025-08-14 05:25:12</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-category">COMMANDS</span>
+                    <span class="log-message">Commande /servers exécutée par XeRoX</span>
+                </div>
+                
+                <div class="log-entry debug">
+                    <span class="log-time">2025-08-14 05:20:33</span>
+                    <span class="log-level debug">DEBUG</span>
+                    <span class="log-category">MODERATION</span>
+                    <span class="log-message">Vérification des permissions utilisateur</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertes et Notifications -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-bell"></i> Alertes Actives</h3>
+        </div>
+        <div class="card-content">
+            <div class="alerts-list">
+                <div class="alert-item critical">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-info">
+                        <span class="alert-title">Activité suspecte détectée</span>
+                        <span class="alert-time">Il y a 15 min</span>
+                    </div>
+                    <button class="alert-dismiss" onclick="dismissAlert(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="alert-item warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div class="alert-info">
+                        <span class="alert-title">Utilisation mémoire élevée</span>
+                        <span class="alert-time">Il y a 2h</span>
+                    </div>
+                    <button class="alert-dismiss" onclick="dismissAlert(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="alert-item info">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="alert-info">
+                        <span class="alert-title">Mise à jour disponible</span>
+                        <span class="alert-time">Il y a 6h</span>
+                    </div>
+                    <button class="alert-dismiss" onclick="dismissAlert(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration des Logs -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-cogs"></i> Configuration</h3>
+        </div>
+        <div class="card-content">
+            <div class="config-form">
+                <div class="form-group">
+                    <label>Niveau minimum</label>
+                    <select class="form-control">
+                        <option value="debug">Debug</option>
+                        <option value="info" selected>Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rotation des logs</label>
+                    <select class="form-control">
+                        <option value="daily" selected>Quotidienne</option>
+                        <option value="weekly">Hebdomadaire</option>
+                        <option value="monthly">Mensuelle</option>
+                        <option value="size">Par taille (10MB)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rétention</label>
+                    <input type="number" class="form-control" value="30" min="1" max="365">
+                    <small>Jours de conservation</small>
+                </div>
+                <div class="form-group">
+                    <label>Alertes email</label>
+                    <input type="checkbox" class="toggle-switch" checked>
+                </div>
+                <button class="btn btn-primary full-width" onclick="saveLogConfig()">
+                    <i class="fas fa-save"></i> Sauvegarder Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let autoScroll = true;
+let logsPaused = false;
+let logUpdateInterval;
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    startLogUpdates();
+    initChart();
+});
+
+function startLogUpdates() {
+    logUpdateInterval = setInterval(() => {
+        if (!logsPaused) {
+            addRandomLog();
+        }
+    }, 3000);
+}
+
+function addRandomLog() {
+    const levels = ['info', 'warning', 'error', 'debug'];
+    const categories = ['BOT', 'API', 'COMMANDS', 'SYSTEM', 'DATABASE', 'AUTH'];
+    const messages = [
+        'Commande exécutée avec succès',
+        'Nouvel utilisateur connecté',
+        'Mise à jour de la base de données',
+        'Requête API traitée',
+        'Vérification des permissions',
+        'Session utilisateur créée',
+        'Cache mis à jour',
+        'Heartbeat Discord reçu'
+    ];
+    
+    const level = levels[Math.floor(Math.random() * levels.length)];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+    
+    const now = new Date();
+    const timeString = now.toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    const logEntry = document.createElement('div');
+    logEntry.className = `log-entry ${level}`;
+    logEntry.innerHTML = `
+        <span class="log-time">${timeString}</span>
+        <span class="log-level ${level}">${level.toUpperCase()}</span>
+        <span class="log-category">${category}</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    const container = document.getElementById('logsContainer');
+    container.insertBefore(logEntry, container.firstChild);
+    
+    // Limiter le nombre de logs affichés
+    const logs = container.children;
+    if (logs.length > 100) {
+        container.removeChild(logs[logs.length - 1]);
+    }
+    
+    // Auto-scroll si activé
+    if (autoScroll) {
+        container.scrollTop = 0;
+    }
+}
+
+function toggleAutoScroll() {
+    autoScroll = !autoScroll;
+    const btn = document.getElementById('autoScrollBtn');
+    btn.style.color = autoScroll ? '#00ff88' : '#a0a0a0';
+    
+    if (autoScroll) {
+        document.getElementById('logsContainer').scrollTop = 0;
+    }
+}
+
+function pauseLogs() {
+    logsPaused = !logsPaused;
+    const btn = document.getElementById('pauseBtn');
+    const icon = btn.querySelector('i');
+    
+    if (logsPaused) {
+        icon.className = 'fas fa-play';
+        btn.style.color = '#ff6b6b';
+    } else {
+        icon.className = 'fas fa-pause';
+        btn.style.color = '#a0a0a0';
+    }
+}
+
+function filterLogs() {
+    const level = document.getElementById('logLevel').value;
+    const category = document.getElementById('logCategory').value;
+    const period = document.getElementById('logPeriod').value;
+    
+    const logs = document.querySelectorAll('.log-entry');
+    logs.forEach(log => {
+        let show = true;
+        
+        // Filter by level
+        if (level !== 'all' && !log.classList.contains(level)) {
+            show = false;
+        }
+        
+        // Filter by category
+        if (category !== 'all') {
+            const logCategory = log.querySelector('.log-category').textContent.toLowerCase();
+            if (!logCategory.includes(category.toLowerCase())) {
+                show = false;
+            }
+        }
+        
+        log.style.display = show ? 'flex' : 'none';
+    });
+}
+
+function searchLogs(query) {
+    const logs = document.querySelectorAll('.log-entry');
+    const searchTerm = query.toLowerCase();
+    
+    logs.forEach(log => {
+        const message = log.querySelector('.log-message').textContent.toLowerCase();
+        const category = log.querySelector('.log-category').textContent.toLowerCase();
+        
+        if (message.includes(searchTerm) || category.includes(searchTerm) || searchTerm === '') {
+            log.style.display = 'flex';
+        } else {
+            log.style.display = 'none';
+        }
+    });
+}
+
+function refreshLogs() {
+    showNotification('Logs actualisés', 'success');
+    // Simuler l'ajout de nouveaux logs
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => addRandomLog(), i * 200);
+    }
+}
+
+function exportLogs() {
+    showNotification('Export des logs démarré', 'info');
+    // Simulation d'export
+    setTimeout(() => {
+        showNotification('Logs exportés vers arsenal_logs.txt', 'success');
+    }, 2000);
+}
+
+function clearLogs() {
+    if (confirm('Êtes-vous sûr de vouloir vider tous les logs ?')) {
+        document.getElementById('logsContainer').innerHTML = '';
+        showNotification('Logs vidés', 'warning');
+    }
+}
+
+function dismissAlert(button) {
+    const alert = button.closest('.alert-item');
+    alert.style.animation = 'slideOut 0.3s ease forwards';
+    setTimeout(() => alert.remove(), 300);
+}
+
+function saveLogConfig() {
+    showNotification('Configuration des logs sauvegardée', 'success');
+}
+
+function initChart() {
+    const canvas = document.getElementById('logChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Données factices pour le graphique
+    const data = {
+        info: [20, 35, 42, 28, 55, 38, 45],
+        warning: [2, 5, 3, 8, 4, 6, 3],
+        error: [1, 2, 1, 3, 1, 2, 1],
+        critical: [0, 1, 0, 0, 1, 0, 0]
+    };
+    
+    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    
+    // Simple chart drawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#a0a0a0';
+    ctx.font = '12px Arial';
+    ctx.fillText('Activité des logs (7 derniers jours)', 10, 20);
+    
+    // Draw bars
+    const barWidth = 50;
+    const barSpacing = 8;
+    
+    days.forEach((day, index) => {
+        const x = 10 + index * (barWidth + barSpacing);
+        
+        // Info bars
+        ctx.fillStyle = '#00ff88';
+        ctx.fillRect(x, 180 - data.info[index], barWidth, data.info[index]);
+        
+        // Warning bars
+        ctx.fillStyle = '#f39c12';
+        ctx.fillRect(x, 180 - data.info[index] - data.warning[index], barWidth, data.warning[index]);
+        
+        // Error bars
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(x, 180 - data.info[index] - data.warning[index] - data.error[index], 
+                     barWidth, data.error[index]);
+        
+        // Day labels
+        ctx.fillStyle = '#a0a0a0';
+        ctx.fillText(day, x + 15, 195);
+    });
+}
+</script>
+
+<style>
+.logs-container {
+    height: 500px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.log-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    border-left: 3px solid;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+}
+
+.log-entry:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.log-entry.info { border-left-color: #00ff88; }
+.log-entry.warning { border-left-color: #f39c12; }
+.log-entry.error { border-left-color: #e74c3c; }
+.log-entry.critical { border-left-color: #9b59b6; }
+.log-entry.debug { border-left-color: #95a5a6; }
+
+.log-time {
+    color: #95a5a6;
+    min-width: 120px;
+}
+
+.log-level {
+    min-width: 70px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.log-level.info { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+.log-level.warning { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+.log-level.error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+.log-level.critical { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+.log-level.debug { background: rgba(149, 165, 166, 0.2); color: #95a5a6; }
+
+.log-category {
+    min-width: 80px;
+    color: #3498db;
+    font-weight: bold;
+}
+
+.log-message {
+    flex: 1;
+    color: #ffffff;
+}
+
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-item.critical {
+    background: rgba(231, 76, 60, 0.1);
+    border-left-color: #e74c3c;
+}
+
+.alert-item.warning {
+    background: rgba(243, 156, 18, 0.1);
+    border-left-color: #f39c12;
+}
+
+.alert-item.info {
+    background: rgba(52, 152, 219, 0.1);
+    border-left-color: #3498db;
+}
+
+.alert-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-title {
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.alert-time {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.alert-dismiss {
+    background: none;
+    border: none;
+    color: #a0a0a0;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.alert-dismiss:hover {
+    color: #ffffff;
+}
+
+.log-chart {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.filters-form, .config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.form-group small {
+    color: #a0a0a0;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+@keyframes slideOut {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+</style>
+{% endblock %}

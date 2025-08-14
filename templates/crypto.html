@@ -1,0 +1,893 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Crypto & Intégrations{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fab fa-bitcoin header-icon"></i>
+        <div>
+            <h1>Crypto & Intégrations</h1>
+            <p>Gestion des cryptomonnaies et intégrations externes</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="refreshCryptoData()">
+            <i class="fas fa-sync"></i> Actualiser
+        </button>
+        <button class="btn btn-success" onclick="openWalletManager()">
+            <i class="fas fa-wallet"></i> Portefeuilles
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Portfolio Crypto -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-line"></i> Portfolio</h3>
+            <div class="card-controls">
+                <span class="portfolio-value">$12,847.32</span>
+                <span class="portfolio-change positive">+5.2%</span>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="crypto-holdings">
+                <div class="crypto-item">
+                    <div class="crypto-info">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" class="crypto-logo">
+                        <div>
+                            <span class="crypto-name">Bitcoin</span>
+                            <span class="crypto-symbol">BTC</span>
+                        </div>
+                    </div>
+                    <div class="crypto-stats">
+                        <span class="crypto-amount">0.2847 BTC</span>
+                        <span class="crypto-value">$8,247.32</span>
+                        <span class="crypto-change positive">+2.1%</span>
+                    </div>
+                </div>
+                
+                <div class="crypto-item">
+                    <div class="crypto-info">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" class="crypto-logo">
+                        <div>
+                            <span class="crypto-name">Ethereum</span>
+                            <span class="crypto-symbol">ETH</span>
+                        </div>
+                    </div>
+                    <div class="crypto-stats">
+                        <span class="crypto-amount">2.456 ETH</span>
+                        <span class="crypto-value">$3,847.20</span>
+                        <span class="crypto-change positive">+7.8%</span>
+                    </div>
+                </div>
+                
+                <div class="crypto-item">
+                    <div class="crypto-info">
+                        <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="SOL" class="crypto-logo">
+                        <div>
+                            <span class="crypto-name">Solana</span>
+                            <span class="crypto-symbol">SOL</span>
+                        </div>
+                    </div>
+                    <div class="crypto-stats">
+                        <span class="crypto-amount">18.65 SOL</span>
+                        <span class="crypto-value">$752.80</span>
+                        <span class="crypto-change negative">-1.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prix du Marché -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Prix du Marché</h3>
+        </div>
+        <div class="card-content">
+            <div class="market-prices">
+                <div class="price-item">
+                    <div class="price-header">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" class="price-logo">
+                        <span>BTC/USD</span>
+                    </div>
+                    <div class="price-value">$28,947.82</div>
+                    <div class="price-change positive">+2.1%</div>
+                </div>
+                
+                <div class="price-item">
+                    <div class="price-header">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" class="price-logo">
+                        <span>ETH/USD</span>
+                    </div>
+                    <div class="price-value">$1,567.45</div>
+                    <div class="price-change positive">+3.7%</div>
+                </div>
+                
+                <div class="price-item">
+                    <div class="price-header">
+                        <img src="https://cryptologos.cc/logos/binancecoin-bnb-logo.png" alt="BNB" class="price-logo">
+                        <span>BNB/USD</span>
+                    </div>
+                    <div class="price-value">$312.89</div>
+                    <div class="price-change negative">-0.8%</div>
+                </div>
+                
+                <div class="price-item">
+                    <div class="price-header">
+                        <img src="https://cryptologos.cc/logos/cardano-ada-logo.png" alt="ADA" class="price-logo">
+                        <span>ADA/USD</span>
+                    </div>
+                    <div class="price-value">$0.456</div>
+                    <div class="price-change positive">+1.2%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Récentes -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><i class="fas fa-history"></i> Transactions Récentes</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="exportTransactions()">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="transactions-list">
+                <div class="transaction-item buy">
+                    <div class="transaction-type">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Achat</span>
+                    </div>
+                    <div class="transaction-crypto">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" class="transaction-logo">
+                        <span>0.5 ETH</span>
+                    </div>
+                    <div class="transaction-amount">$783.72</div>
+                    <div class="transaction-date">14/08/2025 14:30</div>
+                    <div class="transaction-status completed">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Confirmée</span>
+                    </div>
+                </div>
+                
+                <div class="transaction-item sell">
+                    <div class="transaction-type">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Vente</span>
+                    </div>
+                    <div class="transaction-crypto">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" class="transaction-logo">
+                        <span>0.1 BTC</span>
+                    </div>
+                    <div class="transaction-amount">$2,894.78</div>
+                    <div class="transaction-date">13/08/2025 09:15</div>
+                    <div class="transaction-status completed">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Confirmée</span>
+                    </div>
+                </div>
+                
+                <div class="transaction-item transfer">
+                    <div class="transaction-type">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transfert</span>
+                    </div>
+                    <div class="transaction-crypto">
+                        <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="SOL" class="transaction-logo">
+                        <span>25 SOL</span>
+                    </div>
+                    <div class="transaction-amount">$1,025.50</div>
+                    <div class="transaction-date">12/08/2025 16:45</div>
+                    <div class="transaction-status pending">
+                        <i class="fas fa-clock"></i>
+                        <span>En attente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portefeuilles -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-wallet"></i> Portefeuilles</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="addWallet()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="wallets-list">
+                <div class="wallet-item">
+                    <div class="wallet-info">
+                        <i class="fab fa-bitcoin"></i>
+                        <div>
+                            <span class="wallet-name">Bitcoin Wallet</span>
+                            <span class="wallet-address">1A1zP1...eP2XYZ</span>
+                        </div>
+                    </div>
+                    <div class="wallet-balance">
+                        <span class="balance-amount">0.2847 BTC</span>
+                        <span class="balance-usd">$8,247.32</span>
+                    </div>
+                </div>
+                
+                <div class="wallet-item">
+                    <div class="wallet-info">
+                        <i class="fab fa-ethereum"></i>
+                        <div>
+                            <span class="wallet-name">Ethereum Wallet</span>
+                            <span class="wallet-address">0x742d...4b96</span>
+                        </div>
+                    </div>
+                    <div class="wallet-balance">
+                        <span class="balance-amount">2.456 ETH</span>
+                        <span class="balance-usd">$3,847.20</span>
+                    </div>
+                </div>
+                
+                <div class="wallet-item">
+                    <div class="wallet-info">
+                        <i class="fas fa-coins"></i>
+                        <div>
+                            <span class="wallet-name">Multi-Crypto</span>
+                            <span class="wallet-address">Divers</span>
+                        </div>
+                    </div>
+                    <div class="wallet-balance">
+                        <span class="balance-amount">Mixed</span>
+                        <span class="balance-usd">$752.80</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DeFi & Staking -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-seedling"></i> DeFi & Staking</h3>
+        </div>
+        <div class="card-content">
+            <div class="defi-positions">
+                <div class="defi-item">
+                    <div class="defi-protocol">
+                        <i class="fas fa-leaf"></i>
+                        <span>ETH 2.0 Staking</span>
+                    </div>
+                    <div class="defi-stats">
+                        <span class="staked-amount">1.5 ETH</span>
+                        <span class="apy">+4.2% APY</span>
+                        <span class="rewards">0.063 ETH</span>
+                    </div>
+                </div>
+                
+                <div class="defi-item">
+                    <div class="defi-protocol">
+                        <i class="fas fa-water"></i>
+                        <span>Liquidity Pool</span>
+                    </div>
+                    <div class="defi-stats">
+                        <span class="staked-amount">$2,500</span>
+                        <span class="apy">+12.7% APY</span>
+                        <span class="rewards">$189.45</span>
+                    </div>
+                </div>
+                
+                <div class="defi-item">
+                    <div class="defi-protocol">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Yield Farming</span>
+                    </div>
+                    <div class="defi-stats">
+                        <span class="staked-amount">$1,000</span>
+                        <span class="apy">+8.9% APY</span>
+                        <span class="rewards">$67.23</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intégrations API -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-plug"></i> Intégrations API</h3>
+        </div>
+        <div class="card-content">
+            <div class="integrations-list">
+                <div class="integration-item active">
+                    <div class="integration-info">
+                        <i class="fab fa-bitcoin"></i>
+                        <div>
+                            <span class="integration-name">CoinGecko API</span>
+                            <span class="integration-status">Connectée</span>
+                        </div>
+                    </div>
+                    <div class="integration-toggle">
+                        <input type="checkbox" class="toggle-switch" checked>
+                    </div>
+                </div>
+                
+                <div class="integration-item">
+                    <div class="integration-info">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <span class="integration-name">Binance API</span>
+                            <span class="integration-status">Déconnectée</span>
+                        </div>
+                    </div>
+                    <div class="integration-toggle">
+                        <input type="checkbox" class="toggle-switch">
+                    </div>
+                </div>
+                
+                <div class="integration-item active">
+                    <div class="integration-info">
+                        <i class="fab fa-ethereum"></i>
+                        <div>
+                            <span class="integration-name">Ethereum RPC</span>
+                            <span class="integration-status">Connectée</span>
+                        </div>
+                    </div>
+                    <div class="integration-toggle">
+                        <input type="checkbox" class="toggle-switch" checked>
+                    </div>
+                </div>
+                
+                <div class="integration-item">
+                    <div class="integration-info">
+                        <i class="fas fa-exchange-alt"></i>
+                        <div>
+                            <span class="integration-name">DeFi Pulse</span>
+                            <span class="integration-status">Configuration requise</span>
+                        </div>
+                    </div>
+                    <div class="integration-toggle">
+                        <button class="btn btn-sm btn-primary" onclick="configureIntegration('defi')">
+                            Configurer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertes et Notifications -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-bell"></i> Alertes Crypto</h3>
+        </div>
+        <div class="card-content">
+            <div class="alerts-form">
+                <div class="form-group">
+                    <label>Cryptomonnaie</label>
+                    <select class="form-control" id="alertCrypto">
+                        <option value="BTC">Bitcoin (BTC)</option>
+                        <option value="ETH">Ethereum (ETH)</option>
+                        <option value="SOL">Solana (SOL)</option>
+                        <option value="ADA">Cardano (ADA)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Type d'Alerte</label>
+                    <select class="form-control" id="alertType">
+                        <option value="price_above">Prix au-dessus de</option>
+                        <option value="price_below">Prix en-dessous de</option>
+                        <option value="change_up">Hausse de %</option>
+                        <option value="change_down">Baisse de %</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Valeur Seuil</label>
+                    <input type="number" class="form-control" id="alertValue" placeholder="30000">
+                </div>
+                
+                <button class="btn btn-primary full-width" onclick="createAlert()">
+                    <i class="fas fa-plus"></i> Créer Alerte
+                </button>
+            </div>
+            
+            <div class="active-alerts">
+                <h4>Alertes Actives</h4>
+                <div class="alert-item">
+                    <span>BTC > $30,000</span>
+                    <button class="btn-icon delete" onclick="removeAlert(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="alert-item">
+                    <span>ETH baisse -5%</span>
+                    <button class="btn-icon delete" onclick="removeAlert(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Gestionnaire de Portefeuilles -->
+<div id="walletModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Gestionnaire de Portefeuilles</h3>
+            <button class="modal-close" onclick="closeModal('walletModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="wallet-manager">
+                <button class="btn btn-primary" onclick="createWallet()">
+                    <i class="fas fa-plus"></i> Nouveau Portefeuille
+                </button>
+                <div class="wallet-types">
+                    <div class="wallet-type" onclick="selectWalletType('bitcoin')">
+                        <i class="fab fa-bitcoin"></i>
+                        <span>Bitcoin Wallet</span>
+                    </div>
+                    <div class="wallet-type" onclick="selectWalletType('ethereum')">
+                        <i class="fab fa-ethereum"></i>
+                        <span>Ethereum Wallet</span>
+                    </div>
+                    <div class="wallet-type" onclick="selectWalletType('multi')">
+                        <i class="fas fa-coins"></i>
+                        <span>Multi-Crypto</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshCryptoData() {
+    showNotification('Données crypto actualisées', 'success');
+    // Animation de refresh sur les prix
+    document.querySelectorAll('.price-value').forEach(el => {
+        el.style.animation = 'pulse 0.5s ease';
+    });
+}
+
+function openWalletManager() {
+    document.getElementById('walletModal').style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function addWallet() {
+    openWalletManager();
+}
+
+function createWallet() {
+    showNotification('Nouveau portefeuille créé', 'success');
+    closeModal('walletModal');
+}
+
+function selectWalletType(type) {
+    showNotification(`Type de portefeuille ${type} sélectionné`, 'info');
+}
+
+function exportTransactions() {
+    showNotification('Export des transactions démarré', 'info');
+    setTimeout(() => {
+        showNotification('Transactions exportées vers crypto_transactions.csv', 'success');
+    }, 2000);
+}
+
+function configureIntegration(integration) {
+    showNotification(`Configuration de l'intégration ${integration} ouverte`, 'info');
+}
+
+function createAlert() {
+    const crypto = document.getElementById('alertCrypto').value;
+    const type = document.getElementById('alertType').value;
+    const value = document.getElementById('alertValue').value;
+    
+    if (!value) {
+        showNotification('Veuillez entrer une valeur seuil', 'error');
+        return;
+    }
+    
+    const alertsContainer = document.querySelector('.active-alerts');
+    const alertItem = document.createElement('div');
+    alertItem.className = 'alert-item';
+    
+    let alertText = '';
+    switch(type) {
+        case 'price_above':
+            alertText = `${crypto} > $${value}`;
+            break;
+        case 'price_below':
+            alertText = `${crypto} < $${value}`;
+            break;
+        case 'change_up':
+            alertText = `${crypto} hausse +${value}%`;
+            break;
+        case 'change_down':
+            alertText = `${crypto} baisse -${value}%`;
+            break;
+    }
+    
+    alertItem.innerHTML = `
+        <span>${alertText}</span>
+        <button class="btn-icon delete" onclick="removeAlert(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    alertsContainer.appendChild(alertItem);
+    showNotification('Alerte créée avec succès', 'success');
+    
+    // Reset form
+    document.getElementById('alertValue').value = '';
+}
+
+function removeAlert(button) {
+    const alert = button.closest('.alert-item');
+    alert.remove();
+    showNotification('Alerte supprimée', 'info');
+}
+
+// Simuler les mises à jour de prix
+setInterval(() => {
+    const priceElements = document.querySelectorAll('.price-value');
+    priceElements.forEach(el => {
+        const currentPrice = parseFloat(el.textContent.replace(/[$,]/g, ''));
+        const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
+        const newPrice = currentPrice * (1 + variation);
+        
+        if (el.textContent.includes('$')) {
+            el.textContent = '$' + newPrice.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    });
+}, 5000);
+
+// Auto-refresh portfolio values
+setInterval(() => {
+    const portfolioValue = document.querySelector('.portfolio-value');
+    const currentValue = parseFloat(portfolioValue.textContent.replace(/[$,]/g, ''));
+    const variation = (Math.random() - 0.5) * 0.01; // ±0.5% variation
+    const newValue = currentValue * (1 + variation);
+    
+    portfolioValue.textContent = '$' + newValue.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}, 10000);
+</script>
+
+<style>
+.portfolio-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00ff88;
+}
+
+.portfolio-change {
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.portfolio-change.positive {
+    color: #00ff88;
+}
+
+.portfolio-change.negative {
+    color: #ff6b6b;
+}
+
+.crypto-holdings, .market-prices, .wallets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.crypto-item, .price-item, .wallet-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.crypto-item:hover, .price-item:hover, .wallet-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.crypto-info, .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crypto-logo, .price-logo, .transaction-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.crypto-name, .wallet-name {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.crypto-symbol, .wallet-address {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.crypto-stats, .wallet-balance {
+    text-align: right;
+}
+
+.crypto-amount, .balance-amount {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.crypto-value, .balance-usd {
+    display: block;
+    color: #a0a0a0;
+    font-size: 14px;
+}
+
+.crypto-change {
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.crypto-change.positive, .price-change.positive {
+    color: #00ff88;
+}
+
+.crypto-change.negative, .price-change.negative {
+    color: #ff6b6b;
+}
+
+.price-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.transaction-item {
+    display: grid;
+    grid-template-columns: 120px 150px 120px 140px 120px;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.transaction-item.buy {
+    border-left-color: #00ff88;
+}
+
+.transaction-item.sell {
+    border-left-color: #ff6b6b;
+}
+
+.transaction-item.transfer {
+    border-left-color: #3498db;
+}
+
+.transaction-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+}
+
+.transaction-crypto {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+}
+
+.transaction-amount {
+    font-weight: bold;
+    color: #00ff88;
+}
+
+.transaction-date {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.transaction-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.transaction-status.completed {
+    color: #00ff88;
+}
+
+.transaction-status.pending {
+    color: #f39c12;
+}
+
+.defi-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.defi-item {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.defi-protocol {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.defi-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    text-align: center;
+}
+
+.staked-amount {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.apy {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.rewards {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.integrations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.integration-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+}
+
+.integration-item.active {
+    border-left-color: #00ff88;
+}
+
+.integration-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.integration-name {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.integration-status {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.alerts-form {
+    margin-bottom: 20px;
+}
+
+.active-alerts h4 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.wallet-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.wallet-type {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.wallet-type:hover {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.wallet-type i {
+    font-size: 32px;
+    color: #00ff88;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+</style>
+{% endblock %}

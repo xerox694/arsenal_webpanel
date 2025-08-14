@@ -1,0 +1,751 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Modération{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fas fa-shield-alt header-icon"></i>
+        <div>
+            <h1>Outils de Modération</h1>
+            <p>Gestion et surveillance des serveurs Discord</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="refreshModerationLogs()">
+            <i class="fas fa-sync"></i> Actualiser
+        </button>
+        <button class="btn btn-warning" onclick="openBulkActions()">
+            <i class="fas fa-tasks"></i> Actions en Masse
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Actions Rapides -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-bolt"></i> Actions Rapides</h3>
+        </div>
+        <div class="card-content">
+            <div class="quick-actions">
+                <button class="action-btn kick" onclick="openQuickAction('kick')">
+                    <i class="fas fa-user-times"></i>
+                    <span>Kick Utilisateur</span>
+                </button>
+                <button class="action-btn ban" onclick="openQuickAction('ban')">
+                    <i class="fas fa-ban"></i>
+                    <span>Ban Utilisateur</span>
+                </button>
+                <button class="action-btn mute" onclick="openQuickAction('mute')">
+                    <i class="fas fa-volume-mute"></i>
+                    <span>Mute Utilisateur</span>
+                </button>
+                <button class="action-btn warn" onclick="openQuickAction('warn')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Avertissement</span>
+                </button>
+                <button class="action-btn timeout" onclick="openQuickAction('timeout')">
+                    <i class="fas fa-clock"></i>
+                    <span>Timeout</span>
+                </button>
+                <button class="action-btn clear" onclick="openQuickAction('clear')">
+                    <i class="fas fa-broom"></i>
+                    <span>Clear Messages</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs de Modération -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><i class="fas fa-history"></i> Logs de Modération</h3>
+            <div class="card-controls">
+                <select class="filter-select" onchange="filterModerationLogs(this.value)">
+                    <option value="all">Toutes les actions</option>
+                    <option value="ban">Bannissements</option>
+                    <option value="kick">Kicks</option>
+                    <option value="mute">Mutes</option>
+                    <option value="warn">Avertissements</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="moderation-logs" id="moderationLogs">
+                <div class="log-entry ban">
+                    <div class="log-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="log-info">
+                        <div class="log-action">Ban utilisateur</div>
+                        <div class="log-user">BadUser#1234</div>
+                        <div class="log-reason">Spam répétitif</div>
+                    </div>
+                    <div class="log-moderator">
+                        <span>Par: XeRoX</span>
+                        <span class="log-time">Il y a 2h</span>
+                    </div>
+                </div>
+                
+                <div class="log-entry kick">
+                    <div class="log-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="log-info">
+                        <div class="log-action">Kick utilisateur</div>
+                        <div class="log-user">TrollUser#5678</div>
+                        <div class="log-reason">Comportement inapproprié</div>
+                    </div>
+                    <div class="log-moderator">
+                        <span>Par: Admin</span>
+                        <span class="log-time">Il y a 5h</span>
+                    </div>
+                </div>
+
+                <div class="log-entry mute">
+                    <div class="log-icon">
+                        <i class="fas fa-volume-mute"></i>
+                    </div>
+                    <div class="log-info">
+                        <div class="log-action">Mute utilisateur</div>
+                        <div class="log-user">NoiseUser#9999</div>
+                        <div class="log-reason">Spam vocal</div>
+                    </div>
+                    <div class="log-moderator">
+                        <span>Par: Moderator</span>
+                        <span class="log-time">Il y a 1j</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AutoMod Configuration -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-robot"></i> AutoMod</h3>
+        </div>
+        <div class="card-content">
+            <div class="automod-settings">
+                <div class="setting-item">
+                    <label>Anti-Spam</label>
+                    <input type="checkbox" class="toggle-switch" checked onchange="toggleAutoMod('spam')">
+                </div>
+                <div class="setting-item">
+                    <label>Anti-Link</label>
+                    <input type="checkbox" class="toggle-switch" onchange="toggleAutoMod('link')">
+                </div>
+                <div class="setting-item">
+                    <label>Anti-Mention</label>
+                    <input type="checkbox" class="toggle-switch" checked onchange="toggleAutoMod('mention')">
+                </div>
+                <div class="setting-item">
+                    <label>Filtre de Mots</label>
+                    <input type="checkbox" class="toggle-switch" checked onchange="toggleAutoMod('words')">
+                </div>
+                <div class="setting-item">
+                    <label>Anti-Caps</label>
+                    <input type="checkbox" class="toggle-switch" onchange="toggleAutoMod('caps')">
+                </div>
+                <div class="setting-item">
+                    <label>Anti-Duplicate</label>
+                    <input type="checkbox" class="toggle-switch" onchange="toggleAutoMod('duplicate')">
+                </div>
+            </div>
+            <button class="btn btn-primary full-width" onclick="saveAutoModSettings()">
+                <i class="fas fa-save"></i> Sauvegarder Configuration
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistiques de Modération -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Statistiques</h3>
+        </div>
+        <div class="card-content">
+            <div class="stats-grid">
+                <div class="stat-item ban">
+                    <i class="fas fa-ban"></i>
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Bans ce mois</span>
+                </div>
+                <div class="stat-item kick">
+                    <i class="fas fa-user-times"></i>
+                    <span class="stat-number">34</span>
+                    <span class="stat-label">Kicks ce mois</span>
+                </div>
+                <div class="stat-item mute">
+                    <i class="fas fa-volume-mute"></i>
+                    <span class="stat-number">67</span>
+                    <span class="stat-label">Mutes ce mois</span>
+                </div>
+                <div class="stat-item warn">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="stat-number">89</span>
+                    <span class="stat-label">Warnings ce mois</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtre de Mots -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-filter"></i> Filtre de Mots</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="addWordFilter()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="word-filter-list">
+                <div class="filter-word">
+                    <span class="word">spam</span>
+                    <div class="filter-actions">
+                        <select class="filter-action">
+                            <option value="delete">Supprimer</option>
+                            <option value="warn">Avertir</option>
+                            <option value="mute">Mute</option>
+                        </select>
+                        <button class="btn-icon delete" onclick="removeWordFilter(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-word">
+                    <span class="word">scam</span>
+                    <div class="filter-actions">
+                        <select class="filter-action">
+                            <option value="delete">Supprimer</option>
+                            <option value="warn">Avertir</option>
+                            <option value="ban" selected>Ban</option>
+                        </select>
+                        <button class="btn-icon delete" onclick="removeWordFilter(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utilisateurs Surveillés -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-eye"></i> Surveillance</h3>
+        </div>
+        <div class="card-content">
+            <div class="watched-users">
+                <div class="watched-user">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <div>
+                            <span class="username">SuspiciousUser#1234</span>
+                            <span class="reason">Activité suspecte</span>
+                        </div>
+                    </div>
+                    <div class="watch-status active">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                </div>
+                <div class="watched-user">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <div>
+                            <span class="username">NewUser#5678</span>
+                            <span class="reason">Nouveau compte</span>
+                        </div>
+                    </div>
+                    <div class="watch-status active">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Action Rapide -->
+<div id="quickActionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="actionTitle">Action de Modération</h3>
+            <button class="modal-close" onclick="closeModal('quickActionModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="moderationForm">
+                <div class="form-group">
+                    <label>Utilisateur cible</label>
+                    <input type="text" id="targetUser" placeholder="@utilisateur ou ID" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Raison</label>
+                    <textarea id="actionReason" placeholder="Raison de l'action..." class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group" id="durationGroup" style="display: none;">
+                    <label>Durée</label>
+                    <select id="actionDuration" class="form-control">
+                        <option value="5m">5 minutes</option>
+                        <option value="30m">30 minutes</option>
+                        <option value="1h">1 heure</option>
+                        <option value="6h">6 heures</option>
+                        <option value="1d">1 jour</option>
+                        <option value="7d">7 jours</option>
+                        <option value="30d">30 jours</option>
+                        <option value="permanent">Permanent</option>
+                    </select>
+                </div>
+                <div class="form-group" id="messageCountGroup" style="display: none;">
+                    <label>Nombre de messages à supprimer</label>
+                    <input type="number" id="messageCount" min="1" max="100" value="10" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('quickActionModal')">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-danger" id="executeAction">
+                        Exécuter Action
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentAction = '';
+
+function openQuickAction(action) {
+    currentAction = action;
+    const modal = document.getElementById('quickActionModal');
+    const title = document.getElementById('actionTitle');
+    const durationGroup = document.getElementById('durationGroup');
+    const messageCountGroup = document.getElementById('messageCountGroup');
+    
+    // Reset form
+    document.getElementById('moderationForm').reset();
+    durationGroup.style.display = 'none';
+    messageCountGroup.style.display = 'none';
+    
+    // Configure modal based on action
+    switch(action) {
+        case 'kick':
+            title.textContent = 'Kick Utilisateur';
+            break;
+        case 'ban':
+            title.textContent = 'Ban Utilisateur';
+            durationGroup.style.display = 'block';
+            break;
+        case 'mute':
+            title.textContent = 'Mute Utilisateur';
+            durationGroup.style.display = 'block';
+            break;
+        case 'warn':
+            title.textContent = 'Avertir Utilisateur';
+            break;
+        case 'timeout':
+            title.textContent = 'Timeout Utilisateur';
+            durationGroup.style.display = 'block';
+            break;
+        case 'clear':
+            title.textContent = 'Supprimer Messages';
+            messageCountGroup.style.display = 'block';
+            break;
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+document.getElementById('moderationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const targetUser = document.getElementById('targetUser').value;
+    const reason = document.getElementById('actionReason').value;
+    const duration = document.getElementById('actionDuration').value;
+    const messageCount = document.getElementById('messageCount').value;
+    
+    // Simulation d'exécution de l'action
+    executeModeration(currentAction, targetUser, reason, duration, messageCount);
+});
+
+function executeModeration(action, user, reason, duration, messageCount) {
+    let message = '';
+    
+    switch(action) {
+        case 'kick':
+            message = `Utilisateur ${user} expulsé pour: ${reason}`;
+            break;
+        case 'ban':
+            message = `Utilisateur ${user} banni (${duration}) pour: ${reason}`;
+            break;
+        case 'mute':
+            message = `Utilisateur ${user} muté (${duration}) pour: ${reason}`;
+            break;
+        case 'warn':
+            message = `Avertissement envoyé à ${user} pour: ${reason}`;
+            break;
+        case 'timeout':
+            message = `Timeout appliqué à ${user} (${duration}) pour: ${reason}`;
+            break;
+        case 'clear':
+            message = `${messageCount} messages supprimés pour: ${reason}`;
+            break;
+    }
+    
+    showNotification(message, 'success');
+    closeModal('quickActionModal');
+    
+    // Ajouter l'action aux logs
+    addModerationLog(action, user, reason, duration);
+}
+
+function addModerationLog(action, user, reason, duration) {
+    const logsContainer = document.getElementById('moderationLogs');
+    const logEntry = document.createElement('div');
+    logEntry.className = `log-entry ${action}`;
+    
+    const actionNames = {
+        kick: 'Kick utilisateur',
+        ban: 'Ban utilisateur',
+        mute: 'Mute utilisateur',
+        warn: 'Avertissement',
+        timeout: 'Timeout utilisateur',
+        clear: 'Messages supprimés'
+    };
+    
+    const actionIcons = {
+        kick: 'fas fa-user-times',
+        ban: 'fas fa-ban',
+        mute: 'fas fa-volume-mute',
+        warn: 'fas fa-exclamation-triangle',
+        timeout: 'fas fa-clock',
+        clear: 'fas fa-broom'
+    };
+    
+    logEntry.innerHTML = `
+        <div class="log-icon">
+            <i class="${actionIcons[action]}"></i>
+        </div>
+        <div class="log-info">
+            <div class="log-action">${actionNames[action]}</div>
+            <div class="log-user">${user}</div>
+            <div class="log-reason">${reason}</div>
+        </div>
+        <div class="log-moderator">
+            <span>Par: XeRoX</span>
+            <span class="log-time">Maintenant</span>
+        </div>
+    `;
+    
+    logsContainer.insertBefore(logEntry, logsContainer.firstChild);
+}
+
+function refreshModerationLogs() {
+    showNotification('Logs de modération actualisés', 'success');
+}
+
+function filterModerationLogs(filter) {
+    const logs = document.querySelectorAll('.log-entry');
+    logs.forEach(log => {
+        if (filter === 'all' || log.classList.contains(filter)) {
+            log.style.display = 'flex';
+        } else {
+            log.style.display = 'none';
+        }
+    });
+}
+
+function toggleAutoMod(type) {
+    showNotification(`AutoMod ${type} mis à jour`, 'info');
+}
+
+function saveAutoModSettings() {
+    showNotification('Configuration AutoMod sauvegardée', 'success');
+}
+
+function addWordFilter() {
+    const word = prompt('Mot à filtrer:');
+    if (word && word.trim()) {
+        const filterList = document.querySelector('.word-filter-list');
+        const filterElement = document.createElement('div');
+        filterElement.className = 'filter-word';
+        filterElement.innerHTML = `
+            <span class="word">${word.trim().toLowerCase()}</span>
+            <div class="filter-actions">
+                <select class="filter-action">
+                    <option value="delete">Supprimer</option>
+                    <option value="warn">Avertir</option>
+                    <option value="mute">Mute</option>
+                </select>
+                <button class="btn-icon delete" onclick="removeWordFilter(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        filterList.appendChild(filterElement);
+        showNotification(`Mot "${word}" ajouté au filtre`, 'success');
+    }
+}
+
+function removeWordFilter(button) {
+    const filterWord = button.closest('.filter-word');
+    const word = filterWord.querySelector('.word').textContent;
+    filterWord.remove();
+    showNotification(`Mot "${word}" retiré du filtre`, 'info');
+}
+
+function openBulkActions() {
+    showNotification('Actions en masse - Fonctionnalité à venir', 'info');
+}
+</script>
+
+<style>
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.action-btn.kick { background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 100%); }
+.action-btn.ban { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+.action-btn.mute { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+.action-btn.warn { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+.action-btn.timeout { background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%); }
+.action-btn.clear { background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%); }
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn i {
+    font-size: 24px;
+}
+
+.moderation-logs {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.log-entry {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid;
+}
+
+.log-entry.ban { border-left-color: #e74c3c; }
+.log-entry.kick { border-left-color: #ff6b35; }
+.log-entry.mute { border-left-color: #9b59b6; }
+.log-entry.warn { border-left-color: #f39c12; }
+.log-entry.timeout { border-left-color: #34495e; }
+.log-entry.clear { border-left-color: #16a085; }
+
+.log-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.log-info {
+    flex: 1;
+}
+
+.log-action {
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.log-user {
+    color: #00ff88;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 2px;
+}
+
+.log-reason {
+    color: #a0a0a0;
+    font-size: 14px;
+}
+
+.log-moderator {
+    text-align: right;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.log-time {
+    display: block;
+    margin-top: 2px;
+}
+
+.automod-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 25px;
+    appearance: none;
+    background: #ccc;
+    border-radius: 25px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toggle-switch:checked {
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+}
+
+.toggle-switch::before {
+    content: '';
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s ease;
+}
+
+.toggle-switch:checked::before {
+    left: 27px;
+}
+
+.word-filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-word {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.word {
+    font-family: 'Courier New', monospace;
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-action {
+    padding: 5px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 12px;
+}
+
+.watched-users {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.watched-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info i {
+    font-size: 20px;
+    color: #00ff88;
+}
+
+.username {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.reason {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.watch-status.active {
+    color: #00ff88;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+</style>
+{% endblock %}

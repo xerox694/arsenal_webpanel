@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Arsenal WebPanel V5{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Framework & Custom -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/arsenal.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    
+    <meta name="description" content="Arsenal V5 WebPanel - Interface moderne pour la gestion du bot Discord">
+</head>
+<body class="font-inter bg-dark-900 text-white overflow-hidden">
+    
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-dark-900 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="arsenal-spinner mb-4"></div>
+            <h2 class="text-2xl font-bold text-primary-400">Arsenal WebPanel V5</h2>
+            <p class="text-gray-400 mt-2">Chargement de l'interface...</p>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div id="mainLayout" class="flex h-screen opacity-0 transition-opacity duration-500">
+        
+        <!-- Exceptional Sidebar -->
+        <aside id="sidebar" class="sidebar-container">
+            <!-- Logo & Brand -->
+            <div class="sidebar-header">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">Arsenal</h1>
+                        <p class="text-xs text-gray-400">WebPanel V5</p>
+                    </div>
+                </div>
+                
+                <!-- Collapse Button -->
+                <button id="sidebarToggle" class="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- User Profile -->
+            <div class="sidebar-profile">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-white truncate">
+                            {% if user %}{{ user.username }}{% else %}Utilisateur{% endif %}
+                        </p>
+                        <p class="text-xs text-gray-400 truncate">
+                            {% if user %}{{ user.role|title }}{% else %}Admin{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Status Indicator -->
+                <div class="flex items-center space-x-2 mt-3">
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs text-gray-400">En ligne</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <!-- Dashboard -->
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+
+                <!-- Server Management -->
+                <a href="{{ url_for('servers_management') }}" class="nav-item {% if active_page == 'servers' %}active{% endif %}">
+                    <i class="fas fa-server nav-icon"></i>
+                    <span class="nav-text">Serveurs</span>
+                    <span class="nav-badge">{{ bot_servers_count|default(0) }}</span>
+                    <div class="nav-indicator"></div>
+                </a>
+
+                <!-- Commands -->
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <i class="fas fa-terminal text-xs"></i>
+                        <span>Commandes</span>
+                    </div>
+                    
+                    <a href="{{ url_for('commands_overview') }}" class="nav-item {% if active_page == 'commands' %}active{% endif %}">
+                        <i class="fas fa-list nav-icon"></i>
+                        <span class="nav-text">Vue d'ensemble</span>
+                        <span class="nav-badge">120+</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                    
+                    <a href="{{ url_for('music_system') }}" class="nav-item {% if active_page == 'music' %}active{% endif %}">
+                        <i class="fas fa-music nav-icon"></i>
+                        <span class="nav-text">Musique</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                    
+                    <a href="{{ url_for('moderation_tools') }}" class="nav-item {% if active_page == 'moderation' %}active{% endif %}">
+                        <i class="fas fa-gavel nav-icon"></i>
+                        <span class="nav-text">Modération</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </div>
+
+                <!-- Gaming Systems -->
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <i class="fas fa-gamepad text-xs"></i>
+                        <span>Gaming</span>
+                    </div>
+                    
+                    <a href="{{ url_for('hunt_royal') }}" class="nav-item {% if active_page == 'hunt-royal' %}active{% endif %}">
+                        <i class="fas fa-crown nav-icon"></i>
+                        <span class="nav-text">Hunt Royal</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                    
+                    <a href="{{ url_for('gaming_systems') }}" class="nav-item {% if active_page == 'gaming' %}active{% endif %}">
+                        <i class="fas fa-dice nav-icon"></i>
+                        <span class="nav-text">Gaming API</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </div>
+
+                <!-- Social & Fun -->
+                <a href="{{ url_for('social_features') }}" class="nav-item {% if active_page == 'social' %}active{% endif %}">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span class="nav-text">Social & Fun</span>
+                    <div class="nav-indicator"></div>
+                </a>
+
+                <!-- Crypto Integration -->
+                <a href="{{ url_for('crypto_integration') }}" class="nav-item {% if active_page == 'crypto' %}active{% endif %}">
+                    <i class="fab fa-bitcoin nav-icon"></i>
+                    <span class="nav-text">Crypto</span>
+                    <span class="nav-badge new">NEW</span>
+                    <div class="nav-indicator"></div>
+                </a>
+
+                <!-- System -->
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <i class="fas fa-cog text-xs"></i>
+                        <span>Système</span>
+                    </div>
+                    
+                    <a href="{{ url_for('system_logs') }}" class="nav-item {% if active_page == 'logs' %}active{% endif %}">
+                        <i class="fas fa-file-alt nav-icon"></i>
+                        <span class="nav-text">Logs</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                    
+                    <a href="{{ url_for('settings') }}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+                        <i class="fas fa-sliders-h nav-icon"></i>
+                        <span class="nav-text">Paramètres</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <!-- Bot Status -->
+                <div id="botStatus" class="bot-status-widget">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-gray-400 rounded-full" id="botStatusDot"></div>
+                        <span class="text-xs text-gray-400" id="botStatusText">Connexion...</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="botUptime">--:--</div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="flex space-x-2 mt-4">
+                    <button id="themeToggle" class="sidebar-action-btn" title="Changer de thème">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="fullscreenToggle" class="sidebar-action-btn" title="Plein écran">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <a href="{{ url_for('logout') }}" class="sidebar-action-btn" title="Déconnexion">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="flex items-center justify-between">
+                    <!-- Mobile Menu Toggle -->
+                    <button id="mobileSidebarToggle" class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <!-- Page Title -->
+                    <div class="flex items-center space-x-3">
+                        <h1 class="text-xl font-bold text-white">
+                            {% block page_title %}Dashboard{% endblock %}
+                        </h1>
+                        {% block page_subtitle %}{% endblock %}
+                    </div>
+
+                    <!-- Top Bar Actions -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button id="notificationsToggle" class="top-bar-action">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-dot"></span>
+                            </button>
+                            
+                            <!-- Notifications Dropdown -->
+                            <div id="notificationsDropdown" class="notifications-dropdown">
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-white mb-3">Notifications</h3>
+                                    <div class="space-y-2">
+                                        <div class="notification-item">
+                                            <i class="fas fa-info-circle text-blue-400"></i>
+                                            <div>
+                                                <p class="text-sm text-white">Arsenal V5 lancé avec succès</p>
+                                                <p class="text-xs text-gray-400">Il y a 2 minutes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" 
+                                   id="globalSearch" 
+                                   placeholder="Rechercher..." 
+                                   class="global-search">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="flash-message flash-{{ category }}">
+                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                                    <span>{{ message }}</span>
+                                    <button class="flash-close">&times;</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}
+                <!-- Content will be injected here -->
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/arsenal.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+
+    <!-- Custom Scripts -->
+    <script>
+        // Initialize Arsenal WebPanel V5
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Arsenal WebPanel V5 chargé');
+            
+            // Hide loading screen after 1 second
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainLayout').style.opacity = '1';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

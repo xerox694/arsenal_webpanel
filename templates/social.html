@@ -1,0 +1,1157 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Social & Communauté{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fas fa-users header-icon"></i>
+        <div>
+            <h1>Social & Communauté</h1>
+            <p>Gestion des fonctionnalités sociales et de la communauté</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="refreshSocialData()">
+            <i class="fas fa-sync"></i> Actualiser
+        </button>
+        <button class="btn btn-success" onclick="createEvent()">
+            <i class="fas fa-calendar-plus"></i> Nouvel Événement
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Statistiques Sociales -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-line"></i> Engagement</h3>
+        </div>
+        <div class="card-content">
+            <div class="social-stats">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <span class="stat-number">2,847</span>
+                        <span class="stat-label">Membres Total</span>
+                        <span class="stat-change positive">+125 cette semaine</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="fas fa-user-check"></i>
+                    <div>
+                        <span class="stat-number">1,247</span>
+                        <span class="stat-label">Membres Actifs</span>
+                        <span class="stat-change positive">+67 aujourd'hui</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="fas fa-comments"></i>
+                    <div>
+                        <span class="stat-number">15,647</span>
+                        <span class="stat-label">Messages</span>
+                        <span class="stat-change positive">+892 aujourd'hui</span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="fas fa-heart"></i>
+                    <div>
+                        <span class="stat-number">4,235</span>
+                        <span class="stat-label">Réactions</span>
+                        <span class="stat-change positive">+234 aujourd'hui</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membres les Plus Actifs -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-trophy"></i> Top Membres</h3>
+            <div class="card-controls">
+                <select class="period-select" onchange="updateTopMembers(this.value)">
+                    <option value="day">Aujourd'hui</option>
+                    <option value="week" selected>Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="top-members">
+                <div class="member-item rank-1">
+                    <div class="member-rank">
+                        <i class="fas fa-crown"></i>
+                        <span>1</span>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-avatar">
+                            <img src="https://cdn.discordapp.com/avatars/123456789/avatar.png" alt="Avatar">
+                        </div>
+                        <div>
+                            <span class="member-name">XeRoX</span>
+                            <span class="member-activity">2,847 messages</span>
+                        </div>
+                    </div>
+                    <div class="member-score">
+                        <span class="score-value">100%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-item rank-2">
+                    <div class="member-rank">
+                        <i class="fas fa-medal"></i>
+                        <span>2</span>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-avatar">
+                            <img src="https://cdn.discordapp.com/avatars/987654321/avatar.png" alt="Avatar">
+                        </div>
+                        <div>
+                            <span class="member-name">SuperUser</span>
+                            <span class="member-activity">1,923 messages</span>
+                        </div>
+                    </div>
+                    <div class="member-score">
+                        <span class="score-value">87%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-item rank-3">
+                    <div class="member-rank">
+                        <i class="fas fa-star"></i>
+                        <span>3</span>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-avatar">
+                            <img src="https://cdn.discordapp.com/avatars/456789123/avatar.png" alt="Avatar">
+                        </div>
+                        <div>
+                            <span class="member-name">ChatMaster</span>
+                            <span class="member-activity">1,654 messages</span>
+                        </div>
+                    </div>
+                    <div class="member-score">
+                        <span class="score-value">73%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 73%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-item">
+                    <div class="member-rank">
+                        <span>4</span>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-avatar">
+                            <img src="https://cdn.discordapp.com/avatars/789123456/avatar.png" alt="Avatar">
+                        </div>
+                        <div>
+                            <span class="member-name">CoolGamer</span>
+                            <span class="member-activity">1,234 messages</span>
+                        </div>
+                    </div>
+                    <div class="member-score">
+                        <span class="score-value">58%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 58%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-item">
+                    <div class="member-rank">
+                        <span>5</span>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-avatar">
+                            <img src="https://cdn.discordapp.com/avatars/321654987/avatar.png" alt="Avatar">
+                        </div>
+                        <div>
+                            <span class="member-name">Helper</span>
+                            <span class="member-activity">987 messages</span>
+                        </div>
+                    </div>
+                    <div class="member-score">
+                        <span class="score-value">45%</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Récents -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><i class="fas fa-comment-dots"></i> Activité Récente</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="recent-activity" id="recentActivity">
+                <div class="activity-item message">
+                    <div class="activity-avatar">
+                        <img src="https://cdn.discordapp.com/avatars/123456789/avatar.png" alt="Avatar">
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-user">XeRoX</span>
+                            <span class="activity-channel">#général</span>
+                            <span class="activity-time">Il y a 2 min</span>
+                        </div>
+                        <div class="activity-message">Salut tout le monde ! Comment ça va aujourd'hui ? 🎮</div>
+                        <div class="activity-reactions">
+                            <span class="reaction">👋 3</span>
+                            <span class="reaction">😄 1</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item join">
+                    <div class="activity-avatar">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-user">NewPlayer</span>
+                            <span class="activity-action">a rejoint le serveur</span>
+                            <span class="activity-time">Il y a 5 min</span>
+                        </div>
+                        <div class="activity-message">Bienvenue dans la communauté Arsenal ! 🎉</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item message">
+                    <div class="activity-avatar">
+                        <img src="https://cdn.discordapp.com/avatars/987654321/avatar.png" alt="Avatar">
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-user">SuperUser</span>
+                            <span class="activity-channel">#gaming</span>
+                            <span class="activity-time">Il y a 8 min</span>
+                        </div>
+                        <div class="activity-message">Quelqu'un veut faire une partie ? J'ai lancé un serveur 🎯</div>
+                        <div class="activity-reactions">
+                            <span class="reaction">🎮 5</span>
+                            <span class="reaction">✅ 2</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item level-up">
+                    <div class="activity-avatar">
+                        <i class="fas fa-level-up-alt"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-user">ChatMaster</span>
+                            <span class="activity-action">a atteint le niveau 25</span>
+                            <span class="activity-time">Il y a 12 min</span>
+                        </div>
+                        <div class="activity-message">Félicitations ! Tu débloques le rôle "Vétéran" ⭐</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item message">
+                    <div class="activity-avatar">
+                        <img src="https://cdn.discordapp.com/avatars/456789123/avatar.png" alt="Avatar">
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <span class="activity-user">Moderator</span>
+                            <span class="activity-channel">#annonces</span>
+                            <span class="activity-time">Il y a 15 min</span>
+                        </div>
+                        <div class="activity-message">📢 Nouveau tournoi ce weekend ! Inscriptions ouvertes</div>
+                        <div class="activity-reactions">
+                            <span class="reaction">🏆 12</span>
+                            <span class="reaction">👍 8</span>
+                            <span class="reaction">🔥 4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Événements -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-calendar"></i> Événements</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="createEvent()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="events-list">
+                <div class="event-item upcoming">
+                    <div class="event-date">
+                        <span class="day">16</span>
+                        <span class="month">AOU</span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-title">Tournoi Gaming</span>
+                        <span class="event-time">20:00 - 23:00</span>
+                        <span class="event-participants">24 participants</span>
+                    </div>
+                    <div class="event-status upcoming">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                
+                <div class="event-item live">
+                    <div class="event-date">
+                        <span class="day">14</span>
+                        <span class="month">AOU</span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-title">Stream Communautaire</span>
+                        <span class="event-time">19:00 - 22:00</span>
+                        <span class="event-participants">187 spectateurs</span>
+                    </div>
+                    <div class="event-status live">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                </div>
+                
+                <div class="event-item completed">
+                    <div class="event-date">
+                        <span class="day">12</span>
+                        <span class="month">AOU</span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-title">Soirée Quiz</span>
+                        <span class="event-time">21:00 - 22:30</span>
+                        <span class="event-participants">45 participants</span>
+                    </div>
+                    <div class="event-status completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Système de Niveaux -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Système de Niveaux</h3>
+        </div>
+        <div class="card-content">
+            <div class="level-system">
+                <div class="level-config">
+                    <div class="config-item">
+                        <label>XP par Message</label>
+                        <input type="number" class="form-control" value="15" min="1" max="100">
+                    </div>
+                    <div class="config-item">
+                        <label>XP par Réaction</label>
+                        <input type="number" class="form-control" value="5" min="1" max="50">
+                    </div>
+                    <div class="config-item">
+                        <label>Multiplicateur Vocal</label>
+                        <input type="number" class="form-control" value="2" min="1" max="10" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="level-rewards">
+                    <h4>Récompenses par Niveau</h4>
+                    <div class="rewards-list">
+                        <div class="reward-item">
+                            <span class="reward-level">Niveau 10</span>
+                            <span class="reward-name">Rôle "Actif"</span>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-level">Niveau 25</span>
+                            <span class="reward-name">Rôle "Vétéran"</span>
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-level">Niveau 50</span>
+                            <span class="reward-name">Rôle "Légende"</span>
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Réactions et Emoji -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-smile"></i> Réactions Populaires</h3>
+        </div>
+        <div class="card-content">
+            <div class="popular-reactions">
+                <div class="reaction-stats">
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">👍</span>
+                        <span class="reaction-count">1,247</span>
+                        <span class="reaction-label">J'aime</span>
+                    </div>
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">😂</span>
+                        <span class="reaction-count">892</span>
+                        <span class="reaction-label">Rire</span>
+                    </div>
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">❤️</span>
+                        <span class="reaction-count">634</span>
+                        <span class="reaction-label">Cœur</span>
+                    </div>
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">🔥</span>
+                        <span class="reaction-count">423</span>
+                        <span class="reaction-label">Feu</span>
+                    </div>
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">👏</span>
+                        <span class="reaction-count">356</span>
+                        <span class="reaction-label">Applaus</span>
+                    </div>
+                    <div class="reaction-item">
+                        <span class="reaction-emoji">🎯</span>
+                        <span class="reaction-count">289</span>
+                        <span class="reaction-label">Précis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Création d'Événement -->
+<div id="eventModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Créer un Événement</h3>
+            <button class="modal-close" onclick="closeModal('eventModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="eventForm">
+                <div class="form-group">
+                    <label>Titre de l'Événement</label>
+                    <input type="text" class="form-control" placeholder="Nom de l'événement" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" rows="3" placeholder="Description de l'événement"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de Début</label>
+                        <input type="time" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de Fin</label>
+                        <input type="time" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Canal Discord</label>
+                    <select class="form-control">
+                        <option>#général</option>
+                        <option>#événements</option>
+                        <option>#gaming</option>
+                        <option>#vocal-1</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Maximum de Participants</label>
+                    <input type="number" class="form-control" min="1" max="500" placeholder="50">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('eventModal')">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Créer Événement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let autoRefreshEnabled = false;
+let refreshInterval;
+
+function refreshSocialData() {
+    showNotification('Données sociales actualisées', 'success');
+    
+    // Animation des statistiques
+    document.querySelectorAll('.stat-number').forEach(el => {
+        el.style.animation = 'countUp 0.8s ease';
+    });
+}
+
+function updateTopMembers(period) {
+    showNotification(`Classement mis à jour pour: ${period}`, 'info');
+    
+    // Animation du classement
+    document.querySelectorAll('.member-item').forEach((el, index) => {
+        setTimeout(() => {
+            el.style.animation = 'slideInLeft 0.5s ease forwards';
+        }, index * 100);
+    });
+}
+
+function toggleAutoRefresh() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    const btn = document.getElementById('autoRefreshBtn');
+    const icon = btn.querySelector('i');
+    
+    if (autoRefreshEnabled) {
+        icon.className = 'fas fa-pause';
+        btn.style.color = '#00ff88';
+        refreshInterval = setInterval(addNewActivity, 15000);
+        showNotification('Auto-actualisation activée', 'success');
+    } else {
+        icon.className = 'fas fa-play';
+        btn.style.color = '#a0a0a0';
+        clearInterval(refreshInterval);
+        showNotification('Auto-actualisation désactivée', 'info');
+    }
+}
+
+function addNewActivity() {
+    const activities = [
+        {
+            type: 'message',
+            user: 'RandomUser',
+            channel: '#général',
+            message: 'Message aléatoire généré automatiquement 🤖',
+            reactions: ['🎯 2', '👍 1']
+        },
+        {
+            type: 'join',
+            user: 'NewMember' + Math.floor(Math.random() * 1000),
+            message: 'Nouveau membre rejoint la communauté ! 🎉'
+        },
+        {
+            type: 'level-up',
+            user: 'LuckyPlayer',
+            message: 'Félicitations pour le nouveau niveau ! ⭐'
+        }
+    ];
+    
+    const activity = activities[Math.floor(Math.random() * activities.length)];
+    const container = document.getElementById('recentActivity');
+    
+    const activityElement = document.createElement('div');
+    activityElement.className = `activity-item ${activity.type}`;
+    
+    if (activity.type === 'message') {
+        activityElement.innerHTML = `
+            <div class="activity-avatar">
+                <img src="https://cdn.discordapp.com/avatars/${Math.floor(Math.random() * 999999999)}/avatar.png" alt="Avatar">
+            </div>
+            <div class="activity-content">
+                <div class="activity-header">
+                    <span class="activity-user">${activity.user}</span>
+                    <span class="activity-channel">${activity.channel}</span>
+                    <span class="activity-time">Maintenant</span>
+                </div>
+                <div class="activity-message">${activity.message}</div>
+                <div class="activity-reactions">
+                    ${activity.reactions.map(r => `<span class="reaction">${r}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        const icons = {
+            join: 'fas fa-user-plus',
+            'level-up': 'fas fa-level-up-alt'
+        };
+        
+        activityElement.innerHTML = `
+            <div class="activity-avatar">
+                <i class="${icons[activity.type]}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-header">
+                    <span class="activity-user">${activity.user}</span>
+                    <span class="activity-action">${activity.type === 'join' ? 'a rejoint le serveur' : 'a gagné un niveau'}</span>
+                    <span class="activity-time">Maintenant</span>
+                </div>
+                <div class="activity-message">${activity.message}</div>
+            </div>
+        `;
+    }
+    
+    container.insertBefore(activityElement, container.firstChild);
+    
+    // Animation d'entrée
+    activityElement.style.animation = 'slideInTop 0.5s ease forwards';
+    
+    // Limiter le nombre d'activités affichées
+    const activities_list = container.children;
+    if (activities_list.length > 10) {
+        container.removeChild(activities_list[activities_list.length - 1]);
+    }
+}
+
+function createEvent() {
+    document.getElementById('eventModal').style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+document.getElementById('eventForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    showNotification('Événement créé avec succès !', 'success');
+    closeModal('eventModal');
+    
+    // Reset form
+    this.reset();
+});
+
+// Mise à jour automatique des statistiques
+setInterval(() => {
+    const stats = document.querySelectorAll('.stat-number');
+    stats.forEach(stat => {
+        const currentValue = parseInt(stat.textContent.replace(/[^0-9]/g, ''));
+        const variation = Math.floor(Math.random() * 10) - 5; // -5 à +5
+        const newValue = Math.max(0, currentValue + variation);
+        stat.textContent = newValue.toLocaleString();
+    });
+}, 30000);
+
+// Animation des barres de score
+function animateScoreBars() {
+    document.querySelectorAll('.score-fill').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+}
+
+// Lancer l'animation au chargement
+document.addEventListener('DOMContentLoaded', animateScoreBars);
+</script>
+
+<style>
+.social-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #00ff88;
+}
+
+.stat-item i {
+    font-size: 32px;
+    color: #00ff88;
+}
+
+.stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    display: block;
+    color: #a0a0a0;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.stat-change {
+    display: block;
+    font-size: 12px;
+}
+
+.stat-change.positive {
+    color: #00ff88;
+}
+
+.stat-change.negative {
+    color: #ff6b6b;
+}
+
+.top-members {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.member-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.member-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.member-item.rank-1 .member-rank {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: #1a1a2e;
+}
+
+.member-item.rank-2 .member-rank {
+    background: linear-gradient(45deg, #c0c0c0, #e8e8e8);
+    color: #1a1a2e;
+}
+
+.member-item.rank-3 .member-rank {
+    background: linear-gradient(45deg, #cd7f32, #d4af37);
+    color: #ffffff;
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-name {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.member-activity {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.member-score {
+    text-align: right;
+    min-width: 80px;
+}
+
+.score-value {
+    display: block;
+    color: #00ff88;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.score-bar {
+    width: 60px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00b4d8);
+    transition: width 1s ease;
+}
+
+.recent-activity {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+
+.activity-item.message {
+    border-left-color: #3498db;
+}
+
+.activity-item.join {
+    border-left-color: #00ff88;
+}
+
+.activity-item.level-up {
+    border-left-color: #f39c12;
+}
+
+.activity-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.activity-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.activity-avatar i {
+    font-size: 16px;
+    color: #00ff88;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.activity-user {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.activity-channel {
+    color: #3498db;
+    font-weight: bold;
+}
+
+.activity-action {
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+.activity-time {
+    color: #a0a0a0;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+.activity-message {
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.activity-reactions {
+    display: flex;
+    gap: 8px;
+}
+
+.reaction {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+
+.event-item.upcoming {
+    border-left-color: #3498db;
+}
+
+.event-item.live {
+    border-left-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.event-item.completed {
+    border-left-color: #95a5a6;
+    opacity: 0.7;
+}
+
+.event-date {
+    text-align: center;
+    min-width: 50px;
+}
+
+.day {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.month {
+    display: block;
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-title {
+    display: block;
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.event-time {
+    display: block;
+    color: #3498db;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.event-participants {
+    display: block;
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.event-status {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-status.upcoming {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+}
+
+.event-status.live {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    animation: pulse 2s infinite;
+}
+
+.event-status.completed {
+    background: rgba(149, 165, 166, 0.2);
+    color: #95a5a6;
+}
+
+.level-system {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.level-config {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.config-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.config-item label {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.rewards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reward-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.reward-level {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.reward-name {
+    color: #ffffff;
+    flex: 1;
+    margin-left: 15px;
+}
+
+.reward-item i {
+    color: #f39c12;
+}
+
+.popular-reactions {
+    display: flex;
+    flex-direction: column;
+}
+
+.reaction-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+}
+
+.reaction-item {
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.reaction-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+.reaction-emoji {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.reaction-count {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ff88;
+    margin-bottom: 4px;
+}
+
+.reaction-label {
+    display: block;
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.period-select {
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 12px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+@keyframes countUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInTop {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
+{% endblock %}

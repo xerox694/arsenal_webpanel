@@ -1,0 +1,778 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Serveurs - Arsenal WebPanel V5{% endblock %}
+{% block page_title %}Gestion des Serveurs{% endblock %}
+{% block page_subtitle %}
+<span class="text-gray-400">Gérez tous les serveurs où Arsenal est présent</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Server Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Serveurs Totaux</p>
+                    <p id="totalServers" class="text-2xl font-bold text-white">0</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-server text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Membres Totaux</p>
+                    <p id="totalMembers" class="text-2xl font-bold text-white">0</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Plus Grand Serveur</p>
+                    <p id="largestServer" class="text-xl font-bold text-white">N/A</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-crown text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Moyenne/Serveur</p>
+                    <p id="averageMembers" class="text-2xl font-bold text-white">0</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Management Controls -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-xl font-bold text-white flex items-center">
+                <i class="fas fa-cog text-blue-400 mr-3"></i>
+                Contrôles de Gestion
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="refreshServerList()" class="management-btn bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-sync-alt mr-2"></i>
+                Actualiser la Liste
+            </button>
+            
+            <button onclick="exportServerList()" class="management-btn bg-green-600 hover:bg-green-700">
+                <i class="fas fa-download mr-2"></i>
+                Exporter la Liste
+            </button>
+            
+            <button onclick="showBulkActions()" class="management-btn bg-purple-600 hover:bg-purple-700">
+                <i class="fas fa-tasks mr-2"></i>
+                Actions en Lot
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div class="flex-1 mr-4">
+                <div class="relative">
+                    <input type="text" 
+                           id="serverSearch" 
+                           placeholder="Rechercher un serveur..." 
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 text-white focus:border-blue-500 focus:outline-none">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <select id="sortBy" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                    <option value="members_desc">Membres (Desc)</option>
+                    <option value="members_asc">Membres (Asc)</option>
+                    <option value="name_asc">Nom (A-Z)</option>
+                    <option value="name_desc">Nom (Z-A)</option>
+                    <option value="joined_desc">Rejoint (Récent)</option>
+                    <option value="joined_asc">Rejoint (Ancien)</option>
+                </select>
+                
+                <select id="filterBy" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                    <option value="all">Tous les serveurs</option>
+                    <option value="large">Grands serveurs (>1000)</option>
+                    <option value="medium">Moyens serveurs (100-1000)</option>
+                    <option value="small">Petits serveurs (<100)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Servers List -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-xl font-bold text-white flex items-center">
+                <i class="fas fa-list text-green-400 mr-3"></i>
+                Liste des Serveurs
+            </h3>
+            <div class="text-sm text-gray-400">
+                <span id="serverCount">0 serveurs</span> • 
+                <span id="selectedCount">0 sélectionnés</span>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="serversLoading" class="text-center py-12">
+            <div class="arsenal-spinner mx-auto mb-4"></div>
+            <p class="text-gray-400">Chargement des serveurs...</p>
+        </div>
+
+        <!-- Servers Grid -->
+        <div id="serversGrid" class="space-y-4" style="display: none;">
+            <!-- Server items will be dynamically loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="serversPagination" class="flex items-center justify-between mt-6 pt-6 border-t border-gray-700" style="display: none;">
+            <div class="text-sm text-gray-400">
+                Affichage de <span id="pageStart">1</span>-<span id="pageEnd">10</span> sur <span id="pageTotal">0</span> serveurs
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="previousPage()" id="prevBtn" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div id="pageNumbers" class="flex space-x-1">
+                    <!-- Page numbers will be generated here -->
+                </div>
+                <button onclick="nextPage()" id="nextBtn" class="pagination-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leave Server Modal -->
+<div id="leaveServerModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="text-xl font-bold text-white">Quitter le Serveur</h3>
+            <button onclick="closeModal('leaveServerModal')" class="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-600 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-white mb-2">Êtes-vous sûr ?</h4>
+                <p class="text-gray-400">Cette action est irréversible. Arsenal quittera le serveur définitivement.</p>
+            </div>
+            
+            <div id="serverToLeave" class="bg-gray-800 rounded-lg p-4 mb-6">
+                <!-- Server info will be populated here -->
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeModal('leaveServerModal')" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Annuler
+                </button>
+                <button onclick="confirmLeaveServer()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Quitter le Serveur
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.management-btn {
+    @apply flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors;
+}
+
+.pagination-btn {
+    @apply w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.server-card {
+    background: rgba(31, 41, 55, 0.5);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.server-card:hover {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(56, 189, 248, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.server-card.selected {
+    border-color: rgb(56, 189, 248);
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal-content {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #334155;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #374151;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #4b5563;
+    color: #e5e7eb;
+}
+
+.server-actions {
+    display: flex;
+    align-items: center;
+    space-x: 2rem;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.action-btn.info {
+    background: rgba(59, 130, 246, 0.2);
+    color: rgb(59, 130, 246);
+}
+
+.action-btn.danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: rgb(239, 68, 68);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentServers = [];
+let filteredServers = [];
+let selectedServers = new Set();
+let currentPage = 1;
+let serversPerPage = 10;
+let serverToLeave = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🖥️ Page de gestion des serveurs chargée');
+    loadServers();
+    
+    // Setup event listeners
+    document.getElementById('serverSearch').addEventListener('input', handleSearch);
+    document.getElementById('sortBy').addEventListener('change', handleSort);
+    document.getElementById('filterBy').addEventListener('change', handleFilter);
+});
+
+async function loadServers() {
+    try {
+        showLoading(true);
+        
+        // Simulate API call (replace with actual API)
+        const response = await fetch('/api/bot/servers');
+        const data = await response.json();
+        
+        if (data.servers) {
+            currentServers = data.servers;
+        } else {
+            // Mock data for demonstration
+            currentServers = generateMockServers();
+        }
+        
+        filteredServers = [...currentServers];
+        updateServerStats();
+        renderServers();
+        
+    } catch (error) {
+        console.error('Erreur chargement serveurs:', error);
+        if (window.arsenal) {
+            window.arsenal.showNotification('Erreur lors du chargement des serveurs', 'error');
+        }
+        
+        // Use mock data as fallback
+        currentServers = generateMockServers();
+        filteredServers = [...currentServers];
+        updateServerStats();
+        renderServers();
+    } finally {
+        showLoading(false);
+    }
+}
+
+function generateMockServers() {
+    const mockServers = [];
+    const serverNames = [
+        'Arsenal Community', 'Gaming Hub', 'Chill Zone', 'Dev Squad', 'Music Lovers',
+        'Hunt Royal Official', 'Crypto Traders', 'Art Gallery', 'Study Group', 'Meme Central'
+    ];
+    
+    for (let i = 0; i < serverNames.length; i++) {
+        mockServers.push({
+            id: `server_${i + 1}`,
+            name: serverNames[i],
+            members: Math.floor(Math.random() * 5000) + 50,
+            icon: null,
+            owner: 'Owner#1234',
+            joined_date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
+            channels: Math.floor(Math.random() * 50) + 10,
+            roles: Math.floor(Math.random() * 30) + 5
+        });
+    }
+    
+    return mockServers.sort((a, b) => b.members - a.members);
+}
+
+function updateServerStats() {
+    const totalServers = currentServers.length;
+    const totalMembers = currentServers.reduce((sum, server) => sum + server.members, 0);
+    const largestServer = currentServers.reduce((max, server) => 
+        server.members > (max?.members || 0) ? server : max, null);
+    const averageMembers = totalServers > 0 ? Math.round(totalMembers / totalServers) : 0;
+    
+    document.getElementById('totalServers').textContent = totalServers;
+    document.getElementById('totalMembers').textContent = totalMembers.toLocaleString();
+    document.getElementById('largestServer').textContent = largestServer ? largestServer.name : 'N/A';
+    document.getElementById('averageMembers').textContent = averageMembers;
+}
+
+function renderServers() {
+    const grid = document.getElementById('serversGrid');
+    const start = (currentPage - 1) * serversPerPage;
+    const end = start + serversPerPage;
+    const pageServers = filteredServers.slice(start, end);
+    
+    grid.innerHTML = '';
+    
+    pageServers.forEach(server => {
+        const serverCard = createServerCard(server);
+        grid.appendChild(serverCard);
+    });
+    
+    updatePagination();
+    updateServerCount();
+    grid.style.display = 'block';
+}
+
+function createServerCard(server) {
+    const div = document.createElement('div');
+    div.className = `server-card ${selectedServers.has(server.id) ? 'selected' : ''}`;
+    div.onclick = () => toggleServerSelection(server.id);
+    
+    const joinedDate = new Date(server.joined_date);
+    const daysSinceJoined = Math.floor((Date.now() - joinedDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    div.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-server text-white"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white">${server.name}</h4>
+                    <p class="text-sm text-gray-400">ID: ${server.id}</p>
+                </div>
+            </div>
+            <div class="server-actions">
+                <button onclick="showServerInfo('${server.id}')" class="action-btn info" title="Informations">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+                <button onclick="initiateLeaveServer('${server.id}')" class="action-btn danger" title="Quitter">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="text-center">
+                <p class="text-2xl font-bold text-blue-400">${server.members.toLocaleString()}</p>
+                <p class="text-xs text-gray-400">Membres</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-green-400">${server.channels}</p>
+                <p class="text-xs text-gray-400">Canaux</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-purple-400">${server.roles}</p>
+                <p class="text-xs text-gray-400">Rôles</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center justify-between text-sm">
+            <div>
+                <span class="text-gray-400">Propriétaire:</span>
+                <span class="text-white ml-1">${server.owner}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Rejoint il y a</span>
+                <span class="text-white ml-1">${daysSinceJoined} jours</span>
+            </div>
+        </div>
+    `;
+    
+    return div;
+}
+
+function toggleServerSelection(serverId) {
+    if (selectedServers.has(serverId)) {
+        selectedServers.delete(serverId);
+    } else {
+        selectedServers.add(serverId);
+    }
+    
+    // Update visual selection
+    const card = event.currentTarget;
+    card.classList.toggle('selected');
+    
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = `${selectedServers.size} sélectionnés`;
+}
+
+function updateServerCount() {
+    document.getElementById('serverCount').textContent = `${filteredServers.length} serveurs`;
+}
+
+function handleSearch(event) {
+    const query = event.target.value.toLowerCase().trim();
+    
+    if (!query) {
+        filteredServers = [...currentServers];
+    } else {
+        filteredServers = currentServers.filter(server =>
+            server.name.toLowerCase().includes(query) ||
+            server.id.toLowerCase().includes(query) ||
+            server.owner.toLowerCase().includes(query)
+        );
+    }
+    
+    currentPage = 1;
+    renderServers();
+}
+
+function handleSort(event) {
+    const sortBy = event.target.value;
+    
+    filteredServers.sort((a, b) => {
+        switch (sortBy) {
+            case 'members_desc':
+                return b.members - a.members;
+            case 'members_asc':
+                return a.members - b.members;
+            case 'name_asc':
+                return a.name.localeCompare(b.name);
+            case 'name_desc':
+                return b.name.localeCompare(a.name);
+            case 'joined_desc':
+                return new Date(b.joined_date) - new Date(a.joined_date);
+            case 'joined_asc':
+                return new Date(a.joined_date) - new Date(b.joined_date);
+            default:
+                return 0;
+        }
+    });
+    
+    renderServers();
+}
+
+function handleFilter(event) {
+    const filterBy = event.target.value;
+    const searchQuery = document.getElementById('serverSearch').value.toLowerCase().trim();
+    
+    let filtered = [...currentServers];
+    
+    // Apply search filter first
+    if (searchQuery) {
+        filtered = filtered.filter(server =>
+            server.name.toLowerCase().includes(searchQuery) ||
+            server.id.toLowerCase().includes(searchQuery) ||
+            server.owner.toLowerCase().includes(searchQuery)
+        );
+    }
+    
+    // Apply size filter
+    switch (filterBy) {
+        case 'large':
+            filtered = filtered.filter(server => server.members > 1000);
+            break;
+        case 'medium':
+            filtered = filtered.filter(server => server.members >= 100 && server.members <= 1000);
+            break;
+        case 'small':
+            filtered = filtered.filter(server => server.members < 100);
+            break;
+        default:
+            // 'all' - no additional filtering
+            break;
+    }
+    
+    filteredServers = filtered;
+    currentPage = 1;
+    renderServers();
+}
+
+function updatePagination() {
+    const totalPages = Math.ceil(filteredServers.length / serversPerPage);
+    const start = (currentPage - 1) * serversPerPage + 1;
+    const end = Math.min(currentPage * serversPerPage, filteredServers.length);
+    
+    document.getElementById('pageStart').textContent = start;
+    document.getElementById('pageEnd').textContent = end;
+    document.getElementById('pageTotal').textContent = filteredServers.length;
+    
+    // Update pagination buttons
+    document.getElementById('prevBtn').disabled = currentPage <= 1;
+    document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    
+    // Generate page numbers
+    generatePageNumbers(totalPages);
+    
+    document.getElementById('serversPagination').style.display = totalPages > 1 ? 'flex' : 'none';
+}
+
+function generatePageNumbers(totalPages) {
+    const pageNumbers = document.getElementById('pageNumbers');
+    pageNumbers.innerHTML = '';
+    
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+    if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const button = document.createElement('button');
+        button.className = `pagination-btn ${i === currentPage ? 'bg-blue-600' : ''}`;
+        button.textContent = i;
+        button.onclick = () => goToPage(i);
+        pageNumbers.appendChild(button);
+    }
+}
+
+function goToPage(page) {
+    currentPage = page;
+    renderServers();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderServers();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredServers.length / serversPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderServers();
+    }
+}
+
+function showLoading(show) {
+    document.getElementById('serversLoading').style.display = show ? 'block' : 'none';
+    document.getElementById('serversGrid').style.display = show ? 'none' : 'block';
+}
+
+function refreshServerList() {
+    if (window.arsenal) {
+        window.arsenal.showNotification('Actualisation de la liste des serveurs...', 'info');
+    }
+    loadServers();
+}
+
+function exportServerList() {
+    const data = filteredServers.map(server => ({
+        name: server.name,
+        id: server.id,
+        members: server.members,
+        owner: server.owner,
+        channels: server.channels,
+        roles: server.roles,
+        joined_date: server.joined_date
+    }));
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `arsenal_servers_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    if (window.arsenal) {
+        window.arsenal.showNotification('Liste des serveurs exportée', 'success');
+    }
+}
+
+function showBulkActions() {
+    if (selectedServers.size === 0) {
+        if (window.arsenal) {
+            window.arsenal.showNotification('Aucun serveur sélectionné', 'warning');
+        }
+        return;
+    }
+    
+    if (window.arsenal) {
+        window.arsenal.showNotification(`Actions en lot pour ${selectedServers.size} serveurs (À implémenter)`, 'info');
+    }
+}
+
+function showServerInfo(serverId) {
+    event.stopPropagation();
+    const server = currentServers.find(s => s.id === serverId);
+    if (window.arsenal) {
+        window.arsenal.showNotification(`Informations pour ${server.name} (À implémenter)`, 'info');
+    }
+}
+
+function initiateLeaveServer(serverId) {
+    event.stopPropagation();
+    serverToLeave = currentServers.find(s => s.id === serverId);
+    
+    if (serverToLeave) {
+        // Populate modal with server info
+        document.getElementById('serverToLeave').innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-server text-white"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white">${serverToLeave.name}</h4>
+                    <p class="text-sm text-gray-400">${serverToLeave.members.toLocaleString()} membres</p>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('leaveServerModal').style.display = 'flex';
+    }
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    serverToLeave = null;
+}
+
+async function confirmLeaveServer() {
+    if (!serverToLeave) return;
+    
+    try {
+        // Show loading state
+        const modal = document.getElementById('leaveServerModal');
+        modal.style.display = 'none';
+        
+        if (window.arsenal) {
+            window.arsenal.showNotification(`Quittant le serveur ${serverToLeave.name}...`, 'info');
+        }
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Remove server from list
+        currentServers = currentServers.filter(s => s.id !== serverToLeave.id);
+        filteredServers = filteredServers.filter(s => s.id !== serverToLeave.id);
+        
+        updateServerStats();
+        renderServers();
+        
+        if (window.arsenal) {
+            window.arsenal.showNotification(`Arsenal a quitté le serveur ${serverToLeave.name}`, 'success');
+        }
+        
+    } catch (error) {
+        console.error('Erreur lors du départ du serveur:', error);
+        if (window.arsenal) {
+            window.arsenal.showNotification('Erreur lors du départ du serveur', 'error');
+        }
+    } finally {
+        serverToLeave = null;
+    }
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

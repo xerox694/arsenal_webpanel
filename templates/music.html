@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}Arsenal WebPanel V5 - Système Musical{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="header-info">
+        <i class="fab fa-spotify header-icon"></i>
+        <div>
+            <h1>Système Musical</h1>
+            <p>Contrôle et gestion de la musique Discord</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="refreshMusicQueue()">
+            <i class="fas fa-sync"></i> Actualiser
+        </button>
+        <button class="btn btn-success" onclick="openPlaylistManager()">
+            <i class="fas fa-list-music"></i> Playlists
+        </button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Lecteur Musical -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-play-circle"></i> Lecteur Actuel</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="togglePlayer()">
+                    <i class="fas fa-pause" id="playPauseIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="music-player">
+                <div class="now-playing">
+                    <img src="/static/images/default-album.png" alt="Album" class="album-cover">
+                    <div class="track-info">
+                        <h4 id="currentTrack">Aucune musique en cours</h4>
+                        <p id="currentArtist">Arsenal Bot Music</p>
+                    </div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn" onclick="previousTrack()">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="control-btn play-btn" onclick="togglePlay()">
+                        <i class="fas fa-play" id="mainPlayIcon"></i>
+                    </button>
+                    <button class="control-btn" onclick="nextTrack()">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                    <button class="control-btn" onclick="toggleShuffle()">
+                        <i class="fas fa-random" id="shuffleIcon"></i>
+                    </button>
+                    <button class="control-btn" onclick="toggleRepeat()">
+                        <i class="fas fa-redo" id="repeatIcon"></i>
+                    </button>
+                </div>
+                <div class="progress-bar">
+                    <span class="time-current">0:00</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="time-total">0:00</span>
+                </div>
+                <div class="volume-control">
+                    <i class="fas fa-volume-up"></i>
+                    <input type="range" class="volume-slider" min="0" max="100" value="50">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File d'Attente -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-list"></i> File d'Attente</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="clearQueue()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="queue-list" id="musicQueue">
+                <div class="queue-item">
+                    <i class="fas fa-music"></i>
+                    <div class="queue-info">
+                        <span class="queue-title">File d'attente vide</span>
+                        <span class="queue-artist">Ajoutez de la musique</span>
+                    </div>
+                    <span class="queue-duration">--:--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recherche et Ajout -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-search"></i> Rechercher de la Musique</h3>
+        </div>
+        <div class="card-content">
+            <div class="search-music">
+                <div class="search-input-group">
+                    <input type="text" placeholder="Titre, artiste ou URL..." class="search-input" id="musicSearchInput">
+                    <button class="search-btn" onclick="searchMusic()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="search-filters">
+                    <button class="filter-btn active" data-source="youtube">
+                        <i class="fab fa-youtube"></i> YouTube
+                    </button>
+                    <button class="filter-btn" data-source="spotify">
+                        <i class="fab fa-spotify"></i> Spotify
+                    </button>
+                    <button class="filter-btn" data-source="soundcloud">
+                        <i class="fab fa-soundcloud"></i> SoundCloud
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults">
+                    <!-- Résultats dynamiques -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlists -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-list-music"></i> Mes Playlists</h3>
+            <div class="card-controls">
+                <button class="btn-icon" onclick="createPlaylist()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="playlists-grid">
+                <div class="playlist-card">
+                    <i class="fas fa-music"></i>
+                    <span>Favoris</span>
+                    <small>12 titres</small>
+                </div>
+                <div class="playlist-card">
+                    <i class="fas fa-fire"></i>
+                    <span>Top Hits</span>
+                    <small>25 titres</small>
+                </div>
+                <div class="playlist-card">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Gaming</span>
+                    <small>18 titres</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques Audio -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-line"></i> Statistiques Audio</h3>
+        </div>
+        <div class="card-content">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <i class="fas fa-headphones"></i>
+                    <span class="stat-number">127</span>
+                    <span class="stat-label">Titres joués</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span class="stat-number">8h 43m</span>
+                    <span class="stat-label">Temps d'écoute</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span class="stat-number">24</span>
+                    <span class="stat-label">Auditeurs actifs</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-heart"></i>
+                    <span class="stat-number">89</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paramètres Audio -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-cog"></i> Paramètres Audio</h3>
+        </div>
+        <div class="card-content">
+            <div class="settings-form">
+                <div class="setting-row">
+                    <label>Qualité Audio</label>
+                    <select class="form-control">
+                        <option value="high">Haute (320kbps)</option>
+                        <option value="medium">Moyenne (192kbps)</option>
+                        <option value="low">Faible (128kbps)</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Volume par défaut</label>
+                    <input type="range" class="form-control" min="0" max="100" value="50">
+                </div>
+                <div class="setting-row">
+                    <label>Auto-play suivant</label>
+                    <input type="checkbox" class="form-control" checked>
+                </div>
+                <div class="setting-row">
+                    <label>Notifications audio</label>
+                    <input type="checkbox" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Playlist Manager -->
+<div id="playlistModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Gestionnaire de Playlists</h3>
+            <button class="modal-close" onclick="closeModal('playlistModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="playlist-manager">
+                <button class="btn btn-primary" onclick="newPlaylist()">
+                    <i class="fas fa-plus"></i> Nouvelle Playlist
+                </button>
+                <div class="playlist-list">
+                    <!-- Liste des playlists -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let isPlaying = false;
+let currentVolume = 50;
+let shuffle = false;
+let repeat = false;
+
+// Fonctions de contrôle du lecteur
+function togglePlay() {
+    isPlaying = !isPlaying;
+    const icon = document.getElementById('mainPlayIcon');
+    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+    
+    // Simulation de la lecture
+    if (isPlaying) {
+        document.getElementById('currentTrack').textContent = 'Arsenal Theme Song';
+        document.getElementById('currentArtist').textContent = 'XeRoX Music';
+    }
+}
+
+function togglePlayer() {
+    togglePlay();
+}
+
+function previousTrack() {
+    // Logique pour piste précédente
+    console.log('Piste précédente');
+}
+
+function nextTrack() {
+    // Logique pour piste suivante
+    console.log('Piste suivante');
+}
+
+function toggleShuffle() {
+    shuffle = !shuffle;
+    const icon = document.getElementById('shuffleIcon');
+    icon.style.color = shuffle ? '#00ff88' : '#a0a0a0';
+}
+
+function toggleRepeat() {
+    repeat = !repeat;
+    const icon = document.getElementById('repeatIcon');
+    icon.style.color = repeat ? '#00ff88' : '#a0a0a0';
+}
+
+function refreshMusicQueue() {
+    // Actualiser la file d'attente
+    showNotification('File d\'attente actualisée', 'success');
+}
+
+function clearQueue() {
+    // Vider la file d'attente
+    document.getElementById('musicQueue').innerHTML = `
+        <div class="queue-item">
+            <i class="fas fa-music"></i>
+            <div class="queue-info">
+                <span class="queue-title">File d'attente vide</span>
+                <span class="queue-artist">Ajoutez de la musique</span>
+            </div>
+            <span class="queue-duration">--:--</span>
+        </div>
+    `;
+}
+
+function searchMusic() {
+    const query = document.getElementById('musicSearchInput').value;
+    if (!query) return;
+    
+    // Simulation de recherche
+    const results = document.getElementById('searchResults');
+    results.innerHTML = `
+        <div class="search-result">
+            <i class="fab fa-youtube"></i>
+            <div class="result-info">
+                <span class="result-title">${query} - Résultat 1</span>
+                <span class="result-artist">Artiste Example</span>
+            </div>
+            <button class="add-btn" onclick="addToQueue('${query}')">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    `;
+}
+
+function addToQueue(title) {
+    showNotification(`"${title}" ajouté à la file d'attente`, 'success');
+}
+
+function openPlaylistManager() {
+    document.getElementById('playlistModal').style.display = 'flex';
+}
+
+function createPlaylist() {
+    const name = prompt('Nom de la nouvelle playlist:');
+    if (name) {
+        showNotification(`Playlist "${name}" créée`, 'success');
+    }
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Gestion du volume
+document.querySelector('.volume-slider').addEventListener('input', function() {
+    currentVolume = this.value;
+    console.log('Volume:', currentVolume + '%');
+});
+
+// Filtres de source
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+</script>
+
+<style>
+.music-player {
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.now-playing {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.album-cover {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+}
+
+.track-info h4 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.track-info p {
+    margin: 5px 0 0 0;
+    color: #a0a0a0;
+    font-size: 14px;
+}
+
+.player-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+    transform: scale(1.1);
+}
+
+.play-btn {
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+    padding: 15px;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00b4d8);
+    transition: width 0.3s ease;
+}
+
+.time-current, .time-total {
+    color: #a0a0a0;
+    font-size: 12px;
+    min-width: 35px;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.volume-slider {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    border-radius: 2px;
+}
+
+.queue-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.queue-item:hover {
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.queue-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.queue-title {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.queue-artist {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.queue-duration {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.search-btn {
+    padding: 12px 20px;
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.search-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 8px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    background: transparent;
+    color: #a0a0a0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+    color: #ffffff;
+}
+
+.playlists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.playlist-card {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.playlist-card:hover {
+    background: rgba(0, 255, 136, 0.2);
+    transform: translateY(-5px);
+}
+
+.playlist-card i {
+    font-size: 24px;
+    color: #00ff88;
+    margin-bottom: 10px;
+}
+
+.search-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.result-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.result-title {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.result-artist {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.add-btn {
+    padding: 8px 12px;
+    background: linear-gradient(45deg, #00ff88, #00b4d8);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+}
+</style>
+{% endblock %}

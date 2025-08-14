@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Arsenal WebPanel V5{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}
+<span class="text-gray-400">Vue d'ensemble de votre bot Arsenal</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Bot Status Card -->
+        <div class="card group hover:scale-105 transition-transform cursor-pointer">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Statut du Bot</p>
+                    <div class="flex items-center mt-2">
+                        <div id="dashBotStatusDot" class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                        <span id="dashBotStatus" class="text-lg font-semibold text-white">Chargement...</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                    <i class="fas fa-robot text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400">Uptime: <span id="dashUptime">--:--</span></p>
+            </div>
+        </div>
+
+        <!-- Servers Count -->
+        <div class="card group hover:scale-105 transition-transform cursor-pointer">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Serveurs</p>
+                    <p id="serversCount" class="text-2xl font-bold text-white mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-server text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400">+3 cette semaine</p>
+            </div>
+        </div>
+
+        <!-- Users Count -->
+        <div class="card group hover:scale-105 transition-transform cursor-pointer">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Utilisateurs</p>
+                    <p id="usersCount" class="text-2xl font-bold text-white mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                    <i class="fas fa-users text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400">Moyenne: <span id="avgUsers">0</span>/serveur</p>
+            </div>
+        </div>
+
+        <!-- Commands Used -->
+        <div class="card group hover:scale-105 transition-transform cursor-pointer">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-400">Commandes</p>
+                    <p class="text-2xl font-bold text-white mt-1">120+</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center group-hover:bounce transition-transform">
+                    <i class="fas fa-terminal text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400">11 systèmes actifs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- System Status Panel -->
+        <div class="lg:col-span-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-chart-line text-blue-400 mr-3"></i>
+                        État des Systèmes
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button onclick="refreshSystemStatus()" class="text-blue-400 hover:text-blue-300 transition-colors">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- System Status Items -->
+                    <div class="system-status-item">
+                        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg border-l-4 border-green-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-green-400 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-music text-green-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Système Musical</h4>
+                                    <p class="text-sm text-gray-400">yt-dlp, FFmpeg, Queue</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-green-400 font-semibold">✓ Opérationnel</span>
+                                <p class="text-xs text-gray-400">7 commandes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="system-status-item">
+                        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg border-l-4 border-blue-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-blue-400 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-crown text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Hunt Royal</h4>
+                                    <p class="text-sm text-gray-400">API, Profiles, Auth</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-blue-400 font-semibold">✓ Opérationnel</span>
+                                <p class="text-xs text-gray-400">15 commandes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="system-status-item">
+                        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg border-l-4 border-purple-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-purple-400 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-gamepad text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Gaming API</h4>
+                                    <p class="text-sm text-gray-400">Fortnite, Minecraft</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-purple-400 font-semibold">✓ Opérationnel</span>
+                                <p class="text-xs text-gray-400">5 commandes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="system-status-item">
+                        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg border-l-4 border-yellow-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-yellow-400 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-yellow-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Social & Fun</h4>
+                                    <p class="text-sm text-gray-400">Quotes, Jeux, Profiles</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-yellow-400 font-semibold">✓ Opérationnel</span>
+                                <p class="text-xs text-gray-400">10 commandes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="system-status-item">
+                        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg border-l-4 border-orange-400">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-orange-400 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <i class="fab fa-bitcoin text-orange-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Crypto Integration</h4>
+                                    <p class="text-sm text-gray-400">Wallets, QR, Stats</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-orange-400 font-semibold">✓ Nouveau</span>
+                                <p class="text-xs text-gray-400">8 commandes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Info -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-bold text-white flex items-center">
+                        <i class="fas fa-bolt text-yellow-400 mr-3"></i>
+                        Actions Rapides
+                    </h3>
+                </div>
+
+                <div class="space-y-3">
+                    <a href="{{ url_for('servers_management') }}" class="quick-action-btn">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-server text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Gérer Serveurs</h4>
+                                <p class="text-xs text-gray-400">Voir, quitter des serveurs</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('system_logs') }}" class="quick-action-btn">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-green-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Voir Logs</h4>
+                                <p class="text-xs text-gray-400">Activité et erreurs</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('settings') }}" class="quick-action-btn">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-cog text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Paramètres</h4>
+                                <p class="text-xs text-gray-400">Configuration bot</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-bold text-white flex items-center">
+                        <i class="fas fa-clock text-green-400 mr-3"></i>
+                        Activité Récente
+                    </h3>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="activity-item">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-white">Bot démarré avec succès</p>
+                                <p class="text-xs text-gray-400">Il y a 2 minutes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center">
+                                <i class="fas fa-plus text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-white">Nouveau serveur rejoint</p>
+                                <p class="text-xs text-gray-400">Il y a 1 heure</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center">
+                                <i class="fas fa-upload text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-white">Systèmes mis à jour</p>
+                                <p class="text-xs text-gray-400">Il y a 3 heures</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                                <i class="fas fa-cog text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-white">Configuration sauvegardée</p>
+                                <p class="text-xs text-gray-400">Hier à 15:30</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-bold text-white flex items-center">
+                        <i class="fas fa-info-circle text-cyan-400 mr-3"></i>
+                        Informations
+                    </h3>
+                </div>
+
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Version:</span>
+                        <span class="text-white font-semibold">Arsenal V5</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Latence:</span>
+                        <span id="botLatency" class="text-white font-semibold">-- ms</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Démarrage:</span>
+                        <span id="botStartTime" class="text-white font-semibold">--:--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">WebPanel:</span>
+                        <span class="text-green-400 font-semibold">✓ En ligne</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: between;
+    padding: 1rem;
+    background: rgba(51, 65, 85, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.quick-action-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.3);
+    transform: translateX(4px);
+}
+
+.activity-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.system-status-item {
+    transition: all 0.2s ease;
+}
+
+.system-status-item:hover {
+    transform: translateX(4px);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Dashboard specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📊 Dashboard chargé');
+    
+    // Load dashboard data
+    loadDashboardData();
+    
+    // Refresh data every 30 seconds
+    setInterval(loadDashboardData, 30000);
+});
+
+async function loadDashboardData() {
+    try {
+        // Bot Status
+        const statusResponse = await fetch('/api/bot/status');
+        const statusData = await statusResponse.json();
+        updateDashboardStatus(statusData);
+        
+    } catch (error) {
+        console.error('Erreur chargement données dashboard:', error);
+    }
+}
+
+function updateDashboardStatus(status) {
+    // Update main status elements
+    const statusDot = document.getElementById('dashBotStatusDot');
+    const statusText = document.getElementById('dashBotStatus');
+    const uptime = document.getElementById('dashUptime');
+    const latency = document.getElementById('botLatency');
+    const startTime = document.getElementById('botStartTime');
+    const serversCount = document.getElementById('serversCount');
+    const usersCount = document.getElementById('usersCount');
+    const avgUsers = document.getElementById('avgUsers');
+
+    if (statusDot && statusText) {
+        if (status.online) {
+            statusDot.className = 'w-3 h-3 bg-green-400 rounded-full mr-2 animate-pulse';
+            statusText.textContent = 'En ligne';
+            statusText.className = 'text-lg font-semibold text-green-400';
+        } else {
+            statusDot.className = 'w-3 h-3 bg-red-400 rounded-full mr-2';
+            statusText.textContent = 'Hors ligne';
+            statusText.className = 'text-lg font-semibold text-red-400';
+        }
+    }
+
+    if (uptime && status.uptime) {
+        uptime.textContent = status.uptime;
+    }
+
+    if (latency && status.latency) {
+        latency.textContent = status.latency + ' ms';
+    }
+
+    if (startTime && status.last_restart) {
+        startTime.textContent = status.last_restart;
+    }
+
+    if (serversCount && status.servers_connected !== undefined) {
+        serversCount.textContent = status.servers_connected;
+    }
+
+    if (usersCount && status.users_connected !== undefined) {
+        usersCount.textContent = status.users_connected.toLocaleString();
+        
+        // Calculate average users per server
+        if (avgUsers && status.servers_connected > 0) {
+            const avg = Math.round(status.users_connected / status.servers_connected);
+            avgUsers.textContent = avg.toLocaleString();
+        }
+    }
+}
+
+function refreshSystemStatus() {
+    const btn = event.target;
+    const icon = btn.querySelector('i') || btn;
+    
+    // Animate refresh button
+    icon.style.animation = 'spin 1s linear';
+    
+    // Reload data
+    loadDashboardData();
+    
+    // Show notification
+    if (window.arsenal) {
+        window.arsenal.showNotification('État des systèmes actualisé', 'success');
+    }
+    
+    // Reset animation
+    setTimeout(() => {
+        icon.style.animation = '';
+    }, 1000);
+}
+</script>
+{% endblock %}
